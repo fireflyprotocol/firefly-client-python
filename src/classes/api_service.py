@@ -10,10 +10,16 @@ class APIService():
     def set_auth_token(self, token:str):
         self.auth_token = token
 
-    def get_orderbook(self, query:GetOrderbookRequest):
-        url = self._create_url(SERVICE_URLS["MARKET"]["ORDER_BOOK"])
+    def get(self, service_url, query):
+        url = self._create_url(service_url)
         response = requests.get(url, params=query)
         return response.json()
+    
+    def post(self, service_url, query):
+        url = self._create_url(service_url)
+        response = requests.post(url, data = query)
+        return response.json()
+
 
     '''
         Private methods
