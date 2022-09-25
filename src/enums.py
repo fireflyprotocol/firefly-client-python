@@ -12,3 +12,8 @@ class MARKET_SYMBOLS(Enum):
     BTC = "BTC-PERP",
     ETH = "ETH-PERP",
     DOT = "DOT-PERP"
+
+class TIME_IN_FORCE(Enum):
+    FILL_OR_KILL = "FOK",
+    IMMEDIATE_OR_CANCEL = "IOC",
+    GOOD_TILL_TIME = "GTT"
