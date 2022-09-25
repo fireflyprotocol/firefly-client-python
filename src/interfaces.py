@@ -39,5 +39,10 @@ class PlaceOrderRequest(OrderSignatureResponse):
   clientId: str # id of the client
 
 class GetOrderbookRequest(TypedDict):
-  symbol: str;
-  limit: int; # number of bids/asks to retrieve, should be <= 50
+  symbol: str
+  limit: int # number of bids/asks to retrieve, should be <= 50
+
+class OnboardingMessage(TypedDict):
+    action: str
+    onlySignOn: str
+
