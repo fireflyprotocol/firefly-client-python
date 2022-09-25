@@ -1,3 +1,5 @@
+from datetime import datetime
+from random import randint
 from web3 import Web3
 import eth_account
 
@@ -42,3 +44,15 @@ def sign_hash(hash, private_key):
         private_key
     )
     return result['signature'].hex() + '01'
+
+def default_value(dict, key, default_value):
+    if key in dict:
+        return dict[key]
+    else:
+        return default_value 
+
+def current_unix_timestamp():
+        return int(datetime.now().timestamp())
+
+def random_number(max_range):
+    return current_unix_timestamp() + randint(0, max_range) + randint(0, max_range)

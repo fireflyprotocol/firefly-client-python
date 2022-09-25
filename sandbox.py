@@ -1,5 +1,7 @@
 import os
 import sys
+# from prettyformatter import pprint
+from pprint import pprint 
 
 # paths
 script_dir = os.path.dirname(os.path.realpath(__file__))
@@ -8,9 +10,12 @@ sys.path.append(os.path.abspath(os.path.join(script_dir, "./src/classes")))
 
 from web3 import Web3
 from order_signer import OrderSigner
+from firefly_client import FireflyClient
+
 from constants import Networks
 from utils import to_bn
-from interfaces import Order
+from interfaces import Order, OrderSignatureRequest
+from enums import *
 
 def main():
     ordersAddress = "0x1578dD5561A67081b2136f19f61F2c72D1ca8756"
@@ -18,7 +23,6 @@ def main():
     signer = OrderSigner(
         Networks["DEV"]["chainId"], 
         ordersAddress, 
-        private_key
         )
 
     order = Order (
@@ -34,13 +38,35 @@ def main():
         taker = ordersAddress
     )    
 
-    order_hash = signer.get_order_hash(order)
-    print('Order Hash:', order_hash)
+    # order_hash = signer.get_order_hash(order)
+    # print('Order Hash:', order_hash)
 
 
-    signature = signer.sign_order(order)
-    print('Signature:', signature)
+    # signature = signer.sign_order(order, private_key)
+    # print('Signature:', signature)
 
+    client = FireflyClient(
+        True,
+        Networks["DEV"], 
+        private_key
+        )
+
+    client.add_market(MARKET_SYMBOLS.DOT, ordersAddress)
+
+    signature_request = OrderSignatureRequest(
+        symbol=MARKET_SYMBOLS.DOT, 
+        price=2.5, 
+        quantity=0.1, 
+        side=ORDER_SIDE.SELL, 
+        orderType=ORDER_TYPE.MARKET,
+        leverage= 2,
+        expiration=1,
+        reduceOnly=False,
+        salt=10
+    )  
+
+    signed_order = client.create_signed_order(signature_request);
+    pprint(signed_order)
     
 if __name__ == "__main__":
     main()

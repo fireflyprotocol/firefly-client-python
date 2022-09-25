@@ -1,17 +1,16 @@
 import os
 import sys
+from interfaces import Order
 directory = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(os.path.abspath(os.path.join(directory, "../")))
 
 from web3 import Web3
-from eth_account import Account, messages
 import utils
 import constants
 
 
 class OrderSigner:
-    def __init__(self, network_id, orders_contract_address, private_key=''):
-        self.private_key = private_key
+    def __init__(self, network_id, orders_contract_address):
         self.network_id = network_id;
         self.contract_address = orders_contract_address;
 
@@ -52,7 +51,8 @@ class OrderSigner:
     ).hex()
 
         
-    def get_order_hash(self, order):
+    def get_order_hash(self, order:Order):
+        print(int(order["quantity"]))
 
         struct_hash = Web3.solidityKeccak(
             abi_types=[
@@ -82,28 +82,20 @@ class OrderSigner:
         return utils.get_eip712_hash(self.get_domain_hash(), struct_hash) if struct_hash else "";
     
 
-    def sign_order(self, order, private_key=''):
+    def sign_order(self, order:Order, private_key):
         """
         Used to create an order signature. The method will use the provided key 
-        in params(if any) to sign the order. If the Order Signer class was 
-        instantiated with a private key and no private key was provided while calling
-        this method, the default key will be used. 
+        in params(if any) to sign the order.
 
         Args:
             order (Order): an order containing order fields (look at Order interface)
-            (optional) private_key (str): private key of the account to be used for signing
+            private_key (str): private key of the account to be used for signing
  
         Returns:
             string: generated signature
         """
-
-        if(self.private_key == '' and private_key == ''):
-            raise ValueError('No private key provided to create signature')
-
-        signer_key = private_key if private_key else self.private_key
-
         order_hash = self.get_order_hash(order)
-        return utils.sign_hash(order_hash, signer_key)
+        return utils.sign_hash(order_hash, private_key)
 
 
 
