@@ -51,6 +51,13 @@ def default_value(dict, key, default_value):
     else:
         return default_value 
 
+def default_enum_value(dict, key, default_value):
+    if key in dict:
+        return dict[key].value
+    else:
+        return default_value.value
+
+
 def current_unix_timestamp():
         return int(datetime.now().timestamp())
 

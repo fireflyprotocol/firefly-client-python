@@ -1,21 +1,48 @@
 
-from classes.order_signer import OrderSigner
-from utils import to_bn, default_value, current_unix_timestamp, random_number
+from api_service import APIService
+from order_signer import OrderSigner
+from utils import *
 from enums import ORDER_SIDE, ORDER_TYPE
-from constants import ADDRESSES, TIME
-from interfaces import OrderSignatureRequest, Order, OrderSignatureResponse
+from constants import ADDRESSES, TIME, SERVICE_URLS
+from interfaces import *
 from enums import MARKET_SYMBOLS
 from eth_account import Account
 
 class FireflyClient:
-    def __init__(self, are_terms_accepted, network, private_key=''):
+    def __init__(self, are_terms_accepted, network, private_key, user_onboarding=True):
         self.are_terms_accepted = are_terms_accepted;
         self.network = network
         self.account = Account.from_key(private_key)
+        self.apis = APIService(self.network["apiGateway"])
         self.order_signers = {};
- 
+        self.contracts = self.get_contract_addresses()
 
-    def add_market(self, symbol: MARKET_SYMBOLS, orders_contract):
+        if user_onboarding:
+            self.onboard_user()
+    
+    def get_contract_addresses(self, symbol:MARKET_SYMBOLS=None):
+        query = {}
+        if symbol:
+            query["symbol"] = symbol.value
+
+        return self.apis.get(
+            SERVICE_URLS["MARKET"]["CONTRACT_ADDRESSES"], 
+            query
+            )   
+
+    def onboard_user(self, token:str=None):
+        user_auth_token = token
+        
+        if not user_auth_token:
+            message = OnboardingMessage(
+            action=ONBOARDING_MESSAGES.ONBOARDING.value,
+            onlySignOn=self.network["onboardingUrl"]
+            )
+
+        self.apis.set_auth_token(user_auth_token);
+
+
+    def add_market(self, symbol: MARKET_SYMBOLS, orders_contract=None):
         symbol_str = symbol.value
         # if signer for market already exists return false
         if (symbol_str in self.order_signers):
@@ -54,6 +81,17 @@ class FireflyClient:
     
 
     def create_signed_order(self, params:OrderSignatureRequest):
+        """
+        Used to create an order from provided params and sign it using the private
+        key of the account
+
+        Args:
+            params (OrderSignatureRequest): parameters to create order with
+ 
+        Returns:
+            OrderSignatureResponse: order raw info and generated signature
+        """
+        
         # from params create order to sign
         order = self.create_order_to_sign(params)
 
@@ -78,3 +116,41 @@ class FireflyClient:
             orderType=params["orderType"],
         )
     
+    def post_signed_order(self, params:PlaceOrderRequest):
+        """
+        Used to create an order from provided params and sign it using the private
+        key of the account
+
+        Args:
+            params (OrderSignatureRequest): parameters to create order with
+
+        Returns:
+            OrderSignatureResponse: order raw info and generated signature
+        """
+
+        return self.apis.post(
+            SERVICE_URLS["ORDERS"]["ORDERS"],
+            {
+            "symbol": params["symbol"],
+            "price": to_bn(params["price"]),
+            "quantity": to_bn(params["quantity"]),
+            "leverage": to_bn(params["leverage"]),
+            "userAddress": self.account.address.lower(),
+            "orderType": params["orderType"].value,
+            "side": params["side"].value,            
+            "reduceOnly": params["reduceOnly"],
+            "salt": params["salt"],
+            "expiration": params["expiration"],
+            "orderSignature": params["orderSignature"],
+            "timeInForce": default_enum_value(params, "timeInForce", TIME_IN_FORCE.GOOD_TILL_TIME),
+            "postOnly": default_value(params, "postOnly", False),
+            "clientId": "firefly-client: {}".format(params["clientId"]) if "clientId" in params else "firefly-client"
+            }
+            )
+
+
+    def get_orderbook(self, params:GetOrderbookRequest):
+        return self.apis.get(
+            SERVICE_URLS["MARKET"]["ORDER_BOOK"], 
+            params
+            )

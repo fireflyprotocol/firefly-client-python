@@ -52,8 +52,6 @@ class OrderSigner:
 
         
     def get_order_hash(self, order:Order):
-        print(int(order["quantity"]))
-
         struct_hash = Web3.solidityKeccak(
             abi_types=[
                 'bytes32',

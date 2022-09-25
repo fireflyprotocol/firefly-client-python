@@ -10,7 +10,7 @@ Networks = {
     "url": "https://l2-dev.firefly.exchange/",
     "chainId": 78602,
     "apiGateway": "https://dapi-dev.firefly.exchange",
-    "socketURL": "wss://dapi-dev.firefly.exchange/",
+    "socketURL": "wss://dapi-dev.firefly.exchange",
     "onboardingUrl": "https://dev.firefly.exchange",
   },
 }
@@ -49,3 +49,30 @@ ADDRESSES = {
   "ZERO": "0x0000000000000000000000000000000000000000",
 }
 
+SERVICE_URLS = {
+  "MARKET": {
+    "ORDER_BOOK": "/orderbook",
+    "RECENT_TRADE": "/recentTrades",
+    "CANDLE_STICK_DATA": "/candlestickData",
+    "EXCHANGE_INFO": "/exchangeInfo",
+    "MARKET_DATA": "/marketData",
+    "META": "/meta",
+    "STATUS": "/status",
+    "SYMBOLS": "/marketData/symbols",
+    "CONTRACT_ADDRESSES": "/marketData/contractAddresses",
+  },
+  "USER": {
+    "USER_POSITIONS": "/userPosition",
+    "USER_TRADES": "/userTrades",
+    "ORDERS": "/orders",
+    "ACCOUNT": "/account",
+    "USER_TRANSACTION_HISTORY": "/userTransactionHistory",
+    "AUTHORIZE": "/authorize",
+    "ADJUST_LEVERAGE": "/account/adjustLeverage",
+    "FUND_GAS": "/account/fundGas",
+  },
+  "ORDERS": {
+    "ORDERS": "/orders",
+    "ORDERS_HASH": "/orders/hash",
+  },
+}
