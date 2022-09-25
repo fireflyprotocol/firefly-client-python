@@ -1,6 +1,6 @@
 
-from classes.api_client import APIService
-from classes.order_signer import OrderSigner
+from api_service import APIService
+from order_signer import OrderSigner
 from utils import to_bn, default_value, current_unix_timestamp, random_number
 from enums import ORDER_SIDE, ORDER_TYPE
 from constants import ADDRESSES, TIME
