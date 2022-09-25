@@ -1,9 +1,10 @@
 
+from classes.api_client import APIService
 from classes.order_signer import OrderSigner
 from utils import to_bn, default_value, current_unix_timestamp, random_number
 from enums import ORDER_SIDE, ORDER_TYPE
 from constants import ADDRESSES, TIME
-from interfaces import OrderSignatureRequest, Order, OrderSignatureResponse
+from interfaces import *
 from enums import MARKET_SYMBOLS
 from eth_account import Account
 
@@ -12,7 +13,9 @@ class FireflyClient:
         self.are_terms_accepted = are_terms_accepted;
         self.network = network
         self.account = Account.from_key(private_key)
+        self.apis = APIService(self.network["apiGateway"])
         self.order_signers = {};
+        
  
 
     def add_market(self, symbol: MARKET_SYMBOLS, orders_contract):
@@ -89,3 +92,18 @@ class FireflyClient:
             orderType=params["orderType"],
         )
     
+    def post_signed_order(self, params:PlaceOrderRequest):
+        """
+        Used to create an order from provided params and sign it using the private
+        key of the account
+
+        Args:
+            params (OrderSignatureRequest): parameters to create order with
+
+        Returns:
+            OrderSignatureResponse: order raw info and generated signature
+        """
+        return True
+
+    def get_orderbook(self, params:GetOrderbookRequest):
+        return self.apis.get_orderbook(params)
