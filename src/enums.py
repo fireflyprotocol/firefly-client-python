@@ -17,3 +17,7 @@ class TIME_IN_FORCE(Enum):
     FILL_OR_KILL = "FOK",
     IMMEDIATE_OR_CANCEL = "IOC",
     GOOD_TILL_TIME = "GTT"
+
+class ONBOARDING_MESSAGES(Enum):
+    ONBOARDING = "Firefly Onboarding",
+    KEY_DERIVATION = "Firefly Access Key"
