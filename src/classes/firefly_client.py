@@ -54,6 +54,17 @@ class FireflyClient:
     
 
     def create_signed_order(self, params:OrderSignatureRequest):
+        """
+        Used to create an order from provided params and sign it using the private
+        key of the account
+
+        Args:
+            params (OrderSignatureRequest): parameters to create order with
+ 
+        Returns:
+            OrderSignatureResponse: order raw info and generated signature
+        """
+        
         # from params create order to sign
         order = self.create_order_to_sign(params)
 
