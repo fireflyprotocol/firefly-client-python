@@ -63,3 +63,9 @@ def current_unix_timestamp():
 
 def random_number(max_range):
     return current_unix_timestamp() + randint(0, max_range) + randint(0, max_range)
+
+def extract_query(value:dict):
+    query=""
+    for i,j in value.items():
+        query+="&{}={}".format(i,j)
+    return query[1:]

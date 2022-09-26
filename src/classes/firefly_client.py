@@ -1,12 +1,14 @@
 
+from copy import deepcopy
 from api_service import APIService
 from order_signer import OrderSigner
 from utils import *
 from enums import ORDER_SIDE, ORDER_TYPE
-from constants import ADDRESSES, TIME, SERVICE_URLS
+from constants import ADDRESSES, REQUIRED_PARAMS, TIME, SERVICE_URLS
 from interfaces import *
 from enums import MARKET_SYMBOLS
 from eth_account import Account
+
 
 class FireflyClient:
     def __init__(self, are_terms_accepted, network, private_key, user_onboarding=True):
@@ -154,3 +156,63 @@ class FireflyClient:
             SERVICE_URLS["MARKET"]["ORDER_BOOK"], 
             params
             )
+
+    def get_public_address(self):
+        return self.account.address
+
+    def get_exchange_status(self):
+        return self.apis.get(
+            SERVICE_URLS["STATUS"], 
+            )
+
+    def get_market_symbols(self):
+        return self.apis.get(
+            SERVICE_URLS["MARKET"]["SYMBOLS"] 
+            )
+
+    def get_market_meta_info(self,symbol:MARKET_SYMBOLS=None):
+        query = "symbol={}".format(symbol.value) if symbol is not None else ""
+        return self.apis.get(
+            SERVICE_URLS["MARKET"]["META"], 
+            query
+            )
+
+    def get_market_data(self,symbol:MARKET_SYMBOLS=None):
+        query = "symbol={}".format(symbol.value) if symbol is not None else ""
+        return self.apis.get(
+            SERVICE_URLS["MARKET"]["MARKET_DATA"], 
+            query
+            )
+    
+    def get_exchange_info(self,symbol:MARKET_SYMBOLS=None):
+        query = "symbol={}".format(symbol.value) if symbol is not None else ""
+        return self.apis.get(
+            SERVICE_URLS["MARKET"]["EXCHANGE_INFO"], 
+            query
+            )
+
+    def get_market_candle_stick_data(self,params:GetCandleStickRequest):
+        myparams = deepcopy(params)
+        if REQUIRED_PARAMS["MARKET"]["CANDLE_STICK_DATA"] not in params.keys():
+            return "Mandatory params not provided"
+        for key in ["symbol","interval"]:
+            myparams.pop(key) 
+        query = "symbol={}&interval={}&".format(params["symbol"].value,params["interval"].value)
+        query+=extract_query(myparams)
+        print(query)
+        return self.apis.get(
+            SERVICE_URLS["MARKET"]["CANDLE_STICK_DATA"], 
+            query
+            )
+    
+    def get_market_recent_trades(self,params:GetMarketRecentTradesRequest):
+        myparams = deepcopy(params)
+        query = "symbol={}&".format(params["symbol"].value)
+        myparams.pop("symbol")
+        query+=extract_query(myparams)
+        return self.apis.get(
+            SERVICE_URLS["MARKET"]["RECENT_TRADE"], 
+            query
+            ) 
+
+    

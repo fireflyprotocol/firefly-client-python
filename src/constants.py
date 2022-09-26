@@ -76,3 +76,12 @@ SERVICE_URLS = {
     "ORDERS_HASH": "/orders/hash",
   },
 }
+
+REQUIRED_PARAMS = {
+  "MARKET": {
+    "ORDER_BOOK": ["symbol"],
+    "RECENT_TRADE": ["symbol"],
+    "CANDLE_STICK_DATA": ["symbol","interval"],
+    "CONTRACT_ADDRESSES": ["symbol"]
+  }
+}

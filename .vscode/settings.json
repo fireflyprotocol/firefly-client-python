@@ -3,5 +3,8 @@
         "hexstr",
         "orderbook",
         "PERP"
+    ],
+    "python.analysis.extraPaths": [
+        "./src/classes"
     ]
 }
