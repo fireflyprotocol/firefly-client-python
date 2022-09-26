@@ -50,6 +50,9 @@ def test_getters_with_symbol(client):
     req = GetMarketRecentTradesRequest(symbol=MARKET_SYMBOLS.DOT,pageSize=10)
     resp = client.get_market_recent_trades(params=req)
     print(resp)
+    req = GetCandleStickRequest(symbol=MARKET_SYMBOLS.DOT, interval=Interval._1m)
+    resp = client.get_market_candle_stick_data(req)
+    print(resp)
 
 
 def main():
@@ -61,11 +64,7 @@ def main():
         private_key
         )
     client.add_market(MARKET_SYMBOLS.DOT, ordersAddress)
-    # req = GetCandleStickRequest(symbol=MARKET_SYMBOLS.DOT,interval=Interval._1m,startTime=int(time.time()-(24*60*60)),endTime=int(time.time()-(24*60*60)))
-    req = GetCandleStickRequest()
-    print(req)
-    resp = client.get_market_candle_stick_data(req)
-    print(resp)
+    test_getters_with_symbol(client)
     
 
     

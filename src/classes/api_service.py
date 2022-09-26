@@ -12,7 +12,6 @@ class APIService():
 
     def get(self, service_url, query=""):
         url = self._create_url(service_url)
-        print(url,query)
         response = requests.get(url, params=query)
         return response.json()
     
