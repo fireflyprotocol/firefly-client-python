@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime
 from random import randint
 from web3 import Web3
@@ -63,3 +64,12 @@ def current_unix_timestamp():
 
 def random_number(max_range):
     return current_unix_timestamp() + randint(0, max_range) + randint(0, max_range)
+
+def get_or_create_eventloop():
+    try:
+        return asyncio.get_event_loop()
+    except RuntimeError as ex:
+        if "There is no current event loop in thread" in str(ex):
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            return asyncio.get_event_loop()

@@ -21,3 +21,21 @@ class TIME_IN_FORCE(Enum):
 class ONBOARDING_MESSAGES(Enum):
     ONBOARDING = "Firefly Onboarding",
     KEY_DERIVATION = "Firefly Access Key"
+
+class SOCKET_EVENTS(Enum):
+    GET_LAST_KLINE_WITH_INTERVAL = "{symbol}@kline@{interval}",
+    GLOBAL_UPDATES_ROOM = "globalUpdates",
+    GlobalUpdatesRoom = "globalUpdates",
+    MarketDataUpdateKey = "MarketDataUpdate",
+    RecentTradesKey = "RecentTrades",
+    OrderbookUpdateKey = "OrderbookUpdate",
+    AdjustMarginKey = "AdjustMargin",
+    MarketHealthKey = "MarketHealth",
+    ExchangeHealthKey = "ExchangeHealth",
+    UserUpdatesRoom = "userUpdates",
+    OrderUpdateKey = "OrderUpdate",
+    OrderCancelledKey = "OrderCancelled",
+    PositionUpdateKey = "PositionUpdate",
+    UserTradeKey = "UserTrade",
+    UserTransaction = "UserTransaction",
+    AccountDataUpdateKey = "AccountDataUpdate"
