@@ -10,7 +10,7 @@ class APIService():
     def set_auth_token(self, token:str):
         self.auth_token = token
 
-    def get(self, service_url, query=""):
+    def get(self, service_url, query):
         url = self._create_url(service_url)
         response = requests.get(url, params=query)
         return response.json()

@@ -168,12 +168,14 @@ class FireflyClient:
 
     def get_exchange_status(self):
         return self.apis.get(
-            SERVICE_URLS["STATUS"], 
+            SERVICE_URLS["STATUS"],
+            {} 
             )
 
     def get_market_symbols(self):
         return self.apis.get(
-            SERVICE_URLS["MARKET"]["SYMBOLS"] 
+            SERVICE_URLS["MARKET"]["SYMBOLS"],
+            {} 
             )
 
     def get_funding_rate(self,symbol:MARKET_SYMBOLS):
