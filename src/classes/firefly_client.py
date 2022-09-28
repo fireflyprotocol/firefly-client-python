@@ -1,13 +1,13 @@
-
 from api_service import APIService
 from order_signer import OrderSigner
 from onboarding_signer import OnboardingSigner
 from utils import *
 from enums import ORDER_SIDE, ORDER_TYPE
-from constants import ADDRESSES, TIME, SERVICE_URLS
+from constants import ADDRESSES,TIME, SERVICE_URLS
 from interfaces import *
 from enums import MARKET_SYMBOLS
 from eth_account import Account
+
 
 class FireflyClient:
     def __init__(self, are_terms_accepted, network, private_key, user_onboarding=True):
@@ -96,9 +96,6 @@ class FireflyClient:
             salt =  default_value(params, "salt", random_number(1000000)),
             )
 
-
-    
-
     def create_signed_order(self, params:OrderSignatureRequest):
         """
         Used to create an order from provided params and sign it using the private
@@ -167,9 +164,110 @@ class FireflyClient:
             }
             )
 
+    def get_eth_account(self):
+        return self.account
 
+    def get_order_signer(self,symbol:MARKET_SYMBOLS=None):
+        if symbol:
+            if symbol.value in self.order_signers.keys():
+                return self.order_signers[symbol.value]
+            else:
+                return "signer doesnt exist"
+        else:
+            return self.order_signers
+
+    def get_public_address(self):
+        return self.account.address
+
+    ## Market endpoints
     def get_orderbook(self, params:GetOrderbookRequest):
         return self.apis.get(
             SERVICE_URLS["MARKET"]["ORDER_BOOK"], 
             params
             )
+
+    def get_exchange_status(self):
+        return self.apis.get(
+            SERVICE_URLS["STATUS"],
+            {} 
+            )
+
+    def get_market_symbols(self):
+        return self.apis.get(
+            SERVICE_URLS["MARKET"]["SYMBOLS"],
+            {} 
+            )
+
+    def get_funding_rate(self,symbol:MARKET_SYMBOLS):
+        query = {}
+        if symbol:
+            query["symbol"] = symbol.value
+        return self.apis.get(
+            SERVICE_URLS["MARKET"]["FUNDING_RATE"],
+            query
+        ) 
+
+    def get_market_meta_info(self,symbol:MARKET_SYMBOLS=None):
+        query = {}
+        if symbol:
+            query["symbol"] = symbol.value
+        return self.apis.get(
+            SERVICE_URLS["MARKET"]["META"], 
+            query
+            )
+
+    def get_market_data(self,symbol:MARKET_SYMBOLS=None):
+        query = {}
+        if symbol:
+            query["symbol"] = symbol.value
+        return self.apis.get(
+            SERVICE_URLS["MARKET"]["MARKET_DATA"], 
+            query
+            )
+    
+    def get_exchange_info(self,symbol:MARKET_SYMBOLS=None):
+        query = {}
+        if symbol:
+            query["symbol"] = symbol.value
+        return self.apis.get(
+            SERVICE_URLS["MARKET"]["EXCHANGE_INFO"], 
+            query
+            )
+
+    def get_market_candle_stick_data(self,params:GetCandleStickRequest):
+        if set(["symbol","interval"]).issubset(params.keys()):
+            params["symbol"] = params["symbol"].value
+            params["interval"] = params["interval"].value 
+        return self.apis.get(
+            SERVICE_URLS["MARKET"]["CANDLE_STICK_DATA"], 
+            params
+            )
+    
+    def get_market_recent_trades(self,params:GetMarketRecentTradesRequest):
+        if "symbol" in params.keys():
+            params["symbol"] = params["symbol"].value
+        else:
+            return "Missing param: Symbol"
+        return self.apis.get(
+            SERVICE_URLS["MARKET"]["RECENT_TRADE"], 
+            params
+            ) 
+
+    ## User endpoints
+    def get_orders(self):
+        return 
+    
+    def get_transaction_history(self):
+        return 
+    
+    def get_position(self):
+        return
+
+    def user_trades(self):
+        return 
+
+    def get_user_funding_hostory(self):
+        return
+
+    
+    
