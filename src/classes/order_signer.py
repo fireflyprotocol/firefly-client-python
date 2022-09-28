@@ -11,8 +11,8 @@ import constants
 
 class OrderSigner:
     def __init__(self, network_id, orders_contract_address):
-        self.network_id = network_id;
-        self.contract_address = orders_contract_address;
+        self.network_id = network_id
+        self.contract_address = orders_contract_address
 
     def get_order_flags(self, order):
         flag = 0 
@@ -77,7 +77,7 @@ class OrderSigner:
             ]
         )
 
-        return utils.get_eip712_hash(self.get_domain_hash(), struct_hash) if struct_hash else "";
+        return utils.get_eip712_hash(self.get_domain_hash(), struct_hash) if struct_hash else ""
     
 
     def sign_order(self, order:Order, private_key):

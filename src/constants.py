@@ -15,7 +15,7 @@ Networks = {
   },
 }
 
-EIP712_DOMAIN_NAME = "Orders";
+EIP712_DOMAIN_NAME = "Orders"
 
 EIP712_DOMAIN_VERSION = "1.0"
 
