@@ -1,5 +1,6 @@
 from api_service import APIService
 from order_signer import OrderSigner
+from onboarding_signer import OnboardingSigner
 from utils import *
 from enums import ORDER_SIDE, ORDER_TYPE
 from constants import ADDRESSES,TIME, SERVICE_URLS
@@ -16,6 +17,7 @@ class FireflyClient:
         self.apis = APIService(self.network["apiGateway"])
         self.order_signers = {};
         self.contracts = self.get_contract_addresses()
+        self.onboarding_signer = OnboardingSigner(self.network["chainId"])
 
         if user_onboarding:
             self.onboard_user()
@@ -33,13 +35,31 @@ class FireflyClient:
     def onboard_user(self, token:str=None):
         user_auth_token = token
         
+        # if no auth token provided create on
         if not user_auth_token:
             message = OnboardingMessage(
             action=ONBOARDING_MESSAGES.ONBOARDING.value,
             onlySignOn=self.network["onboardingUrl"]
             )
 
-        self.apis.set_auth_token(user_auth_token);
+            # sign onboarding message
+            signed_hash = self.onboarding_signer.sign_msg(message, self.account.key.hex())
+
+            response = self.authorize_signed_hash(signed_hash);
+
+            if 'error' in response:
+                raise SystemError("Authorization error: {}".format(response['error']['message']))
+                
+        return user_auth_token
+
+    def authorize_signed_hash(self, signed_hash:str):
+        return self.apis.post(
+            SERVICE_URLS["USER"]["AUTHORIZE"],
+            {
+                "signature": signed_hash,
+                "userAddress": self.account.address,
+                "isTermAccepted": self.are_terms_accepted,
+            })
 
     def add_market(self, symbol: MARKET_SYMBOLS, orders_contract=None):
         symbol_str = symbol.value
@@ -98,7 +118,7 @@ class FireflyClient:
             raise SystemError("Provided Market Symbol({}) is not added to client library".format(symbol))
         
         order_signature = order_signer.sign_order(order, self.account.key.hex())
-
+        
         return OrderSignatureResponse(
             symbol=symbol,
             price=params["price"],
