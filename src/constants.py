@@ -58,6 +58,7 @@ SERVICE_URLS = {
     "STATUS": "/status",
     "SYMBOLS": "/marketData/symbols",
     "CONTRACT_ADDRESSES": "/marketData/contractAddresses",
+    "FUNDING_RATE":"/fundingRate"
   },
   "USER": {
     "USER_POSITIONS": "/userPosition",

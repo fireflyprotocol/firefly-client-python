@@ -4,5 +4,8 @@
         "Keccak",
         "orderbook",
         "PERP"
+    ],
+    "python.analysis.extraPaths": [
+        "./src/classes"
     ]
 }

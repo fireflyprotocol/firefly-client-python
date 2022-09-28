@@ -46,3 +46,54 @@ class OnboardingMessage(TypedDict):
     action: str
     onlySignOn: str
 
+class OrderResponse(TypedDict):
+  id: int
+  clientId: str
+  requestTime: int
+  cancelReason: CANCEL_REASON
+  orderStatus: ORDER_STATUS
+  hash: str
+  symbol: MARKET_SYMBOLS
+  orderType: ORDER_TYPE
+  timeInForce: TIME_IN_FORCE
+  userAddress: str
+  side: ORDER_SIDE
+  price: str
+  quantity: str
+  leverage: str
+  reduceOnly: bool
+  expiration: int
+  salt: int
+  orderSignature: str
+  filledQty: str
+  avgFillPrice: str
+  createdAt: int
+  updatedAt: int
+  makerFee: str
+  takerFee: str
+  openQty: str
+  cancelOnRevert: bool
+
+
+class GetOrderResponse(OrderResponse):
+  fee: str
+  postOnly: bool
+  triggerPrice: str
+
+
+class GetCandleStickRequest(TypedDict):
+    symbol: MARKET_SYMBOLS
+    interval: Interval
+    startTime: float
+    endTime: float
+    limit: int
+
+class GetMarketRecentTradesRequest(TypedDict):
+  symbol: MARKET_SYMBOLS
+  pageSize: int
+  pageNumber: int
+  traders: str
+
+
+
+
