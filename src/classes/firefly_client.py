@@ -20,7 +20,8 @@ class FireflyClient:
         self.onboarding_signer = OnboardingSigner(self.network["chainId"])
 
         if user_onboarding:
-            self.onboard_user()
+            self.apis.auth_token = self.onboard_user()
+
     
     def get_contract_addresses(self, symbol:MARKET_SYMBOLS=None):
         query = {}
@@ -49,7 +50,9 @@ class FireflyClient:
 
             if 'error' in response:
                 raise SystemError("Authorization error: {}".format(response['error']['message']))
-                
+
+            user_auth_token = response['token']
+
         return user_auth_token
 
     def authorize_signed_hash(self, signed_hash:str):
@@ -66,6 +69,16 @@ class FireflyClient:
         # if signer for market already exists return false
         if (symbol_str in self.order_signers):
             return False;
+
+
+        # if orders contract address is not provided get 
+        # from addresses retrieved from dapi
+        if orders_contract == None:
+            try:
+                orders_contract = self.contracts[symbol_str]["Orders"]
+            except:
+                raise SystemError("Can't find orders contract address for market: {}".format(symbol_str))
+
 
         self.order_signers[symbol_str] = OrderSigner(
             self.network["chainId"],
@@ -164,7 +177,8 @@ class FireflyClient:
             "timeInForce": default_enum_value(params, "timeInForce", TIME_IN_FORCE.GOOD_TILL_TIME),
             "postOnly": default_value(params, "postOnly", False),
             "clientId": "firefly-client: {}".format(params["clientId"]) if "clientId" in params else "firefly-client"
-            }
+            },
+            auth_required=True
             )
 
 

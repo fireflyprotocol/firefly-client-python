@@ -6,19 +6,18 @@ class APIService():
     def __init__(self, url):
         self.server_url = url.removesuffix('/')
         self.auth_token = None
+        return
     
-    def set_auth_token(self, token:str):
-        self.auth_token = token
-
     def get(self, service_url, query):
         url = self._create_url(service_url)
-        response = requests.get(url, params=query)
-        return response.json()
-    
-    def post(self, service_url, query):
+        return requests.get(url, params=query).json()
+        
+    def post(self, service_url, data, auth_required=False):
         url = self._create_url(service_url)
-        response = requests.post(url, data = query)
-        return response.json()
+        if auth_required:
+            return requests.post(url=url, data=data, headers={'Authorization': 'Bearer {}'.format(self.auth_token)}).json()
+        else:
+            return requests.post(url=url, data=data).json()
 
 
     '''
