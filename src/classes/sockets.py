@@ -8,7 +8,7 @@ sio = socketio.AsyncClient()
       
 class Sockets:
     callbacks={}
-    def __init__(self,url,timeout=10) -> None:
+    def __init__(self,url,timeout=15) -> None:
         self.url = url   
         self.connection_established = False
         self.event_loop = asyncio.get_event_loop()
@@ -121,7 +121,7 @@ class Sockets:
         try:
             if not self.connection_established:
                 return False 
-            self.event_loop.run_until_complete(self.emit('UNSUBSCRIBE', [
+            self.event_loop.create_task(self.emit('UNSUBSCRIBE', [
             {
                 "e": SOCKET_EVENTS.GLOBAL_UPDATES_ROOM.value,
                 "p": symbol.value,
@@ -138,7 +138,7 @@ class Sockets:
                 - user_address: user address(Public Key) of the user. (e.g. 0x000000000000000000000000)
         """
         try:
-            self.event_loop.run_until_complete(self.emit("SUBSCRIBE", [
+            self.event_loop.create_task(self.emit("SUBSCRIBE", [
             {
                 "e": SOCKET_EVENTS.UserUpdatesRoom,
                 "u": user_address.lower(),
@@ -155,7 +155,7 @@ class Sockets:
                 - user_address: user address(Public Key) of the user. (e.g. 0x000000000000000000000000)
         """
         try:
-            self.event_loop.run_until_complete(self.emit("UNSUBSCRIBE", [
+            self.event_loop.create_task(self.emit("UNSUBSCRIBE", [
             {
                 "e": SOCKET_EVENTS.UserUpdatesRoom,
                 "u": user_address.lower(),

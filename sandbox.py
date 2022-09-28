@@ -22,17 +22,16 @@ from enums import *
 
 
 def main():
-    # ordersAddress = "0x1578dD5561A67081b2136f19f61F2c72D1ca8756"
-    # private_key = "4d6c9531e0042cc8f7cf13d8c3cf77bfe239a8fed95e198d498ee1ec0b1a7e83"
-    # client = FireflyClient(True,Networks["DEV"],private_key,True)
-    socket = Sockets(Networks["DEV"]["socketURL"])
+    ordersAddress = "0x1578dD5561A67081b2136f19f61F2c72D1ca8756"
+    private_key = "4d6c9531e0042cc8f7cf13d8c3cf77bfe239a8fed95e198d498ee1ec0b1a7e83"
+    client = FireflyClient(True,Networks["DEV"],private_key,True)
      
-    if socket.connection_established:
+    if client.socket.connection_established:
         a = lambda x: print(x)
-        socket.listen("default",a)
-        print(socket.subscribe_global_updates_by_symbol(MARKET_SYMBOLS.DOT))
+        client.socket.listen("default",a)
+        print(client.socket.subscribe_global_updates_by_symbol(MARKET_SYMBOLS.DOT))
         time.sleep(60)
-    socket.disconnect()
+    client.socket.disconnect()
     print("done")
     
 
