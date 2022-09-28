@@ -8,9 +8,12 @@ class APIService():
         self.auth_token = None
         return
     
-    def get(self, service_url, query):
+    def get(self, service_url, query, auth_required=False):
         url = self._create_url(service_url)
-        return requests.get(url, params=query).json()
+        if auth_required:
+            return requests.post(url=url, params=query, headers={'Authorization': 'Bearer {}'.format(self.auth_token)}).json()
+        else:
+            return requests.get(url, params=query).json()
         
     def post(self, service_url, data, auth_required=False):
         url = self._create_url(service_url)

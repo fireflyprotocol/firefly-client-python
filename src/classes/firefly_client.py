@@ -18,6 +18,8 @@ class FireflyClient:
         self.order_signers = {};
         self.contracts = self.get_contract_addresses()
         self.onboarding_signer = OnboardingSigner(self.network["chainId"])
+        # todo fetch from api
+        self.default_leverage = 3
 
         if user_onboarding:
             self.apis.auth_token = self.onboard_user()
@@ -71,6 +73,7 @@ class FireflyClient:
             return False;
 
 
+
         # if orders contract address is not provided get 
         # from addresses retrieved from dapi
         if orders_contract == None:
@@ -100,7 +103,7 @@ class FireflyClient:
             isBuy = params["side"] == ORDER_SIDE.BUY,
             price = to_bn(params["price"]),
             quantity =  to_bn(params["quantity"]),
-            leverage =  to_bn(default_value(params, "leverage", 1)),
+            leverage =  to_bn(default_value(params, "leverage", self.default_leverage)),
             maker =  self.account.address.lower(),
             reduceOnly =  default_value(params, "reduceOnly", False),
             triggerPrice =  to_bn(0),
@@ -137,7 +140,7 @@ class FireflyClient:
             price=params["price"],
             quantity=params["quantity"],
             side=params["side"],
-            leverage=default_value(params, "leverage", 1),
+            leverage=default_value(params, "leverage", self.default_leverage),
             reduceOnly=default_value(params, "reduceOnly", False),
             salt=order["salt"],
             expiration=order["expiration"],
@@ -283,5 +286,9 @@ class FireflyClient:
     def get_user_funding_history(self):
         return
 
-    
+    def get_user_account_data(self):
+        return
+
+    def get_user_default_leverage(self, symbol:MARKET_SYMBOLS):
+        return
     
