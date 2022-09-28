@@ -18,9 +18,12 @@ class FireflyClient:
         self.order_signers = {};
         self.contracts = self.get_contract_addresses()
         self.onboarding_signer = OnboardingSigner(self.network["chainId"])
+        # todo fetch from api
+        self.default_leverage = 3
 
         if user_onboarding:
-            self.onboard_user()
+            self.apis.auth_token = self.onboard_user()
+
     
     def get_contract_addresses(self, symbol:MARKET_SYMBOLS=None):
         query = {}
@@ -49,7 +52,9 @@ class FireflyClient:
 
             if 'error' in response:
                 raise SystemError("Authorization error: {}".format(response['error']['message']))
-                
+
+            user_auth_token = response['token']
+
         return user_auth_token
 
     def authorize_signed_hash(self, signed_hash:str):
@@ -66,6 +71,17 @@ class FireflyClient:
         # if signer for market already exists return false
         if (symbol_str in self.order_signers):
             return False;
+
+
+
+        # if orders contract address is not provided get 
+        # from addresses retrieved from dapi
+        if orders_contract == None:
+            try:
+                orders_contract = self.contracts[symbol_str]["Orders"]
+            except:
+                raise SystemError("Can't find orders contract address for market: {}".format(symbol_str))
+
 
         self.order_signers[symbol_str] = OrderSigner(
             self.network["chainId"],
@@ -87,7 +103,7 @@ class FireflyClient:
             isBuy = params["side"] == ORDER_SIDE.BUY,
             price = to_bn(params["price"]),
             quantity =  to_bn(params["quantity"]),
-            leverage =  to_bn(default_value(params, "leverage", 1)),
+            leverage =  to_bn(default_value(params, "leverage", self.default_leverage)),
             maker =  self.account.address.lower(),
             reduceOnly =  default_value(params, "reduceOnly", False),
             triggerPrice =  to_bn(0),
@@ -124,7 +140,7 @@ class FireflyClient:
             price=params["price"],
             quantity=params["quantity"],
             side=params["side"],
-            leverage=default_value(params, "leverage", 1),
+            leverage=default_value(params, "leverage", self.default_leverage),
             reduceOnly=default_value(params, "reduceOnly", False),
             salt=order["salt"],
             expiration=order["expiration"],
@@ -161,7 +177,8 @@ class FireflyClient:
             "timeInForce": default_enum_value(params, "timeInForce", TIME_IN_FORCE.GOOD_TILL_TIME),
             "postOnly": default_value(params, "postOnly", False),
             "clientId": "firefly-client: {}".format(params["clientId"]) if "clientId" in params else "firefly-client"
-            }
+            },
+            auth_required=True
             )
 
     def get_eth_account(self):
@@ -266,8 +283,12 @@ class FireflyClient:
     def user_trades(self):
         return 
 
-    def get_user_funding_hostory(self):
+    def get_user_funding_history(self):
         return
 
-    
+    def get_user_account_data(self):
+        return
+
+    def get_user_default_leverage(self, symbol:MARKET_SYMBOLS):
+        return
     
