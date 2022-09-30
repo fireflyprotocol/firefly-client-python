@@ -6,21 +6,29 @@ class APIService():
     def __init__(self, url):
         self.server_url = url.removesuffix('/')
         self.auth_token = None
+        return
     
-    def set_auth_token(self, token:str):
-        self.auth_token = token
-
-    def get(self, service_url, query):
+    def get(self, service_url, query, auth_required=False):
         url = self._create_url(service_url)
-        response = requests.get(url, params=query)
-        return response.json()
-    
-    def post(self, service_url, query):
+        if auth_required:
+            return requests.get(url=url, params=query, headers={'Authorization': 'Bearer {}'.format(self.auth_token)}).json()
+        else:
+            return requests.get(url, params=query).json()
+        
+    def post(self, service_url, data, auth_required=False):
         url = self._create_url(service_url)
-        response = requests.post(url, data = query)
-        return response.json()
+        if auth_required:
+            return requests.post(url=url, data=data, headers={'Authorization': 'Bearer {}'.format(self.auth_token)}).json()
+        else:
+            return requests.post(url=url, data=data).json()
 
-
+    def delete(self,service_url, data, auth_required=False):
+        url = self._create_url(service_url)
+        if auth_required:
+            return requests.delete(url=url, data=data, headers={'Authorization': 'Bearer {}'.format(self.auth_token)}).json()
+        else:
+            return requests.delete(url=url, data=data).json()
+ 
     '''
         Private methods
     '''

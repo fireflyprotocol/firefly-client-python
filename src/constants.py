@@ -15,9 +15,7 @@ Networks = {
   },
 }
 
-EIP712_DOMAIN_NAME = "Orders";
 
-EIP712_DOMAIN_VERSION = "1.0"
 
 EIP712_DOMAIN_STRING = "EIP712Domain(string name,string version,uint128 chainId,address verifyingContract)"
 
@@ -77,3 +75,18 @@ SERVICE_URLS = {
     "ORDERS_HASH": "/orders/hash",
   },
 }
+
+EIP712_CANCEL_ORDER_STRUCT_STRING ="CancelLimitOrder(string action,bytes32[] orderHashes)"
+
+EIP712_ONBOARDING_ACTION_STRUCT_STRING = \
+    'firefly(' + \
+    'string action,' + \
+    'string onlySignOn' + \
+    ')'
+
+EIP712_DOMAIN_STRING_NO_CONTRACT = \
+    "EIP712Domain(" + \
+    "string name," + \
+    "string version," + \
+    "uint128 chainId" + \
+    ")"

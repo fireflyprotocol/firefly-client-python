@@ -1,5 +1,9 @@
+from inspect import signature
+
+from requests import delete
 from api_service import APIService
 from order_signer import OrderSigner
+from onboarding_signer import OnboardingSigner
 from utils import *
 from enums import ORDER_SIDE, ORDER_TYPE
 from constants import ADDRESSES,TIME, SERVICE_URLS
@@ -16,9 +20,13 @@ class FireflyClient:
         self.apis = APIService(self.network["apiGateway"])
         self.order_signers = {};
         self.contracts = self.get_contract_addresses()
+        self.onboarding_signer = OnboardingSigner(self.network["chainId"])
+        # todo fetch from api
+        self.default_leverage = 3
 
         if user_onboarding:
-            self.onboard_user()
+            self.apis.auth_token = self.onboard_user()
+
     
     def get_contract_addresses(self, symbol:MARKET_SYMBOLS=None):
         query = {}
@@ -33,19 +41,50 @@ class FireflyClient:
     def onboard_user(self, token:str=None):
         user_auth_token = token
         
+        # if no auth token provided create on
         if not user_auth_token:
             message = OnboardingMessage(
             action=ONBOARDING_MESSAGES.ONBOARDING.value,
             onlySignOn=self.network["onboardingUrl"]
             )
 
-        self.apis.set_auth_token(user_auth_token);
+            # sign onboarding message
+            signed_hash = self.onboarding_signer.sign_msg(message, self.account.key.hex())
+
+            response = self.authorize_signed_hash(signed_hash);
+
+            if 'error' in response:
+                raise SystemError("Authorization error: {}".format(response['error']['message']))
+
+            user_auth_token = response['token']
+
+        return user_auth_token
+
+    def authorize_signed_hash(self, signed_hash:str):
+        return self.apis.post(
+            SERVICE_URLS["USER"]["AUTHORIZE"],
+            {
+                "signature": signed_hash,
+                "userAddress": self.account.address,
+                "isTermAccepted": self.are_terms_accepted,
+            })
 
     def add_market(self, symbol: MARKET_SYMBOLS, orders_contract=None):
         symbol_str = symbol.value
         # if signer for market already exists return false
         if (symbol_str in self.order_signers):
             return False;
+
+
+
+        # if orders contract address is not provided get 
+        # from addresses retrieved from dapi
+        if orders_contract == None:
+            try:
+                orders_contract = self.contracts[symbol_str]["Orders"]
+            except:
+                raise SystemError("Can't find orders contract address for market: {}".format(symbol_str))
+
 
         self.order_signers[symbol_str] = OrderSigner(
             self.network["chainId"],
@@ -67,7 +106,7 @@ class FireflyClient:
             isBuy = params["side"] == ORDER_SIDE.BUY,
             price = to_bn(params["price"]),
             quantity =  to_bn(params["quantity"]),
-            leverage =  to_bn(default_value(params, "leverage", 1)),
+            leverage =  to_bn(default_value(params, "leverage", self.default_leverage)),
             maker =  self.account.address.lower(),
             reduceOnly =  default_value(params, "reduceOnly", False),
             triggerPrice =  to_bn(0),
@@ -98,19 +137,51 @@ class FireflyClient:
             raise SystemError("Provided Market Symbol({}) is not added to client library".format(symbol))
         
         order_signature = order_signer.sign_order(order, self.account.key.hex())
-
+        
         return OrderSignatureResponse(
             symbol=symbol,
             price=params["price"],
             quantity=params["quantity"],
             side=params["side"],
-            leverage=default_value(params, "leverage", 1),
+            leverage=default_value(params, "leverage", self.default_leverage),
             reduceOnly=default_value(params, "reduceOnly", False),
             salt=order["salt"],
             expiration=order["expiration"],
             orderSignature=order_signature,
             orderType=params["orderType"],
         )
+    
+    def create_signed_cancel_order(self,params:OrderSignatureRequest):
+        try:
+            signer:OrderSigner = self.get_order_signer(params["symbol"])
+            order_to_sign = self.create_order_to_sign(params)
+            hash = signer.get_order_hash(order_to_sign)
+            return self.create_signed_cancel_order_by_hash(params["symbol"],hash)
+        except Exception as e:
+            return ""
+
+    def create_signed_cancel_order_by_hash(self,symbol:MARKET_SYMBOLS,order_hash:list):
+        if type(order_hash)!=list:
+            order_hash = [order_hash]
+        order_signer:OrderSigner = self.get_order_signer(symbol)
+        cancel_hash = order_signer.order_hash_to_cancel_order_hash(order_hash)
+        hash_sig = order_signer.sign_hash(cancel_hash,self.account.key.hex())
+        return OrderCancellationRequest(
+            symbol=symbol.value,
+            hashes=order_hash,
+            signature=hash_sig
+        )
+
+    def post_cancel_order(self,params:OrderCancellationRequest):
+        return self.apis.delete(
+            SERVICE_URLS["ORDERS"]["ORDERS_HASH"],
+            {
+            "symbol": params["symbol"],
+            "orderHashes":params["hashes"],
+            "cancelSignature":params["signature"]
+            },
+            auth_required=True
+            )
     
     def post_signed_order(self, params:PlaceOrderRequest):
         """
@@ -141,7 +212,8 @@ class FireflyClient:
             "timeInForce": default_enum_value(params, "timeInForce", TIME_IN_FORCE.GOOD_TILL_TIME),
             "postOnly": default_value(params, "postOnly", False),
             "clientId": "firefly-client: {}".format(params["clientId"]) if "clientId" in params else "firefly-client"
-            }
+            },
+            auth_required=True
             )
 
     def get_eth_account(self):
@@ -233,6 +305,9 @@ class FireflyClient:
             params
             ) 
 
+    
+        
+
     ## User endpoints
     def get_orders(self):
         return 
@@ -246,8 +321,21 @@ class FireflyClient:
     def user_trades(self):
         return 
 
-    def get_user_funding_hostory(self):
+    def get_user_funding_history(self):
         return
 
-    
+    def get_user_account_data(self):
+        return self.apis.get(
+            service_url = SERVICE_URLS["USER"]["ACCOUNT"],
+            query = '',
+            auth_required = True
+        )
+        
+
+    def get_user_default_leverage(self, symbol:MARKET_SYMBOLS):
+        account_data_by_market = self.get_user_account_data()["accountDataByMarket"]
+        for i in account_data_by_market:
+            if symbol.value==i["symbol"]:
+                return bn_to_number(i["selectedLeverage"])    
+        return "Provided Market Symbol({}) does not exist".format(symbol)
     

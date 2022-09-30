@@ -94,6 +94,21 @@ class GetMarketRecentTradesRequest(TypedDict):
   pageNumber: int
   traders: str
 
+class OrderCancelSignatureRequest(TypedDict):
+  symbol: MARKET_SYMBOLS
+  hashes: list
+
+class OrderCancellationRequest(OrderCancelSignatureRequest):
+  signature: str
+
+class CancelOrder(TypedDict):
+  hash: str
+  reason: str
+
+
+class CancelOrderResponse(TypedDict):
+  message: str
+  data: dict
 
 
 
