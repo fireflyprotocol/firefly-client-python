@@ -6,6 +6,9 @@ from web3 import Web3
 def to_bn(value):
     return int(value*1e18)
 
+def bn_to_number(value):
+    return int(value)/1e18
+
 def strip_hex_prefix(input):
     if input[0:2] == '0x':
         return input[2:]

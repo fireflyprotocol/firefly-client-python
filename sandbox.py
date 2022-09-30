@@ -126,6 +126,15 @@ def place_and_cancel_order_test():
     return 
 
 def main():
+    client = FireflyClient(
+        True,
+        Networks["TESTNET"], 
+        private_key,
+        True
+        )
+    
+    print(client.get_user_account_data())
+    print(client.get_user_default_leverage(MARKET_SYMBOLS.ETH))
     return 
 
 

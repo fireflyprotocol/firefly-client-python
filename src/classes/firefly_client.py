@@ -325,8 +325,17 @@ class FireflyClient:
         return
 
     def get_user_account_data(self):
-        return
+        return self.apis.get(
+            service_url = SERVICE_URLS["USER"]["ACCOUNT"],
+            query = '',
+            auth_required = True
+        )
+        
 
     def get_user_default_leverage(self, symbol:MARKET_SYMBOLS):
-        return
+        account_data_by_market = self.get_user_account_data()["accountDataByMarket"]
+        for i in account_data_by_market:
+            if symbol.value==i["symbol"]:
+                return bn_to_number(i["selectedLeverage"])    
+        return "Provided Market Symbol({}) does not exist".format(symbol)
     
