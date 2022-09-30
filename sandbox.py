@@ -51,7 +51,7 @@ def post_cancel_order_test(client:FireflyClient,order):
     signer:OrderSigner = client.get_order_signer(order["symbol"])
     order_to_sign = client.create_order_to_sign(order)
     hash = signer.get_order_hash(order_to_sign)
-    cancel_req = client.create_signed_cancel_order_by_hash(order["symbol"],hash)
+    cancel_req = client.create_signed_cancel_orders(order["symbol"],hash)
     resp = client.post_cancel_order(cancel_req)
     return resp
 
@@ -81,7 +81,7 @@ def test_orderhash_to_cancel():
     hashSig_ts = "0x8b4678989c6ac698be6aa4f79a7c6cb402013729811f93224ada4f3f3d36002d010aff3164d26b55d72382c11782aa0ea855e080972e8b182dabba1c17c9dbf61c01" # the hashSig
     
     signer = OrderSigner(78602,ordersAddress)
-    cancel_hash_py = signer.order_hash_to_cancel_order_hash([data])
+    cancel_hash_py = signer.sign_cancellation_hash([data])
     if cancel_hash_py == cancel_hash_ts:
         print("cancel hash matched") 
     else:
@@ -126,15 +126,15 @@ def place_and_cancel_order_test():
     return 
 
 def main():
-    client = FireflyClient(
-        True,
-        Networks["TESTNET"], 
-        private_key,
-        True
-        )
-    
-    print(client.get_user_account_data())
-    print(client.get_user_default_leverage(MARKET_SYMBOLS.ETH))
+    # client = FireflyClient(
+    #     True,
+    #     Networks["TESTNET"], 
+    #     private_key,
+    #     True
+    #     )
+    place_and_cancel_order_test()
+    # print(client.get_user_account_data())
+    # print(client.get_user_default_leverage(MARKET_SYMBOLS.ETH))
     return 
 
 

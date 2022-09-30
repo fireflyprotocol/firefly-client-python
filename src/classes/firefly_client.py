@@ -156,15 +156,15 @@ class FireflyClient:
             signer:OrderSigner = self.get_order_signer(params["symbol"])
             order_to_sign = self.create_order_to_sign(params)
             hash = signer.get_order_hash(order_to_sign)
-            return self.create_signed_cancel_order_by_hash(params["symbol"],hash)
+            return self.create_signed_cancel_orders(params["symbol"],hash)
         except Exception as e:
             return ""
 
-    def create_signed_cancel_order_by_hash(self,symbol:MARKET_SYMBOLS,order_hash:list):
+    def create_signed_cancel_orders(self,symbol:MARKET_SYMBOLS,order_hash:list):
         if type(order_hash)!=list:
             order_hash = [order_hash]
         order_signer:OrderSigner = self.get_order_signer(symbol)
-        cancel_hash = order_signer.order_hash_to_cancel_order_hash(order_hash)
+        cancel_hash = order_signer.sign_cancellation_hash(order_hash)
         hash_sig = order_signer.sign_hash(cancel_hash,self.account.key.hex())
         return OrderCancellationRequest(
             symbol=symbol.value,

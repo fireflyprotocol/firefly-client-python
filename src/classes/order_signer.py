@@ -99,7 +99,7 @@ class OrderSigner(Signer):
         order_hash = self.get_order_hash(order)
         return self.sign_hash(order_hash, private_key)
 
-    def order_hash_to_cancel_order_hash(self,order_hash:list):
+    def sign_cancellation_hash(self,order_hash:list):
         struct_hash = Web3.solidityKeccak(
             abi_types=['bytes32','bytes32','bytes32'],
             values=[
