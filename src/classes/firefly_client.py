@@ -205,6 +205,7 @@ class FireflyClient:
             auth_required=True
             )
 
+    ## GETTERS
     def get_order_signer(self,symbol:MARKET_SYMBOLS=None):
         if symbol:
             if symbol.value in self.order_signers.keys():
@@ -270,19 +271,14 @@ class FireflyClient:
             )
 
     def get_market_candle_stick_data(self,params:GetCandleStickRequest):
-        if set(["symbol","interval"]).issubset(params.keys()):
-            params["symbol"] = params["symbol"].value
-            params["interval"] = params["interval"].value 
+        params = extract_enums(["symbol","interval"])
         return self.apis.get(
             SERVICE_URLS["MARKET"]["CANDLE_STICK_DATA"], 
             params
             )
     
     def get_market_recent_trades(self,params:GetMarketRecentTradesRequest):
-        if "symbol" in params.keys():
-            params["symbol"] = params["symbol"].value
-        else:
-            return "Missing param: Symbol"
+        params = extract_enums(params,["symbol"])
         return self.apis.get(
             SERVICE_URLS["MARKET"]["RECENT_TRADE"], 
             params
@@ -298,8 +294,6 @@ class FireflyClient:
             query
             )   
 
-        
-
     ## User endpoints
     
     def get_eth_account(self):
@@ -308,20 +302,37 @@ class FireflyClient:
     def get_public_address(self):
         return self.account.address
 
-    def get_orders(self):
-        return 
+    def get_orders(self,params:GetOrderRequest):
+        params = extract_enums(params,["symbol","status"])
+        return self.apis.get(
+            SERVICE_URLS["USER"]["ORDERS"],
+            params,
+            True
+        )
+        
+    def get_transaction_history(self,params:GetTransactionHistoryRequest):
+        params = extract_enums(params,["symbol"])
+        return self.apis.get(
+            SERVICE_URLS["USER"]["USER_TRANSACTION_HISTORY"],
+            params,
+            True
+        )
     
-    def get_transaction_history(self):
-        return 
-    
-    def get_position(self):
-        return
+    def get_user_position(self,params:GetPositionRequest):
+        params = extract_enums(params,["symbol"])
+        return self.apis.get(
+            SERVICE_URLS["USER"]["USER_POSITIONS"],
+            params,
+            True
+        )
 
-    def user_trades(self):
-        return 
-
-    def get_user_funding_history(self):
-        return
+    def get_user_trades(self,params:GetUserTradesRequest):
+        params = extract_enums(params,["symbol","type"])
+        return self.apis.get(
+            SERVICE_URLS["USER"]["USER_TRADES"],
+            params,
+            True
+        )
 
     def get_user_account_data(self):
         return self.apis.get(

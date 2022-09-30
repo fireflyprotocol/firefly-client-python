@@ -49,3 +49,9 @@ def extract_query(value:dict):
     for i,j in value.items():
         query+="&{}={}".format(i,j)
     return query[1:]
+
+def extract_enums(params:dict,enums:list):
+    for i in enums:
+        if i in params.keys():
+            params[i] = params[i].value
+    return params
