@@ -56,20 +56,61 @@ def post_cancel_order_test(client:FireflyClient,order):
     return resp
 
 
-def test_getters_with_symbol(client:FireflyClient):
-    resp = client.get_market_meta_info(MARKET_SYMBOLS.DOT)
+def test_getters_with_symbol(client:FireflyClient,symbol:MARKET_SYMBOLS):
+    resp = client.get_market_meta_info(symbol)
     print(resp)
-    resp = client.get_exchange_info(MARKET_SYMBOLS.DOT)
+    resp = client.get_exchange_info(symbol)
     print(resp)
-    resp = client.get_market_data(MARKET_SYMBOLS.DOT)
+    resp = client.get_market_data(symbol)
     print(resp)
-    req = GetMarketRecentTradesRequest(symbol=MARKET_SYMBOLS.DOT,pageSize=10)
+    req = GetMarketRecentTradesRequest(symbol=symbol,pageSize=10)
     resp = client.get_market_recent_trades(params=req)
     print(resp)
-    req = GetCandleStickRequest(symbol=MARKET_SYMBOLS.DOT, interval=Interval._1m)
+    req = GetCandleStickRequest(symbol=symbol, interval=Interval._1m)
     resp = client.get_market_candle_stick_data(req)
     print(resp['data'])
+    
 
+def test_user_getters(client:FireflyClient):
+    # Get user account data
+    print("account:",client.get_user_account_data())
+    
+    # get address
+    print(client.get_public_address())
+
+    # get user user Trades
+    req = GetUserTradesRequest(
+        symbol= MARKET_SYMBOLS.ETH,
+        maker= True,
+        fromId= 0,
+        startTime=(time.time()-(5*24*60*60))*1000,
+        endTime= time.time()*1000,
+        pageSize= 10,
+        pageNumber= 1,
+        type= ORDER_TYPE.LIMIT,
+    )
+    print(client.get_user_trades(req))
+    
+    # get user position 
+    req = GetPositionRequest(
+        symbol=MARKET_SYMBOLS.ETH
+    )
+    print(client.get_user_position(req))
+
+    # get user default leverage
+    print(client.get_user_default_leverage(MARKET_SYMBOLS.ETH))
+    req = GetOrderRequest(
+        symbol=MARKET_SYMBOLS.ETH
+    )
+    print(client.get_orders(req))
+    req = GetTransactionHistoryRequest(
+        symbol=MARKET_SYMBOLS.ETH
+    )
+    print(client.get_transaction_history(req))
+    
+
+    
+    return 
 
 def test_orderhash_to_cancel():
     ordersAddress = "0x1578dD5561A67081b2136f19f61F2c72D1ca8756"
@@ -137,6 +178,6 @@ def main():
     # print(client.get_user_default_leverage(MARKET_SYMBOLS.ETH))
     return 
 
-
+    
 if __name__ == "__main__":
     main()
