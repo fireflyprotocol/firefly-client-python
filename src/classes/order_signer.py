@@ -99,6 +99,21 @@ class OrderSigner(Signer):
         order_hash = self.get_order_hash(order)
         return self.sign_hash(order_hash, private_key)
 
+    def order_hash_to_cancel_order_hash(self,order_hash:list):
+        struct_hash = Web3.solidityKeccak(
+            abi_types=['bytes32','bytes32','bytes32'],
+            values=[
+                utils.hash_string(constants.EIP712_CANCEL_ORDER_STRUCT_STRING),
+                utils.hash_string("Cancel Orders"),
+                Web3.solidityKeccak(
+                    abi_types=['bytes32' for i in range(len(order_hash))],
+                    values=[hash for hash in order_hash]
+                ).hex()
+            ]
+        ).hex()
+        return self.get_eip712_hash(self.get_domain_hash(), struct_hash) if struct_hash else ""
+
+
 
 
 

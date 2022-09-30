@@ -27,7 +27,6 @@ class Signer:
 
 
     def sign_hash(self, hash, private_key):
-
         result = eth_account.account.Account.sign_message(
             eth_account.messages.encode_defunct(hexstr=hash),
             private_key

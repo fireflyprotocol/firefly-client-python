@@ -1,3 +1,6 @@
+from inspect import signature
+
+from requests import delete
 from api_service import APIService
 from order_signer import OrderSigner
 from onboarding_signer import OnboardingSigner
@@ -148,6 +151,38 @@ class FireflyClient:
             orderType=params["orderType"],
         )
     
+    def create_signed_cancel_order(self,params:OrderSignatureRequest):
+        try:
+            signer:OrderSigner = self.get_order_signer(params["symbol"])
+            order_to_sign = self.create_order_to_sign(params)
+            hash = signer.get_order_hash(order_to_sign)
+            return self.create_signed_cancel_order_by_hash(params["symbol"],hash)
+        except Exception as e:
+            return ""
+
+    def create_signed_cancel_order_by_hash(self,symbol:MARKET_SYMBOLS,order_hash:list):
+        if type(order_hash)!=list:
+            order_hash = [order_hash]
+        order_signer:OrderSigner = self.get_order_signer(symbol)
+        cancel_hash = order_signer.order_hash_to_cancel_order_hash(order_hash)
+        hash_sig = order_signer.sign_hash(cancel_hash,self.account.key.hex())
+        return OrderCancellationRequest(
+            symbol=symbol.value,
+            hashes=order_hash,
+            signature=hash_sig
+        )
+
+    def post_cancel_order(self,params:OrderCancellationRequest):
+        return self.apis.delete(
+            SERVICE_URLS["ORDERS"]["ORDERS_HASH"],
+            {
+            "symbol": params["symbol"],
+            "orderHashes":params["hashes"],
+            "cancelSignature":params["signature"]
+            },
+            auth_required=True
+            )
+    
     def post_signed_order(self, params:PlaceOrderRequest):
         """
         Used to create an order from provided params and sign it using the private
@@ -269,6 +304,9 @@ class FireflyClient:
             SERVICE_URLS["MARKET"]["RECENT_TRADE"], 
             params
             ) 
+
+    
+        
 
     ## User endpoints
     def get_orders(self):

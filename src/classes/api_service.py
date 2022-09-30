@@ -22,7 +22,13 @@ class APIService():
         else:
             return requests.post(url=url, data=data).json()
 
-
+    def delete(self,service_url, data, auth_required=False):
+        url = self._create_url(service_url)
+        if auth_required:
+            return requests.delete(url=url, data=data, headers={'Authorization': 'Bearer {}'.format(self.auth_token)}).json()
+        else:
+            return requests.delete(url=url, data=data).json()
+ 
     '''
         Private methods
     '''
