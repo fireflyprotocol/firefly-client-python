@@ -172,6 +172,17 @@ class FireflyClient:
             auth_required=True
             )
     
+    def cancel_all_open_orders(self,symbol:MARKET_SYMBOLS):
+        orders = self.get_orders({
+            "symbol":symbol,
+            "status":ORDER_STATUS.OPEN
+        })
+        hashes = []
+        for i in orders:
+            hashes.append(i["hash"])
+        req = self.create_signed_cancel_orders(symbol,hashes)
+        return self.post_cancel_order(req)
+    
     def post_signed_order(self, params:PlaceOrderRequest):
         """
         Used to create an order from provided params and sign it using the private
