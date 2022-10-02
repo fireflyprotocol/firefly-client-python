@@ -17,7 +17,7 @@ class FireflyClient:
         self.apis = APIService(self.network["apiGateway"])
         self.order_signers = {};
         self.contracts = self.get_contract_addresses()
-        self.onboarding_signer = OnboardingSigner(self.network["chainId"])
+        self.onboarding_signer = OnboardingSigner()
         # todo fetch from api
         self.default_leverage = 3
 
@@ -40,16 +40,12 @@ class FireflyClient:
         
         # if no auth token provided create on
         if not user_auth_token:
-            message = OnboardingMessage(
-            action=ONBOARDING_MESSAGES.ONBOARDING.value,
-            onlySignOn=self.network["onboardingUrl"]
-            )
+            onboarding_signature = self.onboarding_signer.create_signature(
+                self.network["onboardingUrl"], 
+                self.account.key)
 
-            # sign onboarding message
-            signed_hash = self.onboarding_signer.sign_msg(message, self.account.key.hex())
-
-            response = self.authorize_signed_hash(signed_hash);
-
+            response = self.authorize_signed_hash(onboarding_signature);
+            
             if 'error' in response:
                 raise SystemError("Authorization error: {}".format(response['error']['message']))
 
