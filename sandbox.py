@@ -83,6 +83,45 @@ def main():
 
     # does not work right now because dapi is not able to resolve signature
     # client.onboard_user()
-    
+
+# def onboarding():
+#     private_key = "665f16c79822f6069af07e05ab880c712e2f8a138c9e2c6cc4ead4e067c333c5"
+#     client = FireflyClient(
+#         True,
+#         Networks["DEV"], 
+#         private_key
+#         )
+
+#     client.add_market(MARKET_SYMBOLS.BTC)
+
+#     signature_request = OrderSignatureRequest(
+#             symbol=MARKET_SYMBOLS.BTC, 
+#             price=1050, 
+#             quantity=0.1, 
+#             side=ORDER_SIDE.SELL, 
+#             orderType=ORDER_TYPE.LIMIT,
+#             leverage= 3,
+#         )  
+
+#     signed_order = client.create_signed_order(signature_request);
+
+#     order_request = PlaceOrderRequest(
+#         signed_order, 
+#         postOnly=True)
+
+#     resp = client.post_signed_order(order_request)
+
+#     print(resp)
+
+def onboarding():
+    private_key = "665f16c79822f6069af07e05ab880c712e2f8a138c9e2c6cc4ead4e067c333c5"
+    client = FireflyClient(
+        True,
+        Networks["DEV"], 
+        private_key
+        )
+
+    client.add_market(MARKET_SYMBOLS.BTC)
+
 if __name__ == "__main__":
-    main()
+    onboarding()
