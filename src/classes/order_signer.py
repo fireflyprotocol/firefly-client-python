@@ -36,9 +36,6 @@ class OrderSigner(Signer):
             ]).decode()
     
     def get_domain_hash(self):
-        '''
-            implementing abstract method in Signer class
-        '''
         return Web3.solidityKeccak(
         [
             'bytes32',
@@ -97,7 +94,7 @@ class OrderSigner(Signer):
             string: generated signature
         """
         order_hash = self.get_order_hash(order)
-        return self.sign_hash(order_hash, private_key)
+        return self.sign_hash(order_hash, private_key, "01")
 
     def sign_cancellation_hash(self,order_hash:list):
         struct_hash = Web3.solidityKeccak(
