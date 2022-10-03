@@ -6,19 +6,20 @@ from order_signer import OrderSigner
 from onboarding_signer import OnboardingSigner
 from utils import *
 from enums import ORDER_SIDE, ORDER_TYPE
-from constants import ADDRESSES,TIME, SERVICE_URLS
+from constants import ADDRESSES, TIME, SERVICE_URLS, Networks
 from interfaces import *
 from enums import MARKET_SYMBOLS
 from eth_account import Account
+from sockets import Sockets
 
 
 class FireflyClient:
     def __init__(self, are_terms_accepted, network, private_key, user_onboarding=True):
-        self.are_terms_accepted = are_terms_accepted;
+        self.are_terms_accepted = are_terms_accepted
         self.network = network
         self.account = Account.from_key(private_key)
         self.apis = APIService(self.network["apiGateway"])
-        self.order_signers = {};
+        self.order_signers = {}
         self.contracts = self.get_contract_addresses()
         self.onboarding_signer = OnboardingSigner()
         # todo fetch from api
@@ -58,7 +59,7 @@ class FireflyClient:
         symbol_str = symbol.value
         # if signer for market already exists return false
         if (symbol_str in self.order_signers):
-            return False;
+            return False 
 
 
 
@@ -76,7 +77,7 @@ class FireflyClient:
             orders_contract
             )
 
-        return True;
+        return True 
 
     def create_order_to_sign(self, params:OrderSignatureRequest):
         expiration = current_unix_timestamp()        
@@ -85,7 +86,7 @@ class FireflyClient:
             expiration += TIME["SECONDS_IN_A_MINUTE"]
         # LIMIT ORDER - set expiration of 30 days
         else:
-            expiration += TIME["SECONDS_IN_A_MONTH"];
+            expiration += TIME["SECONDS_IN_A_MONTH"] 
 
         return Order (
             isBuy = params["side"] == ORDER_SIDE.BUY,
@@ -116,7 +117,7 @@ class FireflyClient:
         order = self.create_order_to_sign(params)
 
         symbol = params["symbol"].value
-        order_signer = self.order_signers.get(symbol);
+        order_signer = self.order_signers.get(symbol) 
 
         if not order_signer:
             raise SystemError("Provided Market Symbol({}) is not added to client library".format(symbol))
