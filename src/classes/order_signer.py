@@ -7,12 +7,16 @@ sys.path.append(os.path.abspath(os.path.join(directory, "../")))
 from web3 import Web3
 import utils
 import constants
+from signer import Signer
 
 
-class OrderSigner:
-    def __init__(self, network_id, orders_contract_address):
+class OrderSigner(Signer):
+    def __init__(self, network_id, orders_contract_address, domain="Orders", version="1.0"):
+        super().__init__()
         self.network_id = network_id
-        self.contract_address = orders_contract_address
+        self.contract_address = orders_contract_address;
+        self.domain = domain
+        self.version = version 
 
     def get_order_flags(self, order):
         flag = 0 
@@ -30,8 +34,7 @@ class OrderSigner:
             saltBytes[-63:],
             str(flag).encode('utf-8')
             ]).decode()
-
-
+    
     def get_domain_hash(self):
         return Web3.solidityKeccak(
         [
@@ -43,14 +46,13 @@ class OrderSigner:
         ],
         [
             utils.hash_string(constants.EIP712_DOMAIN_STRING),
-            utils.hash_string(constants.EIP712_DOMAIN_NAME),
-            utils.hash_string(constants.EIP712_DOMAIN_VERSION),
+            utils.hash_string(self.domain),
+            utils.hash_string(self.version),
             self.network_id,
             utils.address_to_bytes32(self.contract_address)
         ]
     ).hex()
 
-        
     def get_order_hash(self, order:Order):
         struct_hash = Web3.solidityKeccak(
             abi_types=[
@@ -75,10 +77,9 @@ class OrderSigner:
                 utils.address_to_bytes32(order["taker"]),
                 int(order["expiration"])
             ]
-        )
+        ).hex()
 
-        return utils.get_eip712_hash(self.get_domain_hash(), struct_hash) if struct_hash else ""
-    
+        return self.get_eip712_hash(self.get_domain_hash(), struct_hash) if struct_hash else "";
 
     def sign_order(self, order:Order, private_key):
         """
@@ -93,7 +94,22 @@ class OrderSigner:
             string: generated signature
         """
         order_hash = self.get_order_hash(order)
-        return utils.sign_hash(order_hash, private_key)
+        return self.sign_hash(order_hash, private_key, "01")
+
+    def sign_cancellation_hash(self,order_hash:list):
+        struct_hash = Web3.solidityKeccak(
+            abi_types=['bytes32','bytes32','bytes32'],
+            values=[
+                utils.hash_string(constants.EIP712_CANCEL_ORDER_STRUCT_STRING),
+                utils.hash_string("Cancel Orders"),
+                Web3.solidityKeccak(
+                    abi_types=['bytes32' for i in range(len(order_hash))],
+                    values=[hash for hash in order_hash]
+                ).hex()
+            ]
+        ).hex()
+        return self.get_eip712_hash(self.get_domain_hash(), struct_hash) if struct_hash else ""
+
 
 
 

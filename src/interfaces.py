@@ -46,3 +46,92 @@ class OnboardingMessage(TypedDict):
     action: str
     onlySignOn: str
 
+class OrderResponse(TypedDict):
+  id: int
+  clientId: str
+  requestTime: int
+  cancelReason: CANCEL_REASON
+  orderStatus: ORDER_STATUS
+  hash: str
+  symbol: MARKET_SYMBOLS
+  orderType: ORDER_TYPE
+  timeInForce: TIME_IN_FORCE
+  userAddress: str
+  side: ORDER_SIDE
+  price: str
+  quantity: str
+  leverage: str
+  reduceOnly: bool
+  expiration: int
+  salt: int
+  orderSignature: str
+  filledQty: str
+  avgFillPrice: str
+  createdAt: int
+  updatedAt: int
+  makerFee: str
+  takerFee: str
+  openQty: str
+  cancelOnRevert: bool
+
+
+class GetOrderResponse(OrderResponse):
+  fee: str
+  postOnly: bool
+  triggerPrice: str
+
+
+class GetCandleStickRequest(TypedDict):
+  symbol: MARKET_SYMBOLS
+  interval: Interval
+  startTime: float
+  endTime: float
+  limit: int
+
+class GetMarketRecentTradesRequest(TypedDict):
+  symbol: MARKET_SYMBOLS
+  pageSize: int
+  pageNumber: int
+  traders: str
+
+class OrderCancelSignatureRequest(TypedDict):
+  symbol: MARKET_SYMBOLS
+  hashes: list
+
+class OrderCancellationRequest(OrderCancelSignatureRequest):
+  signature: str
+
+class CancelOrder(TypedDict):
+  hash: str
+  reason: str
+
+
+class CancelOrderResponse(TypedDict):
+  message: str
+  data: dict
+
+
+class GetTransactionHistoryRequest(TypedDict):
+  symbol: MARKET_SYMBOLS  # will fetch orders of provided market
+  pageSize: int  # will get only provided number of orders must be <= 50
+  pageNumber: int  # will fetch particular page records. A single page contains 50 records.
+
+class GetPositionRequest(TypedDict):
+  symbol: MARKET_SYMBOLS  # will fetch orders of provided market
+  pageSize: int  # will get only provided number of orders must be <= 50
+  pageNumber: int  # will fetch particular page records. A single page contains 50 records.
+
+class GetUserTradesRequest(TypedDict):
+  symbol: MARKET_SYMBOLS
+  maker: bool
+  fromId: int
+  startTime: int
+  endTime: int
+  pageSize: int
+  pageNumber: int
+  type: ORDER_TYPE
+
+class GetOrderRequest(GetTransactionHistoryRequest):
+  status: ORDER_STATUS; # status of orders to be fetched
+
+

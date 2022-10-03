@@ -2,11 +2,13 @@ import asyncio
 from datetime import datetime
 from random import randint
 from web3 import Web3
-import eth_account
 
 
 def to_bn(value):
     return int(value*1e18)
+
+def bn_to_number(value):
+    return int(value)/1e18
 
 def strip_hex_prefix(input):
     if input[0:2] == '0x':
@@ -23,28 +25,6 @@ def hash_string(value: str):
 
 def bn_to_bytes32(value:int):
     return str("0x"+"0"*64+hex(value)[2:]).encode('utf-8')
-
-def get_eip712_hash(domain_hash, struct_hash):
-    return Web3.solidityKeccak(
-        [
-            'bytes2',
-            'bytes32',
-            'bytes32'
-        ],
-        [
-            '0x1901',
-            domain_hash,
-            struct_hash
-        ]
-    ).hex()
-
-
-def sign_hash(hash, private_key):
-    result = eth_account.account.Account.sign_message(
-        eth_account.messages.encode_defunct(hexstr=hash),
-        private_key
-    )
-    return result['signature'].hex() + '01'
 
 def default_value(dict, key, default_value):
     if key in dict:
@@ -65,11 +45,14 @@ def current_unix_timestamp():
 def random_number(max_range):
     return current_unix_timestamp() + randint(0, max_range) + randint(0, max_range)
 
-def get_or_create_eventloop():
-    try:
-        return asyncio.get_event_loop()
-    except RuntimeError as ex:
-        if "There is no current event loop in thread" in str(ex):
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-            return asyncio.get_event_loop()
+def extract_query(value:dict):
+    query=""
+    for i,j in value.items():
+        query+="&{}={}".format(i,j)
+    return query[1:]
+
+def extract_enums(params:dict,enums:list):
+    for i in enums:
+        if i in params.keys():
+            params[i] = params[i].value
+    return params

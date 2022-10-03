@@ -1,7 +1,11 @@
 {
     "cSpell.words": [
         "hexstr",
+        "Keccak",
         "orderbook",
         "PERP"
+    ],
+    "python.analysis.extraPaths": [
+        "./src/classes"
     ]
 }
