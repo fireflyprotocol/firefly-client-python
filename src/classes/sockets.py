@@ -16,11 +16,13 @@ class Sockets:
         self.process = threading.Thread(target=self.create_socket_app) 
         self.process.start()
         max_time = time.time() + timeout
-        while not self.connection_established and time.time() < max_time:
+        # waiting for create_socket_app to create a connection, if conncetion fails to be establish before timeout dissconnect is called and exception thrown 
+        while not self.connection_established and time.time() < max_time: 
             pass
+
         if not self.connection_established:
             self.disconnect()
-            raise Exception("Unable to connect to Host")
+            raise Exception("Unable to connect to Host:{}".format(self.url))
         return 
 
     async def account_stream_loop(self):
