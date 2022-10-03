@@ -6,6 +6,9 @@ from web3 import Web3
 def to_bn(value):
     return int(value*1e18)
 
+def bn_to_number(value):
+    return int(value)/1e18
+
 def strip_hex_prefix(input):
     if input[0:2] == '0x':
         return input[2:]
@@ -46,3 +49,9 @@ def extract_query(value:dict):
     for i,j in value.items():
         query+="&{}={}".format(i,j)
     return query[1:]
+
+def extract_enums(params:dict,enums:list):
+    for i in enums:
+        if i in params.keys():
+            params[i] = params[i].value
+    return params

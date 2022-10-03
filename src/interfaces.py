@@ -82,11 +82,11 @@ class GetOrderResponse(OrderResponse):
 
 
 class GetCandleStickRequest(TypedDict):
-    symbol: MARKET_SYMBOLS
-    interval: Interval
-    startTime: float
-    endTime: float
-    limit: int
+  symbol: MARKET_SYMBOLS
+  interval: Interval
+  startTime: float
+  endTime: float
+  limit: int
 
 class GetMarketRecentTradesRequest(TypedDict):
   symbol: MARKET_SYMBOLS
@@ -94,6 +94,44 @@ class GetMarketRecentTradesRequest(TypedDict):
   pageNumber: int
   traders: str
 
+class OrderCancelSignatureRequest(TypedDict):
+  symbol: MARKET_SYMBOLS
+  hashes: list
 
+class OrderCancellationRequest(OrderCancelSignatureRequest):
+  signature: str
+
+class CancelOrder(TypedDict):
+  hash: str
+  reason: str
+
+
+class CancelOrderResponse(TypedDict):
+  message: str
+  data: dict
+
+
+class GetTransactionHistoryRequest(TypedDict):
+  symbol: MARKET_SYMBOLS  # will fetch orders of provided market
+  pageSize: int  # will get only provided number of orders must be <= 50
+  pageNumber: int  # will fetch particular page records. A single page contains 50 records.
+
+class GetPositionRequest(TypedDict):
+  symbol: MARKET_SYMBOLS  # will fetch orders of provided market
+  pageSize: int  # will get only provided number of orders must be <= 50
+  pageNumber: int  # will fetch particular page records. A single page contains 50 records.
+
+class GetUserTradesRequest(TypedDict):
+  symbol: MARKET_SYMBOLS
+  maker: bool
+  fromId: int
+  startTime: int
+  endTime: int
+  pageSize: int
+  pageNumber: int
+  type: ORDER_TYPE
+
+class GetOrderRequest(GetTransactionHistoryRequest):
+  status: ORDER_STATUS; # status of orders to be fetched
 
 

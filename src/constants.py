@@ -76,6 +76,8 @@ SERVICE_URLS = {
   },
 }
 
+EIP712_CANCEL_ORDER_STRUCT_STRING ="CancelLimitOrder(string action,bytes32[] orderHashes)"
+
 EIP712_ONBOARDING_ACTION_STRUCT_STRING = \
     'firefly(' + \
     'string action,' + \
