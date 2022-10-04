@@ -1,12 +1,7 @@
-import os
-from pydoc import cli
-import random
-import sys
-from pprint import pprint
+import os,sys
 import time
-from eth_utils import keccak
 
-# paths
+from zmq import Socket
 script_dir = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(os.path.abspath(os.path.join(script_dir, "./src")))
 sys.path.append(os.path.abspath(os.path.join(script_dir, "./src/classes")))
@@ -14,7 +9,7 @@ sys.path.append(os.path.abspath(os.path.join(script_dir, "./src/classes")))
 from web3 import Web3
 from order_signer import OrderSigner
 from firefly_client import FireflyClient
-from onboarding_signer import OnboardingSigner
+from sockets import Sockets
 from order_signer import OrderSigner
 from constants import *
 from utils import *
@@ -167,60 +162,18 @@ def place_and_cancel_order_test():
     return 
 
 def main():
-    client = FireflyClient(
-        True,
-        Networks["TESTNET"], 
-        private_key,
-        True
-        )
-    client.add_market(MARKET_SYMBOLS.ETH)
-    print(client.cancel_all_open_orders(MARKET_SYMBOLS.ETH))
-    # place_and_cancel_order_test()
-    # print(client.get_user_account_data())
-    # print(client.get_user_default_leverage(MARKET_SYMBOLS.ETH))
+    callback = lambda x:print(x)
+    socket = Sockets(url=Networks["DEV"]["apiGateway"])
+    print(socket.connection_established)
+    socket.listen("default",callback)
+    socket.subscribe_global_updates_by_symbol(MARKET_SYMBOLS.BTC)
+    time.sleep(60)
+    socket.unsubscribe_global_updates_by_symbol(MARKET_SYMBOLS.BTC)
+    print("unsubs")
+    time.sleep(60)
+    print("disconnect")
+    socket.disconnect()
     return 
 
-    # does not work right now because dapi is not able to resolve signature
-    # client.onboard_user()
-
-# def onboarding():
-#     private_key = "665f16c79822f6069af07e05ab880c712e2f8a138c9e2c6cc4ead4e067c333c5"
-#     client = FireflyClient(
-#         True,
-#         Networks["DEV"], 
-#         private_key
-#         )
-
-#     client.add_market(MARKET_SYMBOLS.BTC)
-
-#     signature_request = OrderSignatureRequest(
-#             symbol=MARKET_SYMBOLS.BTC, 
-#             price=1050, 
-#             quantity=0.1, 
-#             side=ORDER_SIDE.SELL, 
-#             orderType=ORDER_TYPE.LIMIT,
-#             leverage= 3,
-#         )  
-
-#     signed_order = client.create_signed_order(signature_request);
-
-#     order_request = PlaceOrderRequest(
-#         signed_order, 
-#         postOnly=True)
-
-#     resp = client.post_signed_order(order_request)
-
-#     print(resp)
-
-def onboarding():
-    private_key = "665f16c79822f6069af07e05ab880c712e2f8a138c9e2c6cc4ead4e067c333c5"
-    client = FireflyClient(
-        True,
-        Networks["DEV"], 
-        private_key
-        )
-
-    client.add_market(MARKET_SYMBOLS.BTC)
-
 if __name__ == "__main__":
-    onboarding()
+    main()
