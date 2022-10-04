@@ -163,16 +163,18 @@ def place_and_cancel_order_test():
 
 def main():
     callback = lambda x:print(x)
-    socket = Sockets(url=Networks["DEV"]["apiGateway"])
-    print(socket.connection_established)
-    socket.listen("default",callback)
-    socket.subscribe_global_updates_by_symbol(MARKET_SYMBOLS.BTC)
+    # socket = Sockets(url=Networks["DEV"]["apiGateway"])
+    private_key = "6f2ad7a2fde3ee1da954a5910a0a33c4115b24edf052d0612264e45bdaf12437"
+    client = FireflyClient(True,Networks["DEV"],private_key,True)
+    print(client.socket.connection_established)
+    client.socket.listen("default",callback)
+    client.socket.subscribe_global_updates_by_symbol(MARKET_SYMBOLS.BTC)
     time.sleep(60)
-    socket.unsubscribe_global_updates_by_symbol(MARKET_SYMBOLS.BTC)
+    client.socket.unsubscribe_global_updates_by_symbol(MARKET_SYMBOLS.BTC)
     print("unsubs")
     time.sleep(60)
     print("disconnect")
-    socket.disconnect()
+    client.socket.disconnect()
     return 
 
 if __name__ == "__main__":

@@ -19,6 +19,7 @@ class FireflyClient:
         self.network = network
         self.account = Account.from_key(private_key)
         self.apis = APIService(self.network["apiGateway"])
+        self.socket = Sockets(self.network["socketURL"])
         self.order_signers = {}
         self.contracts = self.get_contract_addresses()
         self.onboarding_signer = OnboardingSigner()
@@ -61,8 +62,6 @@ class FireflyClient:
         if (symbol_str in self.order_signers):
             return False 
 
-
-
         # if orders contract address is not provided get 
         # from addresses retrieved from dapi
         if orders_contract == None:
@@ -70,7 +69,6 @@ class FireflyClient:
                 orders_contract = self.contracts[symbol_str]["Orders"]
             except:
                 raise SystemError("Can't find orders contract address for market: {}".format(symbol_str))
-
 
         self.order_signers[symbol_str] = OrderSigner(
             self.network["chainId"],
