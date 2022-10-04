@@ -10,20 +10,20 @@ sio = socketio.Client()
       
 class Sockets:
     callbacks={}
-    def __init__(self,url,timeout=15) -> None:
+    def __init__(self,url,timeout=10) -> None:
         self.url = url   
-        self.connection_established = self.establish_connection()
+        self.connection_established = self.establish_connection(timeout)
         if not self.connection_established:
             self.disconnect()
             raise(Exception("Failed to connect to Host: {}".format(self.url)))
         return 
 
-    def establish_connection(self):
+    def establish_connection(self,timeout=10):
         """
             Connects to the desired url
         """
         try:
-            sio.connect(self.url)
+            sio.connect(self.url,wait_timeout=timeout)
             return True
         except Exception as e:
             print(e)
@@ -47,16 +47,6 @@ class Sockets:
                 pass
         except:
             pass
-        return 
-
-    def emit(self,action,value):
-        """
-            Makes an emit for the client 
-            Inputs:
-                - action: The action to be performed (e.g. SUBSCRIBE)
-                - value: the required paramenters for the action (e.g. A required subscription key)
-        """
-        sio.emit(action, value)
         return 
 
     def listen(self,event,callback):
@@ -96,7 +86,7 @@ class Sockets:
         try:
             if not self.connection_established:
                 return False 
-            self.emit('UNSUBSCRIBE', [
+            sio.emit('UNSUBSCRIBE', [
             {
                 "e": SOCKET_EVENTS.GLOBAL_UPDATES_ROOM.value[0],
                 "p": symbol.value,
@@ -113,7 +103,7 @@ class Sockets:
                 - user_address: user address(Public Key) of the user. (e.g. 0x000000000000000000000000)
         """
         try:
-            self.emit("SUBSCRIBE", [
+            sio.emit("SUBSCRIBE", [
             {
                 "e": SOCKET_EVENTS.UserUpdatesRoom.value[0],
                 "u": user_address.lower(),
@@ -130,7 +120,7 @@ class Sockets:
                 - user_address: user address(Public Key) of the user. (e.g. 0x000000000000000000000000)
         """
         try:
-            self.emit("UNSUBSCRIBE", [
+            sio.emit("UNSUBSCRIBE", [
             {
                 "e": SOCKET_EVENTS.UserUpdatesRoom.value[0],
                 "u": user_address.lower(),
