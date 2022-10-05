@@ -188,8 +188,6 @@ def test_contracts_class():
     print("init")
     client.add_market(MARKET_SYMBOLS.ETH)
     contract_address = client.get_contract_addresses()["auxiliaryContractsAddresses"]
-    for i,j in contract_address.items():
-        client.contracts.add_contract(name=i,address=j)
     
     for i in contract_address.keys():
         con = client.contracts.get_contract(name=i)

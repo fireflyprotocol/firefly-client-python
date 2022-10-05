@@ -23,9 +23,14 @@ class FireflyClient:
         self.order_signers = {}
         self.contract_addresses = self.get_contract_addresses()
         self.onboarding_signer = OnboardingSigner()
+        
         # todo fetch from api
         self.default_leverage = 3
 
+        # adding auxiliaryContracts to contracts class
+        for i,j in self.contract_addresses["auxiliaryContractsAddresses"].items():
+            self.contracts.add_contract(name=i,address=j)
+        
         if user_onboarding:
             self.apis.auth_token = self.onboard_user()
 
