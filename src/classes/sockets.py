@@ -1,4 +1,3 @@
-from logging import raiseExceptions
 from socket import SocketIO
 import threading
 import time
@@ -25,8 +24,7 @@ class Sockets:
         try:
             sio.connect(self.url,wait_timeout=timeout)
             return True
-        except Exception as e:
-            print(e)
+        except:
             return False
 
     def disconnect(self):
@@ -65,16 +63,15 @@ class Sockets:
         try:
             if not self.connection_established:
                 return False
+              
             sio.emit('SUBSCRIBE',[
             {
                 "e": SOCKET_EVENTS.GLOBAL_UPDATES_ROOM.value[0],
                 "p": symbol.value,
             },
             ])
-            
             return True
-        except Exception as e:
-            print(e)
+        except:
             return False
 
     def unsubscribe_global_updates_by_symbol(self,symbol: MARKET_SYMBOLS):
@@ -86,6 +83,7 @@ class Sockets:
         try:
             if not self.connection_established:
                 return False 
+              
             sio.emit('UNSUBSCRIBE', [
             {
                 "e": SOCKET_EVENTS.GLOBAL_UPDATES_ROOM.value[0],
@@ -103,6 +101,9 @@ class Sockets:
                 - user_address: user address(Public Key) of the user. (e.g. 0x000000000000000000000000)
         """
         try:
+            if not self.connection_established:
+                return False
+              
             sio.emit("SUBSCRIBE", [
             {
                 "e": SOCKET_EVENTS.UserUpdatesRoom.value[0],
@@ -120,6 +121,9 @@ class Sockets:
                 - user_address: user address(Public Key) of the user. (e.g. 0x000000000000000000000000)
         """
         try:
+            if not self.connection_established:
+                return False
+              
             sio.emit("UNSUBSCRIBE", [
             {
                 "e": SOCKET_EVENTS.UserUpdatesRoom.value[0],
