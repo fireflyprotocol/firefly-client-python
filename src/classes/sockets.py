@@ -1,64 +1,34 @@
+from socket import SocketIO
 import threading
 import time
 import socketio
 import asyncio
 from enums import MARKET_SYMBOLS, SOCKET_EVENTS
 
-sio = socketio.AsyncClient()
+sio = socketio.Client()
       
 class Sockets:
     callbacks={}
-    def __init__(self,url,timeout=15) -> None:
+    def __init__(self,url,timeout=10) -> None:
         self.url = url   
-        self.connection_established = False
-        self.event_loop = asyncio.get_event_loop()
-        asyncio.set_event_loop(self.event_loop)
-        self.process = threading.Thread(target=self.create_socket_app) 
-        self.process.start()
-        max_time = time.time() + timeout
-        # waiting for create_socket_app to create a connection, if conncetion fails to be establish before timeout dissconnect is called and exception thrown 
-        while not self.connection_established and time.time() < max_time: 
-            pass
-
+        self.connection_established = self.establish_connection(timeout)
         if not self.connection_established:
             self.disconnect()
-            raise Exception("Unable to connect to Host:{}".format(self.url))
+            raise(Exception("Failed to connect to Host: {}".format(self.url)))
         return 
 
-    async def account_stream_loop(self):
+    def establish_connection(self,timeout=10):
         """
             Connects to the desired url
         """
         try:
-            await sio.connect(self.url)
+            sio.connect(self.url,wait_timeout=timeout)
             return True
-        except Exception as e:
-            print(e)
+        except:
             return False
 
-    def create_socket_app(self):
-        """
-            Creates an event loop that runs until stopped
-        """
-        try:
-            def _connection_callback(x):
-                if x.result() == True:
-                    self.connection_established = True
-                return 
-            t = self.event_loop.create_task(self.account_stream_loop())
-            t.add_done_callback(_connection_callback)
-            self.event_loop.run_forever()
-        except:
-            pass
-        return 
-
-    async def disconnect_socket_app(self):
-        await sio.disconnect()
-
     def disconnect(self):
-        self.event_loop.create_task(self.disconnect_socket_app())
-        self.event_loop.stop()
-        self.process.join()
+        sio.disconnect()
         return 
 
     @sio.on("*")
@@ -77,16 +47,6 @@ class Sockets:
             pass
         return 
 
-    async def emit(self,action,value):
-        """
-            Makes an emit for the client 
-            Inputs:
-                - action: The action to be performed (e.g. SUBSCRIBE)
-                - value: the required paramenters for the action (e.g. A required subscription key)
-        """
-        await sio.emit(action, value)
-        return 
-
     def listen(self,event,callback):
         """
             Assigns callbacks to desired events
@@ -102,16 +62,16 @@ class Sockets:
         """
         try:
             if not self.connection_established:
-                return False 
-            self.event_loop.create_task(self.emit('SUBSCRIBE',[
+                return False
+              
+            sio.emit('SUBSCRIBE',[
             {
-                "e": SOCKET_EVENTS.GLOBAL_UPDATES_ROOM.value,
+                "e": SOCKET_EVENTS.GLOBAL_UPDATES_ROOM.value[0],
                 "p": symbol.value,
             },
-            ]))
+            ])
             return True
-        except Exception as e:
-            print(e)
+        except:
             return False
 
     def unsubscribe_global_updates_by_symbol(self,symbol: MARKET_SYMBOLS):
@@ -123,12 +83,13 @@ class Sockets:
         try:
             if not self.connection_established:
                 return False 
-            self.event_loop.create_task(self.emit('UNSUBSCRIBE', [
+              
+            sio.emit('UNSUBSCRIBE', [
             {
-                "e": SOCKET_EVENTS.GLOBAL_UPDATES_ROOM.value,
+                "e": SOCKET_EVENTS.GLOBAL_UPDATES_ROOM.value[0],
                 "p": symbol.value,
             },
-            ]))
+            ])
             return True
         except:
             return False
@@ -140,12 +101,15 @@ class Sockets:
                 - user_address: user address(Public Key) of the user. (e.g. 0x000000000000000000000000)
         """
         try:
-            self.event_loop.create_task(self.emit("SUBSCRIBE", [
+            if not self.connection_established:
+                return False
+              
+            sio.emit("SUBSCRIBE", [
             {
-                "e": SOCKET_EVENTS.UserUpdatesRoom,
+                "e": SOCKET_EVENTS.UserUpdatesRoom.value[0],
                 "u": user_address.lower(),
             },
-            ]))
+            ])
             return True
         except:
             return False
@@ -157,12 +121,15 @@ class Sockets:
                 - user_address: user address(Public Key) of the user. (e.g. 0x000000000000000000000000)
         """
         try:
-            self.event_loop.create_task(self.emit("UNSUBSCRIBE", [
+            if not self.connection_established:
+                return False
+              
+            sio.emit("UNSUBSCRIBE", [
             {
-                "e": SOCKET_EVENTS.UserUpdatesRoom,
+                "e": SOCKET_EVENTS.UserUpdatesRoom.value[0],
                 "u": user_address.lower(),
             },
-            ]))
+            ])
             return True
         except:
             return False
