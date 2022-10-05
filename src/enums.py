@@ -63,3 +63,21 @@ class Interval(Enum):
     _1M = "1M"
 
 
+
+class SOCKET_EVENTS(Enum):
+    GET_LAST_KLINE_WITH_INTERVAL = "{symbol}@kline@{interval}",
+    GLOBAL_UPDATES_ROOM = "globalUpdates",
+    GlobalUpdatesRoom = "globalUpdates",
+    MarketDataUpdateKey = "MarketDataUpdate",
+    RecentTradesKey = "RecentTrades",
+    OrderbookUpdateKey = "OrderbookUpdate",
+    AdjustMarginKey = "AdjustMargin",
+    MarketHealthKey = "MarketHealth",
+    ExchangeHealthKey = "ExchangeHealth",
+    UserUpdatesRoom = "userUpdates",
+    OrderUpdateKey = "OrderUpdate",
+    OrderCancelledKey = "OrderCancelled",
+    PositionUpdateKey = "PositionUpdate",
+    UserTradeKey = "UserTrade",
+    UserTransaction = "UserTransaction",
+    AccountDataUpdateKey = "AccountDataUpdate"

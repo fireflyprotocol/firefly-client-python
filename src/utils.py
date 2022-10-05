@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime
 from random import randint
 from web3 import Web3

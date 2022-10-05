@@ -15,6 +15,7 @@ Networks = {
   },
 }
 
+EIP712_DOMAIN_NAME = "Orders"
 
 
 EIP712_DOMAIN_STRING = "EIP712Domain(string name,string version,uint128 chainId,address verifyingContract)"
