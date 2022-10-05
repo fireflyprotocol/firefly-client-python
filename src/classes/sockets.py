@@ -1,9 +1,4 @@
-from logging import raiseExceptions
-from socket import SocketIO
-import threading
-import time
 import socketio
-import asyncio
 from enums import MARKET_SYMBOLS, SOCKET_EVENTS
 
 sio = socketio.Client()
@@ -12,24 +7,33 @@ class Sockets:
     callbacks={}
     def __init__(self,url,timeout=10) -> None:
         self.url = url   
-        self.connection_established = self.establish_connection(timeout)
-        if not self.connection_established:
-            self.disconnect()
-            raise(Exception("Failed to connect to Host: {}".format(self.url)))
+        self.timeout = timeout
         return 
 
-    def establish_connection(self,timeout=10):
+    def _establish_connection(self):
         """
             Connects to the desired url
         """
         try:
-            sio.connect(self.url,wait_timeout=timeout)
+            sio.connect(self.url,wait_timeout=self.timeout)
             return True
-        except Exception as e:
-            print(e)
+        except:
             return False
 
-    def disconnect(self):
+    def open(self):
+        """
+            opens socket instance connection
+        """
+        self.connection_established = self._establish_connection()
+        if not self.connection_established:
+            self.close()
+            raise(Exception("Failed to connect to Host: {}".format(self.url)))
+        
+
+    def close(self):
+        """
+            closes the socket instance connection
+        """
         sio.disconnect()
         return 
 
@@ -65,16 +69,15 @@ class Sockets:
         try:
             if not self.connection_established:
                 return False
+              
             sio.emit('SUBSCRIBE',[
             {
                 "e": SOCKET_EVENTS.GLOBAL_UPDATES_ROOM.value[0],
                 "p": symbol.value,
             },
             ])
-            
             return True
-        except Exception as e:
-            print(e)
+        except:
             return False
 
     def unsubscribe_global_updates_by_symbol(self,symbol: MARKET_SYMBOLS):
@@ -86,6 +89,7 @@ class Sockets:
         try:
             if not self.connection_established:
                 return False 
+              
             sio.emit('UNSUBSCRIBE', [
             {
                 "e": SOCKET_EVENTS.GLOBAL_UPDATES_ROOM.value[0],
@@ -103,6 +107,9 @@ class Sockets:
                 - user_address: user address(Public Key) of the user. (e.g. 0x000000000000000000000000)
         """
         try:
+            if not self.connection_established:
+                return False
+              
             sio.emit("SUBSCRIBE", [
             {
                 "e": SOCKET_EVENTS.UserUpdatesRoom.value[0],
@@ -120,6 +127,9 @@ class Sockets:
                 - user_address: user address(Public Key) of the user. (e.g. 0x000000000000000000000000)
         """
         try:
+            if not self.connection_established:
+                return False
+              
             sio.emit("UNSUBSCRIBE", [
             {
                 "e": SOCKET_EVENTS.UserUpdatesRoom.value[0],

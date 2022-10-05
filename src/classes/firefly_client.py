@@ -61,7 +61,7 @@ class FireflyClient:
         # if signer for market already exists return false
         if (symbol_str in self.order_signers):
             return False 
-
+          
         # if orders contract address is not provided get 
         # from addresses retrieved from dapi
         if orders_contract == None:
