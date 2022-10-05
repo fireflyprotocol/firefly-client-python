@@ -54,6 +54,6 @@ class APIService():
     '''
     def _create_url(self, path):
         """
-            appends namespace to server url
+            Appends namespace to server url
         """
         return "{}{}".format(self.server_url, path)
