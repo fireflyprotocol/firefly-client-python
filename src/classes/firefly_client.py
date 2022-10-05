@@ -1,12 +1,10 @@
-from inspect import signature
-
-from requests import delete
 from api_service import APIService
+from contracts import Contracts
 from order_signer import OrderSigner
 from onboarding_signer import OnboardingSigner
 from utils import *
 from enums import ORDER_SIDE, ORDER_TYPE
-from constants import ADDRESSES, TIME, SERVICE_URLS, Networks
+from constants import ADDRESSES, TIME, SERVICE_URLS
 from interfaces import *
 from enums import MARKET_SYMBOLS
 from eth_account import Account
@@ -20,8 +18,10 @@ class FireflyClient:
         self.account = Account.from_key(private_key)
         self.apis = APIService(self.network["apiGateway"])
         self.socket = Sockets(self.network["socketURL"])
+        self.contracts = Contracts(self.network["url"])
+        self.contracts.set_account(private_key)
         self.order_signers = {}
-        self.contracts = self.get_contract_addresses()
+        self.contract_addresses = self.get_contract_addresses()
         self.onboarding_signer = OnboardingSigner()
         # todo fetch from api
         self.default_leverage = 3
@@ -66,7 +66,7 @@ class FireflyClient:
         # from addresses retrieved from dapi
         if orders_contract == None:
             try:
-                orders_contract = self.contracts[symbol_str]["Orders"]
+                orders_contract = self.contract_addresses[symbol_str]["Orders"]
             except:
                 raise SystemError("Can't find orders contract address for market: {}".format(symbol_str))
 
@@ -347,11 +347,18 @@ class FireflyClient:
             auth_required = True
         )
         
-
     def get_user_default_leverage(self, symbol:MARKET_SYMBOLS):
         account_data_by_market = self.get_user_account_data()["accountDataByMarket"]
         for i in account_data_by_market:
             if symbol.value==i["symbol"]:
                 return bn_to_number(i["selectedLeverage"])    
         return "Provided Market Symbol({}) does not exist".format(symbol)
+    
+    def get_usdc_balance(self):
+        return self.contracts.get_usdc_balance()
+    
+    def get_margin_bank_balance(self):
+        return self.contracts.get_margin_bank_balance()
+
+
     
