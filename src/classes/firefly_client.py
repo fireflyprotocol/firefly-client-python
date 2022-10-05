@@ -19,7 +19,7 @@ class FireflyClient:
         self.apis = APIService(self.network["apiGateway"])
         self.socket = Sockets(self.network["socketURL"])
         self.contracts = Contracts(self.network["url"])
-        self.contracts.set_account(private_key)
+        self.contracts.set_account(private_key) # assigning account to contracts instance 
         self.order_signers = {}
         self.contract_addresses = self.get_contract_addresses()
         self.onboarding_signer = OnboardingSigner()
@@ -35,6 +35,9 @@ class FireflyClient:
             self.apis.auth_token = self.onboard_user()
 
     def onboard_user(self, token:str=None):
+        """
+            Onboards the user addresss and returns user autherntication token.
+        """
         user_auth_token = token
         
         # if no auth token provided create on
@@ -53,6 +56,11 @@ class FireflyClient:
         return user_auth_token
 
     def authorize_signed_hash(self, signed_hash:str):
+        """
+            Registers user as an authorized user on server and returns authorization token.
+            Inputs:
+                - signed_hash: signed onboarding hash
+        """
         return self.apis.post(
             SERVICE_URLS["USER"]["AUTHORIZE"],
             {
@@ -62,6 +70,12 @@ class FireflyClient:
             })
 
     def add_market(self, symbol: MARKET_SYMBOLS, orders_contract=None):
+        """
+            Adds Order signer for market to instance's order_signers dict.
+            Inputs:
+                - symbol(ENUM): Market symbol of order signer.
+                - orders_contract(str): Contract address of the orders contract.
+        """
         symbol_str = symbol.value
         # if signer for market already exists return false
         if (symbol_str in self.order_signers):
@@ -79,10 +93,17 @@ class FireflyClient:
             self.network["chainId"],
             orders_contract
             )
-
         return True 
 
     def create_order_to_sign(self, params:OrderSignatureRequest):
+        """
+            Creates order signature request for an order.
+            Inputs:
+                - params (OrderSignatureRequest): parameters to create order with 
+            
+            Returns:
+                - Order: order raw info
+        """
         expiration = current_unix_timestamp()        
         # MARKET ORDER - set expiration of 1 minute
         if (params["orderType"] == ORDER_TYPE.MARKET):
@@ -109,7 +130,7 @@ class FireflyClient:
         Used to create an order from provided params and sign it using the private
         key of the account
 
-        Args:
+        Inputs:
             params (OrderSignatureRequest): parameters to create order with
  
         Returns:
@@ -141,6 +162,7 @@ class FireflyClient:
         )
     
     def create_signed_cancel_order(self,params:OrderSignatureRequest):
+        """"""
         try:
             signer:OrderSigner = self.get_order_signer(params["symbol"])
             order_to_sign = self.create_order_to_sign(params)
