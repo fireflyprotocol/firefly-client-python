@@ -26,20 +26,22 @@ def main():
     # initialize client
     client = FireflyClient(
         True,
-        Networks["TESTNET"], 
+        Networks["DEV"], 
         private_key,
         )
 
     # add eth/btc market
-    client.add_market(MARKET_SYMBOLS.ETH)
+    client.add_market(MARKET_SYMBOLS.BTC)
 
     # create order to sign
     signature_request = OrderSignatureRequest(
-        symbol=MARKET_SYMBOLS.ETH, 
-        price=1300, 
-        quantity=0.2, 
+        symbol=MARKET_SYMBOLS.BTC, 
+        price=500, 
+        quantity=0.01, 
         side=ORDER_SIDE.SELL, 
-        orderType=ORDER_TYPE.LIMIT
+        orderType=ORDER_TYPE.LIMIT,
+        reduceOnly=False,
+        leverage=3,
     )  
 
     # sign created order
@@ -49,8 +51,7 @@ def main():
     resp = client.post_signed_order(signed_order)
 
     print(resp)
-
-
+    
     return
 
 if __name__ == "__main__":
