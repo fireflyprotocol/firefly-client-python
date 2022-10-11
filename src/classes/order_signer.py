@@ -11,7 +11,7 @@ from signer import Signer
 
 
 class OrderSigner(Signer):
-    def __init__(self, network_id, orders_contract_address, domain="Orders", version="1.0"):
+    def __init__(self, network_id, orders_contract_address, domain="IsolatedTrader", version="1.0"):
         super().__init__()
         self.network_id = network_id
         self.contract_address = orders_contract_address;
@@ -27,15 +27,16 @@ class OrderSigner(Signer):
         if order["isBuy"]:
             flag += constants.ORDER_FLAGS["IS_BUY"] 
         
-        saltBytes = utils.bn_to_bytes32(order["salt"])
+        saltBytes = utils.bn_to_bytes8(order["salt"])
 
         return b''.join([
             "0x".encode('utf-8'), 
-            saltBytes[-63:],
+            saltBytes[-15:],
             str(flag).encode('utf-8')
-            ]).decode()
+            ]).decode().ljust(66, '0')
     
     def get_domain_hash(self):
+
         return Web3.solidityKeccak(
         [
             'bytes32',
@@ -54,6 +55,7 @@ class OrderSigner(Signer):
     ).hex()
 
     def get_order_hash(self, order:Order):
+        flags = self.get_order_flags(order);
         struct_hash = Web3.solidityKeccak(
             abi_types=[
                 'bytes32',
@@ -63,18 +65,17 @@ class OrderSigner(Signer):
                 'uint256',
                 'uint256',
                 'bytes32',
-                'bytes32',
                 'uint256'
                 ],
+
             values=[
                 utils.hash_string(constants.EIP712_ORDER_STRUCT_STRING),
-                self.get_order_flags(order),
+                flags,
                 int(order["quantity"]),
                 int(order["price"]),
                 int(order["triggerPrice"]),
                 int(order["leverage"]),
                 utils.address_to_bytes32(order["maker"]),
-                utils.address_to_bytes32(order["taker"]),
                 int(order["expiration"])
             ]
         ).hex()
