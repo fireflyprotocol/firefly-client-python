@@ -11,7 +11,6 @@ class Order(TypedDict):
     expiration: int 
     salt: int   
     maker: str 
-    taker:str
 
 class SignedOrder(Order):
     typedSignature: str
