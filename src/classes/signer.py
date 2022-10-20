@@ -7,6 +7,12 @@ class Signer:
         
 
     def get_eip712_hash(self, domain_hash, struct_hash):
+        """
+            Returns the EIP712 hash.
+            Inputs:
+                - domain_hash: chain domain hash
+                - struct_hash: struct hash of information to be signed
+        """
         return Web3.solidityKeccak(
         [
             'bytes2',
@@ -22,7 +28,9 @@ class Signer:
 
 
     def sign_hash(self, hash, private_key, append=''):
-
+        """
+            Signs the hash and returns the signature. 
+        """
         result = eth_account.account.Account.sign_message(
             eth_account.messages.encode_defunct(hexstr=hash),
             private_key
