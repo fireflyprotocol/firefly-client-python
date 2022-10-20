@@ -23,8 +23,8 @@ def address_to_bytes32(addr):
 def hash_string(value: str): 
     return Web3.soliditySha3(["string"], [value] ).hex()
 
-def bn_to_bytes32(value:int):
-    return str("0x"+"0"*64+hex(value)[2:]).encode('utf-8')
+def bn_to_bytes8(value:int):
+    return str("0x"+"0"*16+hex(value)[2:]).encode('utf-8')
 
 def default_value(dict, key, default_value):
     if key in dict:

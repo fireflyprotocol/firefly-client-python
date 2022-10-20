@@ -13,9 +13,16 @@ Networks = {
     "socketURL": "wss://dapi-dev.firefly.exchange",
     "onboardingUrl": "https://dev.firefly.exchange",
   },
+  "MAINNET": {
+    "url": "https://bobabeam.boba.network/",
+    "chainId": 1294,
+    "apiGateway": "https://dapi.firefly.exchange",
+    "socketURL": "wss://dapi.firefly.exchange",
+    "onboardingUrl": "https://trade.firefly.exchange",
+  },
 }
 
-EIP712_DOMAIN_NAME = "Orders"
+EIP712_DOMAIN_NAME = "IsolatedTrader"
 
 
 EIP712_DOMAIN_STRING = "EIP712Domain(string name,string version,uint128 chainId,address verifyingContract)"
@@ -23,13 +30,12 @@ EIP712_DOMAIN_STRING = "EIP712Domain(string name,string version,uint128 chainId,
 
 EIP712_ORDER_STRUCT_STRING = \
     "Order(" +  \
-    "bytes32 flags," + \
+    "bytes8 flags," + \
     "uint128 quantity," + \
     "uint128 price," + \
     "uint128 triggerPrice," + \
     "uint128 leverage," + \
     "address maker," + \
-    "address taker," + \
     "uint128 expiration" + \
     ")"
 

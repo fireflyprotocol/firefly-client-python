@@ -69,7 +69,7 @@ class FireflyClient:
                 "isTermAccepted": self.are_terms_accepted,
             })
 
-    def add_market(self, symbol: MARKET_SYMBOLS, orders_contract=None):
+    def add_market(self, symbol: MARKET_SYMBOLS, trader_contract=None):
         """
             Adds Order signer for market to instance's order_signers dict.
             Inputs:
@@ -83,15 +83,15 @@ class FireflyClient:
           
         # if orders contract address is not provided get 
         # from addresses retrieved from dapi
-        if orders_contract == None:
+        if trader_contract == None:
             try:
-                orders_contract = self.contract_addresses[symbol_str]["Orders"]
+                trader_contract = self.contracts[symbol_str]["IsolatedTrader"]
             except:
                 raise SystemError("Can't find orders contract address for market: {}".format(symbol_str))
 
         self.order_signers[symbol_str] = OrderSigner(
             self.network["chainId"],
-            orders_contract
+            trader_contract
             )
         return True 
 
@@ -120,7 +120,6 @@ class FireflyClient:
             maker =  self.account.address.lower(),
             reduceOnly =  default_value(params, "reduceOnly", False),
             triggerPrice =  to_bn(0),
-            taker =  ADDRESSES["ZERO"],
             expiration =  default_value(params, "expiration", expiration),
             salt =  default_value(params, "salt", random_number(1000000)),
             )
