@@ -5,6 +5,7 @@ from web3 import Web3
 class Contracts:
     def __init__(self,url) -> None:
         self.contracts = {}
+        self.contract_addresses = {}
         self.url = url
         self.w3 = None
         self.abi_path = os.path.join(os.getcwd(),"src/classes/abi")

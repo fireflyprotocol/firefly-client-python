@@ -21,14 +21,14 @@ class FireflyClient:
         self.contracts = Contracts(self.network["url"])
         self.contracts.set_account(private_key) # assigning account to contracts instance 
         self.order_signers = {}
-        self.contract_addresses = self.get_contract_addresses()
+        self.contracts.contract_addresses = self.get_contract_addresses()
         self.onboarding_signer = OnboardingSigner()
         
         # todo fetch from api
         self.default_leverage = 3
 
         # adding auxiliaryContracts to contracts class
-        for i,j in self.contract_addresses["auxiliaryContractsAddresses"].items():
+        for i,j in self.contracts.contract_addresses["auxiliaryContractsAddresses"].items():
             self.contracts.add_contract(name=i,address=j)
         
         if user_onboarding:
@@ -94,7 +94,7 @@ class FireflyClient:
         # from addresses retrieved from dapi
         if trader_contract == None:
             try:
-                trader_contract = self.contract_addresses[symbol_str]["IsolatedTrader"]
+                trader_contract = self.contracts.contract_addresses[symbol_str]["IsolatedTrader"]
             except:
                 raise SystemError("Can't find orders contract address for market: {}".format(symbol_str))
 
