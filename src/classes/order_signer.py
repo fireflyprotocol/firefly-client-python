@@ -36,7 +36,9 @@ class OrderSigner(Signer):
             ]).decode().ljust(66, '0')
     
     def get_domain_hash(self):
-
+        """
+            Returns domain hash
+        """
         return Web3.solidityKeccak(
         [
             'bytes32',
@@ -55,7 +57,14 @@ class OrderSigner(Signer):
     ).hex()
 
     def get_order_hash(self, order:Order):
-        flags = self.get_order_flags(order);
+        """
+            Returns order hash.
+            Inputs:
+                - order: the order to be signed
+            Returns:
+                - str: order hash
+        """
+        flags = self.get_order_flags(order)
         struct_hash = Web3.solidityKeccak(
             abi_types=[
                 'bytes32',
@@ -84,20 +93,30 @@ class OrderSigner(Signer):
 
     def sign_order(self, order:Order, private_key):
         """
-        Used to create an order signature. The method will use the provided key 
-        in params(if any) to sign the order.
+            Used to create an order signature. The method will use the provided key 
+            in params(if any) to sign the order.
 
-        Args:
-            order (Order): an order containing order fields (look at Order interface)
-            private_key (str): private key of the account to be used for signing
- 
-        Returns:
-            string: generated signature
+            Args:
+                order (Order): an order containing order fields (look at Order interface)
+                private_key (str): private key of the account to be used for signing
+    
+            Returns:
+                str: generated signature
         """
         order_hash = self.get_order_hash(order)
         return self.sign_hash(order_hash, private_key, "01")
 
     def sign_cancellation_hash(self,order_hash:list):
+        """
+            Used to create a cancel order signature. The method will use the provided key 
+            in params(if any) to sign the cancel order.
+
+            Args:
+                order_hash(list): a list containing all orders to be cancelled
+                private_key (str): private key of the account to be used for signing
+            Returns:
+                str: generated signature
+        """
         struct_hash = Web3.solidityKeccak(
             abi_types=['bytes32','bytes32','bytes32'],
             values=[

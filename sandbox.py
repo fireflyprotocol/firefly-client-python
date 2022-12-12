@@ -1,7 +1,6 @@
 import os,sys
 import time
 
-from zmq import Socket
 script_dir = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(os.path.abspath(os.path.join(script_dir, "./src")))
 sys.path.append(os.path.abspath(os.path.join(script_dir, "./src/classes")))
@@ -15,6 +14,7 @@ from constants import *
 from utils import *
 from interfaces import *
 from enums import *
+from contracts import Contracts
 
 # ordersAddress = "0x8C6eDe33D167D416b32eDd568C3578B0deF9bB8D"
 ordersAddress = "0xF232c48a40ECFd927787FF3bDbAD4BB7B801b683"
@@ -161,21 +161,49 @@ def place_and_cancel_order_test():
     print("cancel order resp:",resp)
     return 
 
-def main():
-    callback = lambda x:print(x)
-    # socket = Sockets(url=Networks["DEV"]["apiGateway"])
+# def main():
+#     callback = lambda x:print(x)
+#     # socket = Sockets(url=Networks["DEV"]["apiGateway"])
+#     private_key = "6f2ad7a2fde3ee1da954a5910a0a33c4115b24edf052d0612264e45bdaf12437"
+#     client = FireflyClient(True,Networks["DEV"],private_key,True)
+#     print(client.socket.connection_established)
+#     client.socket.listen("default",callback)
+#     client.socket.subscribe_global_updates_by_symbol(MARKET_SYMBOLS.BTC)
+#     time.sleep(60)
+#     client.socket.unsubscribe_global_updates_by_symbol(MARKET_SYMBOLS.BTC)
+#     print("unsubs")
+#     time.sleep(60)
+#     print("disconnect")
+#     client.socket.close()
+#     return 
+
+def test_contracts_class():
     private_key = "6f2ad7a2fde3ee1da954a5910a0a33c4115b24edf052d0612264e45bdaf12437"
-    client = FireflyClient(True,Networks["DEV"],private_key,True)
-    print(client.socket.connection_established)
-    client.socket.listen("default",callback)
-    client.socket.subscribe_global_updates_by_symbol(MARKET_SYMBOLS.BTC)
-    time.sleep(60)
-    client.socket.unsubscribe_global_updates_by_symbol(MARKET_SYMBOLS.BTC)
-    print("unsubs")
-    time.sleep(60)
-    print("disconnect")
-    client.socket.disconnect()
+    client = FireflyClient(
+        True,
+        Networks["TESTNET"], 
+        private_key,
+        True
+        )
+    print("init")
+    client.add_market(MARKET_SYMBOLS.ETH)
+    contract_address = client.get_contract_addresses()["auxiliaryContractsAddresses"]
+    
+    for i in contract_address.keys():
+        con = client.contracts.get_contract(name=i)
+        print(i,con.address)
+    
+    print(client.contracts.get_account().address)
+    print(client.contracts.get_usdc_balance())
+    print(client.contracts.get_ffly_balance())
+    print(client.contracts.get_margin_bank_balance())
+
+def main():
+    test_contracts_class()
     return 
+    
+    
+
 
 if __name__ == "__main__":
     main()

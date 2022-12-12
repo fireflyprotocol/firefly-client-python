@@ -28,6 +28,7 @@ class Sockets:
         if not self.connection_established:
             self.close()
             raise(Exception("Failed to connect to Host: {}".format(self.url)))
+        return
         
 
     def close(self):
