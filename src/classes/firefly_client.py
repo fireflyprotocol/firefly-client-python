@@ -1,3 +1,4 @@
+import os, json
 from api_service import APIService
 from contracts import Contracts
 from order_signer import OrderSigner
@@ -15,28 +16,38 @@ class FireflyClient:
     def __init__(self, are_terms_accepted, network, private_key, user_onboarding=True):
         self.are_terms_accepted = are_terms_accepted
         self.network = network
+        self.w3 = self._connect_w3(self.network["url"])
         self.account = Account.from_key(private_key)
         self.apis = APIService(self.network["apiGateway"])
         self.socket = Sockets(self.network["socketURL"])
-        self.contracts = Contracts(self.network["url"])
-        self.contracts.set_account(private_key) # assigning account to contracts instance 
+        self.contracts = Contracts()
         self.order_signers = {}
-        self.contract_addresses = self.get_contract_addresses()
+        self.contracts.contract_addresses = self.get_contract_addresses()
         self.onboarding_signer = OnboardingSigner()
         
         # todo fetch from api
         self.default_leverage = 3
 
         # adding auxiliaryContracts to contracts class
-        for i,j in self.contract_addresses["auxiliaryContractsAddresses"].items():
-            self.contracts.add_contract(name=i,address=j)
+        for i,j in self.contracts.get_contract_address(market="auxiliaryContractsAddresses").items():
+            self.add_contract(name=i,address=j)
         
         if user_onboarding:
             self.apis.auth_token = self.onboard_user()
 
+    def _connect_w3(self,url):
+        """
+            Creates a connection to Web3 RPC given the RPC url.
+        """
+        try:
+            return Web3(Web3.HTTPProvider(url))
+        except:
+            raise(Exception("Failed to connect to Host: {}".format(url)))
+            
+
     def onboard_user(self, token:str=None):
         """
-            On-boards the user address and returns user authentication token.
+            Onboards the user addresss and returns user autherntication token.
             Inputs:
                 - token: user access token, if you possess one.
             Returns:
@@ -94,7 +105,7 @@ class FireflyClient:
         # from addresses retrieved from dapi
         if trader_contract == None:
             try:
-                trader_contract = self.contract_addresses[symbol_str]["IsolatedTrader"]
+                trader_contract = self.contracts.contract_addresses[symbol_str]["IsolatedTrader"]
             except:
                 raise SystemError("Can't find orders contract address for market: {}".format(symbol_str))
 
@@ -103,6 +114,24 @@ class FireflyClient:
             trader_contract
             )
         return True 
+
+    def add_contract(self,name,address,market=None):
+        """
+            Adds contracts to the instance's contracts dictionary. 
+            The contract name should match the contract's abi name in ./abi directory or a new abi should be added with the desired name.
+            Inputs:
+                - name(str): The contract name.
+                - address(str): The contract address.
+                - market(str): The market this contract belongs to (required for market specific contracts).
+        """
+        abi = self.contracts.get_contract_abi(name)
+        if market:
+            contract=self.w3.eth.contract(address=address, abi=abi)
+            self.contracts.set_contracts(market=market,name=name,contract=contract)
+        else:
+            contract=self.w3.eth.contract(address=address, abi=abi)
+            self.contracts.set_contracts(name=name,contract=contract)
+        return 
 
     def create_order_to_sign(self, params:OrderSignatureRequest):
         """
@@ -443,7 +472,7 @@ class FireflyClient:
 
     ## User endpoints
     
-    def get_eth_account(self):
+    def get_account(self):
         """
             Returns the user account object 
         """
@@ -539,17 +568,34 @@ class FireflyClient:
                 return bn_to_number(i["selectedLeverage"])    
         return "Provided Market Symbol({}) does not exist".format(symbol)
     
+    def get_boba_balance(self):
+        """
+            Returns user's FFLY token balance.
+        """
+        try:
+            return self.w3.eth.get_balance(self.w3.toChecksumAddress(self.account.address))/1e18
+        except Exception as e:
+            raise(Exception("Failed to get balance, Exception: {}".format(e)))
+
     def get_usdc_balance(self):
         """
-            Returns user USDC balance.
+            Returns user's USDC token balance on Firefly.
         """
-        return self.contracts.get_usdc_balance()
-    
+        try:
+            contract = self.contracts.get_contract(name="USDC")
+            return contract.functions.balanceOf(self.account.address).call()/1e18
+        except Exception as e:
+            raise(Exception("Failed to get balance, Exception: {}".format(e)))
+
     def get_margin_bank_balance(self):
         """
-            Returns user Margin bank balance.
+            Returns user's Margin Bank balance.
         """
-        return self.contracts.get_margin_bank_balance()
+        try:
+            contract = self.contracts.get_contract(name="MarginBank")
+            return contract.functions.getAccountBankBalance(self.account.address).call()/1e18
+        except Exception as e:
+            raise(Exception("Failed to get balance, Exception: {}".format(e)))
 
 
     

@@ -1,71 +1,51 @@
-import json
-import os,sys
-from web3 import Web3
+import json, os
 
 class Contracts:
-    def __init__(self,url) -> None:
+    def __init__(self):
         self.contracts = {}
-        self.url = url
-        self.w3 = None
-        self.abi_path = os.path.join(os.getcwd(),"src/classes/abi")
-        self.account = None
-        self.connect()
+        self.contract_addresses = {}
+        self.abi_path = os.path.join(os.getcwd(),"src/abi")
 
-
-    def _create_account(self,private_key):
-        """
-            Generates and returns a web3 account object.
-            Inputs:
-                - private_key(str): The user private key.
-        """
-        try:
-            return self.w3.eth.account.privateKeyToAccount(private_key)
-        except Exception as e:
-            raise(Exception("Failed to get account, Exception: {}".format(e)))
-
-
-    def connect(self):
-        """
-            Creates a connection to Web3 RPC given the RPC url.
-        """
-        try:
-            self.w3 = Web3(Web3.HTTPProvider(self.url))
-        except:
-            raise(Exception("Failed to connect to Host: {}".format(self.url)))
+    def set_contract_addresses(self,contract_address,market=None,name=None):
+        if market and name:
+            if name:
+                self.contract_addresses[market][name] = contract_address
+            else:
+                self.contract_addresses[market] = contract_address
+        elif name:
+            self.contract_addresses[name] = contract_address
+        else:
+            self.contract_addresses = contract_address
         return 
     
-    def add_contract(self,name,address,market=None):
+    def set_contracts(self,contract,name,market=None):
+        if market:
+            if name:
+                self.contracts[market][name] = contract
+            else:
+                self.contracts[market] = contract
+        elif name:
+            self.contracts[name] = contract
+        else:
+            self.contracts = contract
+        return 
+    
+
+    ## GETTERS
+    def get_contract_abi(self,name):
         """
-            Adds contracts to the instance's contracts dictionary. 
-            The contract name should match the contract's abi name in ./abi directory or a new abi should be added with the desired name.
+            Returns contract abi.
             Inputs:
                 - name(str): The contract name.
-                - address(str): The contract address.
-                - market(str): The market this contract belongs to (required for market specific contracts).
         """
         if name+".json" in os.listdir(self.abi_path):
             abi_fp = os.path.join(self.abi_path,name+".json")
             with open(abi_fp,"r") as f:
                 abi = json.loads(f.read())["abi"]
-            if market:
-                self.contracts[market][name] = self.w3.eth.contract(address=address, abi=abi)
-            else:
-                self.contracts[name] = self.w3.eth.contract(address=address, abi=abi)
+            return abi
         else:
             return "Unknown contract name"
-        return 
-    
-    def set_account(self,private_key):
-        """
-            Creates and sets the instance's user account
-            Inputs:
-                - private_key(str): The user's private key.
-        """
-        self.account = self._create_account(private_key)
-        return
 
-
-    ## GETTERS
     def get_contract(self,name,market=""):
         """
             Returns the contract object.
@@ -83,7 +63,7 @@ class Contracts:
         except Exception as e:
             raise(Exception("Failed to get contract, Exception: {}".format(e)))
 
-    def get_contract_address(self,market=None,name=None):
+    def get_contract_address(self,name=None,market=None):
         """
             Returns the contract address. If neither of the inputs provided, will return a dict with all contract addresses.  
             Inputs:
@@ -92,55 +72,13 @@ class Contracts:
         """
         try:
             if market and name:
-                return self.contracts[market][name].address
+                return self.contract_addresses[market][name]
             elif market:
-                resp = {}
-                for i,j in self.contracts[market].items():
-                    resp[i] = j.address
-                return resp
+                return self.contract_addresses[market]
+            elif name:
+                return self.contract_addresses["auxiliaryContractsAddresses"][name]
             else:
-                resp = {}
-                for i,j in self.contracts[market].items():
-                    if type(j)==dict:
-                        for k,l in j.items():
-                            resp[i][k] = l.address
-                    else:
-                        resp[i] = j.address
-                return resp
+                return self.contract_addresses
         except Exception as e:
             raise(Exception("Failed to get contract address, Exception: {}".format(e)))
 
-    def get_account(self):
-        """
-            Returns the user account object. 
-        """
-        return self.account
-
-    def get_ffly_balance(self):
-        """
-            Returns user's FFLY token balance.
-        """
-        try:
-            return self.w3.eth.get_balance(self.w3.toChecksumAddress(self.account.address))/1e18
-        except Exception as e:
-            raise(Exception("Failed to get balance, Exception: {}".format(e)))
-
-    def get_usdc_balance(self):
-        """
-            Returns user's USDC token balance on Firefly.
-        """
-        try:
-            contract = self.get_contract(name="USDC")
-            return contract.functions.balanceOf(self.account.address).call()/1e18
-        except Exception as e:
-            raise(Exception("Failed to get balance, Exception: {}".format(e)))
-
-    def get_margin_bank_balance(self):
-        """
-            Returns user's Margin Bank balance.
-        """
-        try:
-            contract = self.get_contract(name="MarginBank")
-            return contract.functions.getAccountBankBalance(self.account.address).call()/1e18
-        except Exception as e:
-            raise(Exception("Failed to get balance, Exception: {}".format(e)))
