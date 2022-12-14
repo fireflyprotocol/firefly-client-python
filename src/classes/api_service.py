@@ -3,7 +3,7 @@ from interfaces import *
 
 class APIService():
     def __init__(self, url):
-        self.server_url = str(url).removesuffix('/')
+        self.server_url = url
         self.auth_token = None
         return
     
