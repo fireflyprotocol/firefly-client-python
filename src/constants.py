@@ -1,11 +1,4 @@
 Networks = {
-  "TESTNET": {
-    "url": "https://bobabase.boba.network/",
-    "chainId": 1297,
-    "apiGateway": "https://dapi-testnet.firefly.exchange",
-    "socketURL": "wss://dapi-testnet.firefly.exchange",
-    "onboardingUrl": "https://testnet.firefly.exchange",
-  },
   "DEV": {
     "url": "https://l2-dev.firefly.exchange/",
     "chainId": 78602,
@@ -13,12 +6,29 @@ Networks = {
     "socketURL": "wss://dapi-dev.firefly.exchange",
     "onboardingUrl": "https://dev.firefly.exchange",
   },
-  "MAINNET": {
+
+  "TESTNET_ARBITRUM": {
+    "url": "https://goerli-rollup.arbitrum.io/rpc",
+    "chainId": 421613,
+    "apiGateway": "https://dapi-testnet.firefly.exchange",
+    "socketURL": "wss://dapi-testnet.firefly.exchange",
+    "webSocketURL": "",
+    "onboardingUrl": "https://testnet.firefly.exchange",
+  },
+
+  "MAINNET_BOBA": {
     "url": "https://bobabeam.boba.network/",
     "chainId": 1294,
     "apiGateway": "https://dapi.firefly.exchange",
     "socketURL": "wss://dapi.firefly.exchange",
     "onboardingUrl": "https://trade.firefly.exchange",
+  },
+  "MAINNET_ARBITRUM": {
+    "url": "https://arb1.arbitrum.io/rpc/",
+    "chainId": 42161,
+    "apiGateway": "https://dapi-arb.firefly.exchange",
+    "socketURL": "wss://dapi-arb.firefly.exchange",
+    "onboardingUrl": "https://trade-arb.firefly.exchange",
   },
 }
 
