@@ -4,6 +4,6 @@ build-backend = "hatchling.build"
 
 [project]
 name = "firefly_client_py"
-version = "1.0.0"
+version = "0.0.1"
 description = "Library to interact with firefly api gateway"
 readme = "README.md"
