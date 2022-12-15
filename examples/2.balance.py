@@ -32,7 +32,13 @@ def main():
   print('USDC balance:', client.get_usdc_balance());
 
   # deposit usdc to margin bank
-  print('USDC deposited:',client.deposit_usdc_to_bank(10));
+  print('USDC deposited:',client.deposit_margin_to_bank(10));
+
+  # check margin bank balance
+  print('Margin bank balance:', client.get_margin_bank_balance());
+
+  # check margin bank balance
+  print('USDC Withdrawn:', client.withdraw_margin_from_bank(5));
 
   # check margin bank balance
   print('Margin bank balance:', client.get_margin_bank_balance());

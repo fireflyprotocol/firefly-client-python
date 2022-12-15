@@ -307,7 +307,23 @@ class FireflyClient:
             auth_required=True
             )
 
-    def deposit_usdc_to_bank(self, amount):
+    ## CONTRACT CALLS
+
+    def _execute_tx(self, transaction):
+        """
+            An internal function to create signed tx and wait for its receipt
+        Args:
+            transaction: A constructed txn using self.account address
+
+        Returns:
+            tx_receipt: a receipt of txn mined on-chain
+        """
+        tx_create = self.w3.eth.account.signTransaction(transaction, self.account.key)
+        tx_hash = self.w3.eth.sendRawTransaction(tx_create.rawTransaction)
+        return self.w3.eth.waitForTransactionReceipt(tx_hash)
+
+
+    def deposit_margin_to_bank(self, amount):
         """
             Deposits given amount of USDC from user's account to margin bank
 
@@ -325,31 +341,54 @@ class FireflyClient:
 
         # approve funds on usdc
         
-        construct_txn = usdc_contract.functions.approve(mb_contract.address, amount).buildTransaction(
-        {
-            'from': self.account.address,
-            'nonce': self.w3.eth.getTransactionCount(self.account.address),
-        })
+        construct_txn = usdc_contract.functions.approve(
+            mb_contract.address, 
+            amount).buildTransaction({
+                'from': self.account.address,
+                'nonce': self.w3.eth.getTransactionCount(self.account.address),
+            })
 
-        tx_create = self.w3.eth.account.signTransaction(construct_txn, self.account.key)
-
-        tx_hash = self.w3.eth.sendRawTransaction(tx_create.rawTransaction)
-        self.w3.eth.waitForTransactionReceipt(tx_hash)
-
+        self._execute_tx(construct_txn)
 
         # deposit to margin bank
-        construct_txn = mb_contract.functions.depositToBank(self.account.address, amount).buildTransaction(
-        {
-            'from': self.account.address,
-            'nonce': self.w3.eth.getTransactionCount(self.account.address),
-        })
+        construct_txn = mb_contract.functions.depositToBank(
+            self.account.address, 
+            amount).buildTransaction({
+                'from': self.account.address,
+                'nonce': self.w3.eth.getTransactionCount(self.account.address),
+                })
 
-        tx_create = self.w3.eth.account.signTransaction(construct_txn, self.account.key)
-
-        tx_hash = self.w3.eth.sendRawTransaction(tx_create.rawTransaction)
-        self.w3.eth.waitForTransactionReceipt(tx_hash)
+        self._execute_tx(construct_txn)
 
         return True;
+
+
+    def withdraw_margin_from_bank(self, amount):
+        """
+            Withdraws given amount of usdc from margin bank if possible
+
+            Inputs:
+                amount: quantity of usdc to be withdrawn from bank
+
+            Returns:
+                Boolean: true if amount is successfully withdrawn, false otherwise
+        """
+
+        mb_contract = self.contracts.get_contract(name="MarginBank");
+        amount = to_big_number(amount,6);
+
+        # withdraw from margin bank
+        construct_txn = mb_contract.functions.withdrawFromBank(
+            self.account.address, 
+            amount).buildTransaction({
+                'from': self.account.address,
+                'nonce': self.w3.eth.getTransactionCount(self.account.address),
+                })
+
+        self._execute_tx(construct_txn)
+
+        return True;
+
 
     ## GETTERS
     def get_order_signer(self,symbol:MARKET_SYMBOLS=None):
