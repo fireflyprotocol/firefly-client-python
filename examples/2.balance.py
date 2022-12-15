@@ -21,6 +21,11 @@ def main():
         True, # on boards user on firefly. Must be set to true for first time use
         )
 
+  # checks chain native token balance.
+  # A user must have native tokens to perform contract calls
+  print('Chain token balance:', client.get_native_chain_token_balance());
+
+  # check margin bank balance
   print('Margin bank balance:', client.get_margin_bank_balance());
 
   # assuming you have usdc ( can check usdc balance using client.get_usdc_balance())
