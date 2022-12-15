@@ -1,9 +1,8 @@
-import os, json
 from api_service import APIService
 from contracts import Contracts
 from order_signer import OrderSigner
 from onboarding_signer import OnboardingSigner
-from utils import *
+from utilities import *
 from enums import ORDER_SIDE, ORDER_TYPE
 from constants import ADDRESSES, TIME, SERVICE_URLS
 from interfaces import *
@@ -152,12 +151,12 @@ class FireflyClient:
 
         return Order (
             isBuy = params["side"] == ORDER_SIDE.BUY,
-            price = to_bn(params["price"]),
-            quantity =  to_bn(params["quantity"]),
-            leverage =  to_bn(default_value(params, "leverage", self.default_leverage)),
+            price = to_big_number(params["price"]),
+            quantity =  to_big_number(params["quantity"]),
+            leverage =  to_big_number(default_value(params, "leverage", self.default_leverage)),
             maker =  self.account.address.lower(),
             reduceOnly =  default_value(params, "reduceOnly", False),
-            triggerPrice =  to_bn(0),
+            triggerPrice =  to_big_number(0),
             expiration =  default_value(params, "expiration", expiration),
             salt =  default_value(params, "salt", random_number(1000000)),
             )
@@ -291,9 +290,9 @@ class FireflyClient:
             SERVICE_URLS["ORDERS"]["ORDERS"],
             {
             "symbol": params["symbol"],
-            "price": to_bn(params["price"]),
-            "quantity": to_bn(params["quantity"]),
-            "leverage": to_bn(params["leverage"]),
+            "price": to_big_number(params["price"]),
+            "quantity": to_big_number(params["quantity"]),
+            "leverage": to_big_number(params["leverage"]),
             "userAddress": self.account.address.lower(),
             "orderType": params["orderType"].value,
             "side": params["side"].value,            
@@ -307,6 +306,50 @@ class FireflyClient:
             },
             auth_required=True
             )
+
+    def deposit_usdc_to_bank(self, amount):
+        """
+            Deposits given amount of USDC from user's account to margin bank
+
+            Inputs:
+                amount: quantity of usdc to be deposited to margin bank
+
+            Returns:
+                Boolean: true if amount is successfully deposited, false otherwise
+        """
+
+        usdc_contract = self.contracts.get_contract(name="USDC");
+        mb_contract = self.contracts.get_contract(name="MarginBank");
+
+        amount = to_big_number(amount,6);
+
+        # approve funds on usdc
+        
+        construct_txn = usdc_contract.functions.approve(mb_contract.address, amount).buildTransaction(
+        {
+            'from': self.account.address,
+            'nonce': self.w3.eth.getTransactionCount(self.account.address),
+        })
+
+        tx_create = self.w3.eth.account.signTransaction(construct_txn, self.account.key)
+
+        tx_hash = self.w3.eth.sendRawTransaction(tx_create.rawTransaction)
+        self.w3.eth.waitForTransactionReceipt(tx_hash)
+
+
+        # deposit to margin bank
+        construct_txn = mb_contract.functions.depositToBank(self.account.address, amount).buildTransaction(
+        {
+            'from': self.account.address,
+            'nonce': self.w3.eth.getTransactionCount(self.account.address),
+        })
+
+        tx_create = self.w3.eth.account.signTransaction(construct_txn, self.account.key)
+
+        tx_hash = self.w3.eth.sendRawTransaction(tx_create.rawTransaction)
+        self.w3.eth.waitForTransactionReceipt(tx_hash)
+
+        return True;
 
     ## GETTERS
     def get_order_signer(self,symbol:MARKET_SYMBOLS=None):
@@ -562,7 +605,7 @@ class FireflyClient:
         account_data_by_market = self.get_user_account_data()["accountDataByMarket"]
         for i in account_data_by_market:
             if symbol.value==i["symbol"]:
-                return bn_to_number(i["selectedLeverage"])    
+                return big_number_to_base(i["selectedLeverage"])    
         return "Provided Market Symbol({}) does not exist".format(symbol)
     
     def get_boba_balance(self):
@@ -580,7 +623,9 @@ class FireflyClient:
         """
         try:
             contract = self.contracts.get_contract(name="USDC")
-            return contract.functions.balanceOf(self.account.address).call()/1e18
+            raw_bal = contract.functions.balanceOf(self.account.address).call();
+            print(raw_bal);
+            return big_number_to_base(int(raw_bal), 6)
         except Exception as e:
             raise(Exception("Failed to get balance, Exception: {}".format(e)))
 
