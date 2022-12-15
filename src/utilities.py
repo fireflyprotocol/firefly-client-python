@@ -1,14 +1,13 @@
-import asyncio
 from datetime import datetime
 from random import randint
 from web3 import Web3
 
 
-def to_bn(value):
-    return int(value*1e18)
+def to_big_number(value, num_decimals=18):    
+    return int(value* (10**num_decimals))
 
-def bn_to_number(value):
-    return int(value)/1e18
+def big_number_to_base(value, num_decimals=18):
+    return int(value) / 10**num_decimals
 
 def strip_hex_prefix(input):
     if input[0:2] == '0x':
