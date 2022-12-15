@@ -608,12 +608,12 @@ class FireflyClient:
                 return big_number_to_base(i["selectedLeverage"])    
         return "Provided Market Symbol({}) does not exist".format(symbol)
     
-    def get_boba_balance(self):
+    def get_native_chain_token_balance(self):
         """
-            Returns user's FFLY token balance.
+            Returns user's native chain token (ETH/BOBA) balance
         """
         try:
-            return self.w3.eth.get_balance(self.w3.toChecksumAddress(self.account.address))/1e18
+            return big_number_to_base(self.w3.eth.get_balance(self.w3.toChecksumAddress(self.account.address)))
         except Exception as e:
             raise(Exception("Failed to get balance, Exception: {}".format(e)))
 
@@ -624,7 +624,6 @@ class FireflyClient:
         try:
             contract = self.contracts.get_contract(name="USDC")
             raw_bal = contract.functions.balanceOf(self.account.address).call();
-            print(raw_bal);
             return big_number_to_base(int(raw_bal), 6)
         except Exception as e:
             raise(Exception("Failed to get balance, Exception: {}".format(e)))
