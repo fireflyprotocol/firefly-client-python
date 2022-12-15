@@ -25,4 +25,4 @@ jobs:
         if: startsWith(github.ref, 'refs/tags')
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          password: "pypi-AgEIcHlwaS5vcmcCJGI0ODA3NThkLWYzODAtNDBhMi05MGJjLTZiNTNlMjIyZmJiNgACKlszLCJhZmRiYjYxNi1iMWFiLTQyNzgtODY3Yy0yODdmN2Y0Zjg0ODYiXQAABiA0dxgY72aE-3rXXseX7oAEIdKXCo83kcboKIlvqQ0VNA"
+          password: ${{ secrets.DANYAL_PYPI_KEY }}
