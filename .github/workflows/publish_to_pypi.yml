@@ -1,8 +1,10 @@
+---
 name: publish_to_pypi
 on:
-  workflow_dispatch:
+  workflow_dispatch: null
   pull_request:
-    branches: [main]
+    branches:
+      - main
     types:
       - closed
 jobs:
@@ -10,27 +12,17 @@ jobs:
     name: Build and publish Python 🐍 distributions 📦 to PyPI and TestPyPI
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@master
-    - name: Set up Python 3.10
-      uses: actions/setup-python@v3
-      with:
-        python-version: "3.10"
-    - name: Install pypa/build
-      run: >-
-        python -m
-        pip install
-        build
-        --user
-    - name: Build a binary wheel and a source tarball
-      run: >-
-        python -m
-        build
-        --sdist
-        --wheel
-        --outdir dist/
-        .
-    - name: Publish distribution 📦 to PyPI
-      if: startsWith(github.ref, 'refs/tags')
-      uses: pypa/gh-action-pypi-publish@release/v1
-      with:
-        password: "pypi-AgEIcHlwaS5vcmcCJGI0ODA3NThkLWYzODAtNDBhMi05MGJjLTZiNTNlMjIyZmJiNgACKlszLCJhZmRiYjYxNi1iMWFiLTQyNzgtODY3Yy0yODdmN2Y0Zjg0ODYiXQAABiA0dxgY72aE-3rXXseX7oAEIdKXCo83kcboKIlvqQ0VNA"
+      - uses: actions/checkout@master
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.10"
+      - name: Install pypa/build
+        run: python -m pip install build --user
+      - name: Build a binary wheel and a source tarball
+        run: python -m build --sdist --wheel --outdir dist/ .
+      - name: Publish distribution 📦 to PyPI
+        if: startsWith(github.ref, 'refs/tags')
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: pypi-AgEIcHlwaS5vcmcCJGI0ODA3NThkLWYzODAtNDBhMi05MGJjLTZiNTNlMjIyZmJiNgACKlszLCJhZmRiYjYxNi1iMWFiLTQyNzgtODY3Yy0yODdmN2Y0Zjg0ODYiXQAABiA0dxgY72aE-3rXXseX7oAEIdKXCo83kcboKIlvqQ0VNA
