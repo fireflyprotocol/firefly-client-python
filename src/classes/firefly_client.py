@@ -47,7 +47,7 @@ class FireflyClient:
 
     def onboard_user(self, token:str=None):
         """
-            Onboards the user addresss and returns user autherntication token.
+            On boards the user address and returns user authentication token.
             Inputs:
                 - token: user access token, if you possess one.
             Returns:
@@ -345,10 +345,7 @@ class FireflyClient:
             Returns:
                 - dict: exchange status
         """
-        return self.apis.get(
-            SERVICE_URLS["STATUS"],
-            {} 
-            )
+        return self.apis.get(SERVICE_URLS["STATUS"], {})
 
     def get_market_symbols(self):
         """
