@@ -9,6 +9,7 @@ on:
       - closed
 jobs:
   build-n-publish:
+    if: github.event.pull_request.merged == true
     name: Build and publish Python 🐍 distributions 📦 to PyPI and TestPyPI
     runs-on: ubuntu-latest
     steps:
@@ -24,4 +25,5 @@ jobs:
       - name: Publish distribution 📦 to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          password: ${{ secrets.DANYAL_PYPI_KEY }}
+          password: ${{ secrets.PYPI_API_KEY }}
+          skip_existing: true
