@@ -64,8 +64,6 @@ def place_market_order():
     # add market that you wish to trade on ETH/BTC are supported currently
     print('Market added:', client.add_market(MARKET_SYMBOLS.BTC))
 
-    print('Current leverage:', client.add_market(MARKET_SYMBOLS.BTC))
-
     # default leverage of account is set to 3 on firefly
     user_leverage = client.get_user_leverage(MARKET_SYMBOLS.BTC)
 
