@@ -10,8 +10,9 @@ sys.path.append(os.path.abspath(os.path.join(script_dir, "../src/classes")))
 from config import TEST_ACCT_KEY
 from firefly_client import FireflyClient
 from constants import Networks
-from enumerations import MARKET_SYMBOLS
-
+from enumerations import MARKET_SYMBOLS, ADJUST_MARGIN
+from utilities import big_number_to_base
+from pprint import pprint
 
 
 def main():
@@ -24,20 +25,29 @@ def main():
         True, # on boards user on firefly. Must be set to true for first time use
         )
     
+    position = client.get_user_position({"symbol":MARKET_SYMBOLS.BTC});
+    print("Current margin in position:", big_number_to_base(position["margin"]))
 
-    print('Leverage on BTC market:', client.get_user_leverage(MARKET_SYMBOLS.BTC))
-    # we have a position on BTC so this will perform on-chain leverage update
+    # adding 100$ from our margin bank into our BTC position on-chain
     # must have native chain tokens to pay for gas fee
-    client.adjust_margin(MARKET_SYMBOLS.BTC, 6);
+    client.adjust_margin(MARKET_SYMBOLS.BTC, ADJUST_MARGIN.ADD, 100);
 
-    print('Leverage on BTC market:', client.get_user_leverage(MARKET_SYMBOLS.BTC))
+    # get updated position margin. Note it can take a few seconds to show updates
+    # to on-chain positions on exchange as off-chain infrastructure waits for blockchain
+    # to emit position update event
+    position = client.get_user_position({"symbol":MARKET_SYMBOLS.BTC});
+    print("Current margin in position:", big_number_to_base(position["margin"]))
 
 
-    print('Leverage on ETH market:', client.get_user_leverage(MARKET_SYMBOLS.ETH))
-    # since we don't have a position on-chain, it will perform off-chain leverage adjustment
-    client.adjust_leverage(MARKET_SYMBOLS.ETH, 4);
+    # removing 100$ from margin
+    client.adjust_margin(MARKET_SYMBOLS.BTC, ADJUST_MARGIN.REMOVE, 100);
 
-    print('Leverage on ETH market:', client.get_user_leverage(MARKET_SYMBOLS.ETH))
+    position = client.get_user_position({"symbol":MARKET_SYMBOLS.BTC});
+    print("Current margin in position:", big_number_to_base(position["margin"]))
+
+
+    # will throw as user does not have any open position on ETH to adjust margin on
+    client.adjust_margin(MARKET_SYMBOLS.ETH, ADJUST_MARGIN.ADD, 100);
 
 
 

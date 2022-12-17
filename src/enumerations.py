@@ -84,3 +84,8 @@ class SOCKET_EVENTS(Enum):
 class MARGIN_TYPE(Enum):
     ISOLATED = "ISOLATED"
     CROSS = "CROSS"
+
+
+class ADJUST_MARGIN(Enum):
+    ADD = "ADD"
+    REMOVE = "REMOVE"

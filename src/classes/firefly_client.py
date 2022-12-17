@@ -11,11 +11,11 @@ from contracts import Contracts
 from order_signer import OrderSigner
 from onboarding_signer import OnboardingSigner
 from utilities import *
-from constants import ADDRESSES, TIME, SERVICE_URLS
+from constants import TIME, SERVICE_URLS
 from interfaces import *
 from eth_account import Account
 from sockets import Sockets
-from enumerations import ORDER_SIDE, ORDER_TYPE, MARKET_SYMBOLS, MARGIN_TYPE
+from enumerations import *
 
 
 class FireflyClient:
@@ -419,11 +419,11 @@ class FireflyClient:
         if(user_position != {}):
             perp_contract = self.contracts.get_contract(name="Perpetual", market=symbol.value);
             construct_txn = perp_contract.functions.adjustLeverage(
-            self.account.address, 
-            to_big_number(leverage)).buildTransaction({
-                'from': self.account.address,
-                'nonce': self.w3.eth.getTransactionCount(self.account.address),
-                })
+                self.account.address, 
+                to_big_number(leverage)).buildTransaction({
+                    'from': self.account.address,
+                    'nonce': self.w3.eth.getTransactionCount(self.account.address),
+                    })
 
             self._execute_tx(construct_txn)
 
@@ -441,6 +441,39 @@ class FireflyClient:
         
         return True
  
+    def adjust_margin(self, symbol, operation, amount):
+        """
+            Adjusts user's on-chain position by adding or removing the specified amount of margin.
+            Performs on-chain contract call, the user must have gas tokens
+            Inputs:
+                symbol (MARKET_SYMBOLS): market for which to adjust user leverage
+                operation (ADJUST_MARGIN): ADD/REMOVE adding or removing margin to position
+                amount (number): amount of margin to be adjusted
+
+            Returns:
+                Boolean: true if the margin is adjusted
+        """
+
+        user_position = self.get_user_position({"symbol":symbol})
+
+        if(user_position == {}):
+            raise(Exception("User has no open position on market: {}".format(symbol)))
+        else:
+            perp_contract = self.contracts.get_contract(name="Perpetual", market=symbol.value);
+            on_chain_call = perp_contract.functions.addMargin if operation == ADJUST_MARGIN.ADD  else perp_contract.functions.removeMargin
+
+            construct_txn = on_chain_call(
+                self.account.address, 
+                to_big_number(amount)).buildTransaction({
+                    'from': self.account.address,
+                    'nonce': self.w3.eth.getTransactionCount(self.account.address),
+                    })
+
+            self._execute_tx(construct_txn)
+        
+        return True
+ 
+
 
     ## GETTERS
     def get_order_signer(self,symbol:MARKET_SYMBOLS=None):
