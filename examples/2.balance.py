@@ -28,10 +28,10 @@ def main():
   # check margin bank balance
   print('Margin bank balance:', client.get_margin_bank_balance());
 
-  # assuming you have usdc ( can check usdc balance using client.get_usdc_balance())
-  print('USDC balance:', client.get_usdc_balance());
+  print('USDC balance:', client.get_usdc_balance());  
 
   # deposit usdc to margin bank
+  # must have native chain tokens to pay for gas fee
   print('USDC deposited:',client.deposit_margin_to_bank(10));
 
   # check margin bank balance

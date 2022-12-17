@@ -10,7 +10,7 @@ sys.path.append(os.path.abspath(os.path.join(script_dir, "../src/classes")))
 from config import TEST_ACCT_KEY
 from firefly_client import FireflyClient
 from constants import Networks
-from enums import MARKET_SYMBOLS, ORDER_SIDE, ORDER_TYPE
+from enumerations import MARKET_SYMBOLS, ORDER_SIDE, ORDER_TYPE
 from interfaces import OrderSignatureRequest
 
 
@@ -25,8 +25,6 @@ def place_limit_order():
     
     # add market that you wish to trade on ETH/BTC are supported currently
     print('Market added:', client.add_market(MARKET_SYMBOLS.ETH))
-
-    print('Current leverage:', client.add_market(MARKET_SYMBOLS.ETH))
 
     # default leverage of account is set to 3 on firefly
     user_leverage = client.get_user_leverage(MARKET_SYMBOLS.ETH)
@@ -44,6 +42,7 @@ def place_limit_order():
     # create signed order
     signed_order = client.create_signed_order(signature_request);
 
+    print("Placing a limit order")
     # place signed order on orderbook
     resp = client.post_signed_order(signed_order)
 
@@ -80,11 +79,13 @@ def place_market_order():
     # create signed order
     signed_order = client.create_signed_order(signature_request);
 
+    print("Placing a market order")
     # place signed order on orderbook
     resp = client.post_signed_order(signed_order)
 
     # returned order with PENDING state
     print(resp)
+
 
     return
 
