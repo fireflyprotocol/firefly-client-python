@@ -1,14 +1,21 @@
+import os
+import sys
+
+# paths
+script_dir = os.path.dirname(os.path.realpath(__file__))
+sys.path.append(os.path.abspath(os.path.join(script_dir, "../")))
+
+
 from api_service import APIService
 from contracts import Contracts
 from order_signer import OrderSigner
 from onboarding_signer import OnboardingSigner
 from utilities import *
-from enums import ORDER_SIDE, ORDER_TYPE
 from constants import ADDRESSES, TIME, SERVICE_URLS
 from interfaces import *
-from enums import MARKET_SYMBOLS
 from eth_account import Account
 from sockets import Sockets
+from enumerations import ORDER_SIDE, ORDER_TYPE, MARKET_SYMBOLS, MARGIN_TYPE
 
 
 class FireflyClient:
@@ -24,12 +31,15 @@ class FireflyClient:
         self.contracts.contract_addresses = self.get_contract_addresses()
         self.onboarding_signer = OnboardingSigner()
         
-        # todo fetch from api
-        self.default_leverage = 3
 
         # adding auxiliaryContracts to contracts class
         for i,j in self.contracts.get_contract_address(market="auxiliaryContractsAddresses").items():
             self.add_contract(name=i,address=j)
+        
+        # contracts pertaining to markets
+        for k, v in self.contracts.contract_addresses.items():
+            if 'PERP' in k:
+                self.add_contract(name="Perpetual",address=v["Perpetual"], market=k)
         
         if user_onboarding:
             self.apis.auth_token = self.onboard_user()
@@ -121,7 +131,7 @@ class FireflyClient:
             Inputs:
                 - name(str): The contract name.
                 - address(str): The contract address.
-                - market(str): The market this contract belongs to (required for market specific contracts).
+                - market(str): The market (ETH/BTC) this contract belongs to (required for market specific contracts).
         """
         abi = self.contracts.get_contract_abi(name)
         if market:
@@ -153,10 +163,10 @@ class FireflyClient:
             isBuy = params["side"] == ORDER_SIDE.BUY,
             price = to_big_number(params["price"]),
             quantity =  to_big_number(params["quantity"]),
-            leverage =  to_big_number(default_value(params, "leverage", self.default_leverage)),
+            leverage =  to_big_number(default_value(params, "leverage", 1)),
             maker =  self.account.address.lower(),
             reduceOnly =  default_value(params, "reduceOnly", False),
-            triggerPrice =  to_big_number(0),
+            triggerPrice =  0,
             expiration =  default_value(params, "expiration", expiration),
             salt =  default_value(params, "salt", random_number(1000000)),
             )
@@ -188,7 +198,7 @@ class FireflyClient:
             price=params["price"],
             quantity=params["quantity"],
             side=params["side"],
-            leverage=default_value(params, "leverage", self.default_leverage),
+            leverage=default_value(params, "leverage", 1),
             reduceOnly=default_value(params, "reduceOnly", False),
             salt=order["salt"],
             expiration=order["expiration"],
@@ -328,7 +338,7 @@ class FireflyClient:
             Deposits given amount of USDC from user's account to margin bank
 
             Inputs:
-                amount: quantity of usdc to be deposited to margin bank
+                amount (number): quantity of usdc to be deposited to bank in base decimals (1,2 etc)
 
             Returns:
                 Boolean: true if amount is successfully deposited, false otherwise
@@ -368,7 +378,7 @@ class FireflyClient:
             Withdraws given amount of usdc from margin bank if possible
 
             Inputs:
-                amount: quantity of usdc to be withdrawn from bank
+                amount (number): quantity of usdc to be withdrawn from bank in base decimals (1,2 etc)
 
             Returns:
                 Boolean: true if amount is successfully withdrawn, false otherwise
@@ -390,6 +400,48 @@ class FireflyClient:
         return True;
 
 
+    def adjust_leverage(self, symbol, leverage):
+        """
+            Adjusts user leverage to the provided one for their current position on-chain and off-chain.
+            If a user has no position for the provided symbol, leverage only recorded off-chain
+
+            Inputs:
+                symbol (MARKET_SYMBOLS): market for which to adjust user leverage
+                leverage (number): new leverage to be set. Must be in base decimals (1,2 etc.)
+
+            Returns:
+                Boolean: true if the leverage is successfully adjusted
+        """
+
+        user_position = self.get_user_position({"symbol":symbol})
+
+        # implies user has an open position on-chain, perform on-chain leverage update
+        if(user_position != {}):
+            perp_contract = self.contracts.get_contract(name="Perpetual", market=symbol.value);
+            construct_txn = perp_contract.functions.adjustLeverage(
+            self.account.address, 
+            to_big_number(leverage)).buildTransaction({
+                'from': self.account.address,
+                'nonce': self.w3.eth.getTransactionCount(self.account.address),
+                })
+
+            self._execute_tx(construct_txn)
+
+        else:
+            self.apis.post(
+                SERVICE_URLS["USER"]["ADJUST_LEVERAGE"],
+                {
+                    "symbol": symbol.value,
+                    "address": self.account.address,
+                    "leverage": to_big_number(leverage),
+                    "marginType": MARGIN_TYPE.ISOLATED.value,
+                    },
+                auth_required=True
+                )
+        
+        return True
+ 
+
     ## GETTERS
     def get_order_signer(self,symbol:MARKET_SYMBOLS=None):
         """
@@ -403,7 +455,7 @@ class FireflyClient:
             if symbol.value in self.order_signers.keys():
                 return self.order_signers[symbol.value]
             else:
-                return "signer doesnt exist"
+                return "signer does not exist"
         else:
             return self.order_signers
 
@@ -633,7 +685,7 @@ class FireflyClient:
             auth_required = True
         )
         
-    def get_user_default_leverage(self, symbol:MARKET_SYMBOLS):
+    def get_user_leverage(self, symbol:MARKET_SYMBOLS):
         """
             Returns user market default leverage.
             Inputs:
@@ -642,10 +694,15 @@ class FireflyClient:
                 - str: user default leverage 
         """
         account_data_by_market = self.get_user_account_data()["accountDataByMarket"]
+        
         for i in account_data_by_market:
             if symbol.value==i["symbol"]:
-                return big_number_to_base(i["selectedLeverage"])    
-        return "Provided Market Symbol({}) does not exist".format(symbol)
+                return int(big_number_to_base(i["selectedLeverage"]))    
+
+        # default leverage on system is 3
+        # todo fetch from exchange info route
+        return 3
+
     
     def get_native_chain_token_balance(self):
         """
