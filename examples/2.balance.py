@@ -25,9 +25,10 @@ def main():
   # A user must have native tokens to perform contract calls
   print('Chain token balance:', client.get_native_chain_token_balance());
 
-  # check margin bank balance
+  # check margin bank balance on-chain
   print('Margin bank balance:', client.get_margin_bank_balance());
 
+  # check usdc balance user has on-chain
   print('USDC balance:', client.get_usdc_balance());  
 
   # deposit usdc to margin bank

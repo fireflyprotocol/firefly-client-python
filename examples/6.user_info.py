@@ -11,7 +11,7 @@ from config import TEST_ACCT_KEY
 from firefly_client import FireflyClient
 from constants import Networks
 from enumerations import MARKET_SYMBOLS
-
+from pprint import pprint
 
 
 def main():
@@ -24,14 +24,20 @@ def main():
         True, # on boards user on firefly. Must be set to true for first time use
         )
 
+    # gets user account data on firefly exchange
+    data = client.get_user_account_data()
+
+    pprint(data)
+
     position = client.get_user_position({"symbol":MARKET_SYMBOLS.ETH})
     
     # returns {} when user has no position
-    print("No Position:", position)
+    pprint(position)
 
     position = client.get_user_position({"symbol":MARKET_SYMBOLS.BTC})
+    
     # returns user position if exists
-    print("Position:", position)
+    pprint(position)
 
 
 if __name__ == "__main__":

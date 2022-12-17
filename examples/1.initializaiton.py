@@ -23,6 +23,11 @@ def main():
 
   print('Account Address:', client.get_public_address());
 
+  # gets user account data on-chain
+  data = client.get_user_account_data()
+
+  print(data)
+
 
 if __name__ == "__main__":
     main()
