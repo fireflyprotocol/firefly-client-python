@@ -1,5 +1,5 @@
 from typing import TypedDict
-from enums import *
+from enumerations import *
 
 class Order(TypedDict):
     isBuy: bool 
