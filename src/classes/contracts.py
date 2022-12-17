@@ -18,12 +18,15 @@ class Contracts:
             self.contract_addresses = contract_address
         return 
     
-    def set_contracts(self,contract,name,market=None):
+    def set_contracts(self,contract,name,market=None):        
         if market:
+            if market not in self.contracts:
+                self.contracts[market] = {}
             if name:
                 self.contracts[market][name] = contract
             else:
                 self.contracts[market] = contract
+
         elif name:
             self.contracts[name] = contract
         else:
