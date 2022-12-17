@@ -1,4 +1,5 @@
 from enum import Enum
+
 class ORDER_TYPE(Enum):
     LIMIT = "LIMIT"
     MARKET = "MARKET"
@@ -62,8 +63,6 @@ class Interval(Enum):
     _1w = "1w" 
     _1M = "1M"
 
-
-
 class SOCKET_EVENTS(Enum):
     GET_LAST_KLINE_WITH_INTERVAL = "{symbol}@kline@{interval}",
     GLOBAL_UPDATES_ROOM = "globalUpdates",
@@ -81,3 +80,7 @@ class SOCKET_EVENTS(Enum):
     UserTradeKey = "UserTrade",
     UserTransaction = "UserTransaction",
     AccountDataUpdateKey = "AccountDataUpdate"
+
+class MARGIN_TYPE(Enum):
+    ISOLATED = "ISOLATED"
+    CROSS = "CROSS"
