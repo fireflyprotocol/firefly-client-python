@@ -91,7 +91,7 @@ class GetMarketRecentTradesRequest(TypedDict):
   symbol: MARKET_SYMBOLS
   pageSize: int
   pageNumber: int
-  traders: str
+  traders: TRADE_TYPE
 
 class OrderCancelSignatureRequest(TypedDict):
   symbol: MARKET_SYMBOLS
