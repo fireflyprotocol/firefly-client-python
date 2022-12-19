@@ -23,27 +23,27 @@ class ONBOARDING_MESSAGES(Enum):
     KEY_DERIVATION = "Firefly Access Key"
 
 class ORDER_STATUS(Enum): 
-    PENDING = "PENDING",
-    OPEN = "OPEN",
-    PARTIAL_FILLED = "PARTIAL_FILLED",
-    FILLED = "FILLED",
-    CANCELLING = "CANCELLING",
-    CANCELLED = "CANCELLED",
-    REJECTED = "REJECTED",
+    PENDING = "PENDING"
+    OPEN = "OPEN"
+    PARTIAL_FILLED = "PARTIAL_FILLED"
+    FILLED = "FILLED"
+    CANCELLING = "CANCELLING"
+    CANCELLED = "CANCELLED"
+    REJECTED = "REJECTED"
     EXPIRED = "EXPIRED"
 
 class CANCEL_REASON(Enum):
-    UNDERCOLLATERALIZED = "UNDERCOLLATERALIZED",
-    INSUFFICIENT_BALANCE = "INSUFFICIENT_BALANCE",
-    USER_CANCELLED = "USER_CANCELLED",
-    EXCEEDS_MARKET_BOUND = "EXCEEDS_MARKET_BOUND",
-    COULD_NOT_FILL = "COULD_NOT_FILL",
-    EXPIRED = "EXPIRED",
-    USER_CANCELLED_ON_CHAIN = "USER_CANCELLED_ON_CHAIN",
-    SYSTEM_CANCELLED = "SYSTEM_CANCELLED",
-    SELF_TRADE = "SELF_TRADE",
-    POST_ONLY_FAIL = "POST_ONLY_FAIL",
-    FAILED = "FAILED",
+    UNDERCOLLATERALIZED = "UNDERCOLLATERALIZED"
+    INSUFFICIENT_BALANCE = "INSUFFICIENT_BALANCE"
+    USER_CANCELLED = "USER_CANCELLED"
+    EXCEEDS_MARKET_BOUND = "EXCEEDS_MARKET_BOUND"
+    COULD_NOT_FILL = "COULD_NOT_FILL"
+    EXPIRED = "EXPIRED"
+    USER_CANCELLED_ON_CHAIN = "USER_CANCELLED_ON_CHAIN"
+    SYSTEM_CANCELLED = "SYSTEM_CANCELLED"
+    SELF_TRADE = "SELF_TRADE"
+    POST_ONLY_FAIL = "POST_ONLY_FAIL"
+    FAILED = "FAILED"
     NETWORK_DOWN = "NETWORK_DOWN"
 
 class Interval(Enum):
@@ -64,21 +64,21 @@ class Interval(Enum):
     _1M = "1M"
 
 class SOCKET_EVENTS(Enum):
-    GET_LAST_KLINE_WITH_INTERVAL = "{symbol}@kline@{interval}",
-    GLOBAL_UPDATES_ROOM = "globalUpdates",
-    GlobalUpdatesRoom = "globalUpdates",
-    MarketDataUpdateKey = "MarketDataUpdate",
-    RecentTradesKey = "RecentTrades",
-    OrderbookUpdateKey = "OrderbookUpdate",
-    AdjustMarginKey = "AdjustMargin",
-    MarketHealthKey = "MarketHealth",
-    ExchangeHealthKey = "ExchangeHealth",
-    UserUpdatesRoom = "userUpdates",
-    OrderUpdateKey = "OrderUpdate",
-    OrderCancelledKey = "OrderCancelled",
-    PositionUpdateKey = "PositionUpdate",
-    UserTradeKey = "UserTrade",
-    UserTransaction = "UserTransaction",
+    GET_LAST_KLINE_WITH_INTERVAL = "{symbol}@kline@{interval}"
+    GLOBAL_UPDATES_ROOM = "globalUpdates"
+    GlobalUpdatesRoom = "globalUpdates"
+    MarketDataUpdateKey = "MarketDataUpdate"
+    RecentTradesKey = "RecentTrades"
+    OrderbookUpdateKey = "OrderbookUpdate"
+    AdjustMarginKey = "AdjustMargin"
+    MarketHealthKey = "MarketHealth"
+    ExchangeHealthKey = "ExchangeHealth"
+    UserUpdatesRoom = "userUpdates"
+    OrderUpdateKey = "OrderUpdate"
+    OrderCancelledKey = "OrderCancelled"
+    PositionUpdateKey = "PositionUpdate"
+    UserTradeKey = "UserTrade"
+    UserTransaction = "UserTransaction"
     AccountDataUpdateKey = "AccountDataUpdate"
 
 class MARGIN_TYPE(Enum):
