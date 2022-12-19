@@ -131,6 +131,6 @@ class GetUserTradesRequest(TypedDict):
   type: ORDER_TYPE
 
 class GetOrderRequest(GetTransactionHistoryRequest):
-  status: ORDER_STATUS; # status of orders to be fetched
+  statuses:ORDER_STATUS # status of orders to be fetched
 
 

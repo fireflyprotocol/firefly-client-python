@@ -277,8 +277,9 @@ class FireflyClient:
         """
         orders = self.get_orders({
             "symbol":symbol,
-            "status":ORDER_STATUS.OPEN
+            "statuses":[ORDER_STATUS.OPEN, ORDER_STATUS.PARTIAL_FILLED]
         })
+
         hashes = []
         for i in orders:
             hashes.append(i["hash"])
@@ -657,8 +658,8 @@ class FireflyClient:
             Returns:
                 - list: a list of orders 
         """
-        
         params = extract_enums(params,["symbol","statuses"])
+
         return self.apis.get(
             SERVICE_URLS["USER"]["ORDERS"],
             params,
