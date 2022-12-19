@@ -1,0 +1,12 @@
+[build-system]
+requires = [
+    "setuptools>=42",
+    "wheel"
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "firefly_exchange_client"
+version = "0.0.1"
+description = "Library to interact with firefly api gateway"
+readme = "README.md"
