@@ -283,8 +283,12 @@ class FireflyClient:
         hashes = []
         for i in orders:
             hashes.append(i["hash"])
-        req = self.create_signed_cancel_orders(symbol,hashes)
-        return self.post_cancel_order(req)
+        
+        if len(hashes) > 0:
+            req = self.create_signed_cancel_orders(symbol,hashes)
+            return self.post_cancel_order(req)
+
+        return False
     
     def post_signed_order(self, params:PlaceOrderRequest):
         """

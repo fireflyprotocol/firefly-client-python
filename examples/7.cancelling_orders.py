@@ -62,10 +62,13 @@ def main():
     
     pprint(resp)
 
-    # cancels all open orders
+    # cancels all open orders, returns false if there is no open order to cancel
     resp = client.cancel_all_open_orders(MARKET_SYMBOLS.ETH)
 
-    pprint(resp)
+    if resp == False:
+        print('No open order to cancel')
+    else:
+        pprint(resp)
 
 if __name__ == "__main__":
     main()
