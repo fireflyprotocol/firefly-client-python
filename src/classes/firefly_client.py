@@ -240,7 +240,7 @@ class FireflyClient:
             order_hash = [order_hash]
         order_signer:OrderSigner = self.get_order_signer(symbol)
         cancel_hash = order_signer.sign_cancellation_hash(order_hash)
-        hash_sig = order_signer.sign_hash(cancel_hash,self.account.key.hex())
+        hash_sig = order_signer.sign_hash(cancel_hash,self.account.key.hex(), "01")
         return OrderCancellationRequest(
             symbol=symbol.value,
             hashes=order_hash,
@@ -255,6 +255,7 @@ class FireflyClient:
             Returns:
                 - dict: response from orders delete API Firefly
         """
+
         return self.apis.delete(
             SERVICE_URLS["ORDERS"]["ORDERS_HASH"],
             {
@@ -488,7 +489,7 @@ class FireflyClient:
             if symbol.value in self.order_signers.keys():
                 return self.order_signers[symbol.value]
             else:
-                return "signer does not exist"
+                raise(Exception("Signer does not exist. Make sure to add market"))
         else:
             return self.order_signers
 
@@ -656,6 +657,7 @@ class FireflyClient:
             Returns:
                 - list: a list of orders 
         """
+        
         params = extract_enums(params,["symbol","statuses"])
         return self.apis.get(
             SERVICE_URLS["USER"]["ORDERS"],
