@@ -8,7 +8,7 @@ sys.path.append(os.path.abspath(os.path.join(script_dir, "../src/classes")))
 
 
 from config import TEST_ACCT_KEY
-from firefly_client import FireflyClient
+from firefly_exchange_client import FireflyClient
 from constants import Networks
 from enumerations import MARKET_SYMBOLS, Interval, TRADE_TYPE
 from pprint import pprint

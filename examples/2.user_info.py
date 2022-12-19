@@ -8,7 +8,7 @@ sys.path.append(os.path.abspath(os.path.join(script_dir, "../src/classes")))
 
 
 from config import TEST_ACCT_KEY
-from firefly_client import FireflyClient
+from firefly_exchange_client import FireflyClient
 from constants import Networks
 from enumerations import MARKET_SYMBOLS
 from pprint import pprint
@@ -25,19 +25,19 @@ def main():
         )
 
     # gets user account data on firefly exchange
-    data = client.get_user_account_data()
+    # data = client.get_user_account_data()
 
-    pprint(data)
+    # pprint(data)
 
-    position = client.get_user_position({"symbol":MARKET_SYMBOLS.ETH})
+    # position = client.get_user_position({"symbol":MARKET_SYMBOLS.ETH})
     
-    # returns {} when user has no position
-    pprint(position)
+    # # returns {} when user has no position
+    # pprint(position)
 
-    position = client.get_user_position({"symbol":MARKET_SYMBOLS.BTC})
+    # position = client.get_user_position({"symbol":MARKET_SYMBOLS.BTC})
     
-    # returns user position if exists
-    pprint(position)
+    # # returns user position if exists
+    # pprint(position)
 
 
 if __name__ == "__main__":
