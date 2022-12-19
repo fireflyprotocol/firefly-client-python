@@ -89,3 +89,7 @@ class MARGIN_TYPE(Enum):
 class ADJUST_MARGIN(Enum):
     ADD = "ADD"
     REMOVE = "REMOVE"
+
+class TRADE_TYPE(Enum):
+    ISOLATED = "IsolatedTrader"
+    LIQUIDATION = "IsolatedLiquidation"
