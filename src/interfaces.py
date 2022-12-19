@@ -1,5 +1,5 @@
 from typing import TypedDict
-from enums import *
+from enumerations import *
 
 class Order(TypedDict):
     isBuy: bool 
@@ -91,7 +91,7 @@ class GetMarketRecentTradesRequest(TypedDict):
   symbol: MARKET_SYMBOLS
   pageSize: int
   pageNumber: int
-  traders: str
+  traders: TRADE_TYPE
 
 class OrderCancelSignatureRequest(TypedDict):
   symbol: MARKET_SYMBOLS
@@ -131,6 +131,6 @@ class GetUserTradesRequest(TypedDict):
   type: ORDER_TYPE
 
 class GetOrderRequest(GetTransactionHistoryRequest):
-  status: ORDER_STATUS; # status of orders to be fetched
+  statuses:ORDER_STATUS # status of orders to be fetched
 
 

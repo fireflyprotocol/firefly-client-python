@@ -6,7 +6,8 @@
         "hexstr",
         "Keccak",
         "orderbook",
-        "PERP"
+        "PERP",
+        "UNDERCOLLATERALIZED"
     ],
     "python.analysis.extraPaths": [
         "./src/classes"

@@ -1,15 +1,21 @@
-import os, json
+import os
+import sys
+
+# paths
+script_dir = os.path.dirname(os.path.realpath(__file__))
+sys.path.append(os.path.abspath(os.path.join(script_dir, "../")))
+
+
 from api_service import APIService
 from contracts import Contracts
 from order_signer import OrderSigner
 from onboarding_signer import OnboardingSigner
-from utils import *
-from enums import ORDER_SIDE, ORDER_TYPE
-from constants import ADDRESSES, TIME, SERVICE_URLS
+from utilities import *
+from constants import TIME, SERVICE_URLS
 from interfaces import *
-from enums import MARKET_SYMBOLS
 from eth_account import Account
 from sockets import Sockets
+from enumerations import *
 
 
 class FireflyClient:
@@ -25,29 +31,24 @@ class FireflyClient:
         self.contracts.contract_addresses = self.get_contract_addresses()
         self.onboarding_signer = OnboardingSigner()
         
-        # todo fetch from api
-        self.default_leverage = 3
 
         # adding auxiliaryContracts to contracts class
         for i,j in self.contracts.get_contract_address(market="auxiliaryContractsAddresses").items():
             self.add_contract(name=i,address=j)
         
+        # contracts pertaining to markets
+        for k, v in self.contracts.contract_addresses.items():
+            if 'PERP' in k:
+                self.add_contract(name="Perpetual",address=v["Perpetual"], market=k)
+        
         if user_onboarding:
             self.apis.auth_token = self.onboard_user()
 
-    def _connect_w3(self,url):
-        """
-            Creates a connection to Web3 RPC given the RPC url.
-        """
-        try:
-            return Web3(Web3.HTTPProvider(url))
-        except:
-            raise(Exception("Failed to connect to Host: {}".format(url)))
-            
+ 
 
     def onboard_user(self, token:str=None):
         """
-            Onboards the user addresss and returns user autherntication token.
+            On boards the user address and returns user authentication token.
             Inputs:
                 - token: user access token, if you possess one.
             Returns:
@@ -122,7 +123,7 @@ class FireflyClient:
             Inputs:
                 - name(str): The contract name.
                 - address(str): The contract address.
-                - market(str): The market this contract belongs to (required for market specific contracts).
+                - market(str): The market (ETH/BTC) this contract belongs to (required for market specific contracts).
         """
         abi = self.contracts.get_contract_abi(name)
         if market:
@@ -152,12 +153,12 @@ class FireflyClient:
 
         return Order (
             isBuy = params["side"] == ORDER_SIDE.BUY,
-            price = to_bn(params["price"]),
-            quantity =  to_bn(params["quantity"]),
-            leverage =  to_bn(default_value(params, "leverage", self.default_leverage)),
+            price = to_big_number(params["price"]),
+            quantity =  to_big_number(params["quantity"]),
+            leverage =  to_big_number(default_value(params, "leverage", 1)),
             maker =  self.account.address.lower(),
             reduceOnly =  default_value(params, "reduceOnly", False),
-            triggerPrice =  to_bn(0),
+            triggerPrice =  0,
             expiration =  default_value(params, "expiration", expiration),
             salt =  default_value(params, "salt", random_number(1000000)),
             )
@@ -189,7 +190,7 @@ class FireflyClient:
             price=params["price"],
             quantity=params["quantity"],
             side=params["side"],
-            leverage=default_value(params, "leverage", self.default_leverage),
+            leverage=default_value(params, "leverage", 1),
             reduceOnly=default_value(params, "reduceOnly", False),
             salt=order["salt"],
             expiration=order["expiration"],
@@ -209,7 +210,7 @@ class FireflyClient:
             - OrderSignatureResponse: generated cancel signature 
         """
         try:
-            signer:OrderSigner = self.get_order_signer(params["symbol"])
+            signer:OrderSigner = self._get_order_signer(params["symbol"])
             order_to_sign = self.create_order_to_sign(params)
             hash = signer.get_order_hash(order_to_sign)
             return self.create_signed_cancel_orders(params["symbol"],hash)
@@ -229,9 +230,9 @@ class FireflyClient:
         """
         if type(order_hash)!=list:
             order_hash = [order_hash]
-        order_signer:OrderSigner = self.get_order_signer(symbol)
+        order_signer:OrderSigner = self._get_order_signer(symbol)
         cancel_hash = order_signer.sign_cancellation_hash(order_hash)
-        hash_sig = order_signer.sign_hash(cancel_hash,self.account.key.hex())
+        hash_sig = order_signer.sign_hash(cancel_hash,self.account.key.hex(), "01")
         return OrderCancellationRequest(
             symbol=symbol.value,
             hashes=order_hash,
@@ -246,6 +247,7 @@ class FireflyClient:
             Returns:
                 - dict: response from orders delete API Firefly
         """
+
         return self.apis.delete(
             SERVICE_URLS["ORDERS"]["ORDERS_HASH"],
             {
@@ -267,13 +269,18 @@ class FireflyClient:
         """
         orders = self.get_orders({
             "symbol":symbol,
-            "status":ORDER_STATUS.OPEN
+            "statuses":[ORDER_STATUS.OPEN, ORDER_STATUS.PARTIAL_FILLED]
         })
+
         hashes = []
         for i in orders:
             hashes.append(i["hash"])
-        req = self.create_signed_cancel_orders(symbol,hashes)
-        return self.post_cancel_order(req)
+        
+        if len(hashes) > 0:
+            req = self.create_signed_cancel_orders(symbol,hashes)
+            return self.post_cancel_order(req)
+
+        return False
     
     def post_signed_order(self, params:PlaceOrderRequest):
         """
@@ -291,9 +298,9 @@ class FireflyClient:
             SERVICE_URLS["ORDERS"]["ORDERS"],
             {
             "symbol": params["symbol"],
-            "price": to_bn(params["price"]),
-            "quantity": to_bn(params["quantity"]),
-            "leverage": to_bn(params["leverage"]),
+            "price": to_big_number(params["price"]),
+            "quantity": to_big_number(params["quantity"]),
+            "leverage": to_big_number(params["leverage"]),
             "userAddress": self.account.address.lower(),
             "orderType": params["orderType"].value,
             "side": params["side"].value,            
@@ -308,24 +315,179 @@ class FireflyClient:
             auth_required=True
             )
 
-    ## GETTERS
-    def get_order_signer(self,symbol:MARKET_SYMBOLS=None):
+    ## Contract calls
+    def deposit_margin_to_bank(self, amount):
         """
-            Returns the order signer for the specified symbol, else returns a dictionary of symbol -> order signer
-            Inputs:
-                - symbol(MARKET_SYMBOLS): the symbol to get order signer for, optional
-            Returns:
-                - dict/order signer object
-        """
-        if symbol:
-            if symbol.value in self.order_signers.keys():
-                return self.order_signers[symbol.value]
-            else:
-                return "signer doesnt exist"
-        else:
-            return self.order_signers
+            Deposits given amount of USDC from user's account to margin bank
 
+            Inputs:
+                amount (number): quantity of usdc to be deposited to bank in base decimals (1,2 etc)
+
+            Returns:
+                Boolean: true if amount is successfully deposited, false otherwise
+        """
+
+        usdc_contract = self.contracts.get_contract(name="USDC");
+        mb_contract = self.contracts.get_contract(name="MarginBank");
+
+        amount = to_big_number(amount,6);
+
+        # approve funds on usdc
+        
+        construct_txn = usdc_contract.functions.approve(
+            mb_contract.address, 
+            amount).buildTransaction({
+                'from': self.account.address,
+                'nonce': self.w3.eth.getTransactionCount(self.account.address),
+            })
+
+        self._execute_tx(construct_txn)
+
+        # deposit to margin bank
+        construct_txn = mb_contract.functions.depositToBank(
+            self.account.address, 
+            amount).buildTransaction({
+                'from': self.account.address,
+                'nonce': self.w3.eth.getTransactionCount(self.account.address),
+                })
+
+        self._execute_tx(construct_txn)
+
+        return True;
+
+    def withdraw_margin_from_bank(self, amount):
+        """
+            Withdraws given amount of usdc from margin bank if possible
+
+            Inputs:
+                amount (number): quantity of usdc to be withdrawn from bank in base decimals (1,2 etc)
+
+            Returns:
+                Boolean: true if amount is successfully withdrawn, false otherwise
+        """
+
+        mb_contract = self.contracts.get_contract(name="MarginBank");
+        amount = to_big_number(amount,6);
+
+        # withdraw from margin bank
+        construct_txn = mb_contract.functions.withdrawFromBank(
+            self.account.address, 
+            amount).buildTransaction({
+                'from': self.account.address,
+                'nonce': self.w3.eth.getTransactionCount(self.account.address),
+                })
+
+        self._execute_tx(construct_txn)
+
+        return True;
+
+    def adjust_leverage(self, symbol, leverage):
+        """
+            Adjusts user leverage to the provided one for their current position on-chain and off-chain.
+            If a user has no position for the provided symbol, leverage only recorded off-chain
+
+            Inputs:
+                symbol (MARKET_SYMBOLS): market for which to adjust user leverage
+                leverage (number): new leverage to be set. Must be in base decimals (1,2 etc.)
+
+            Returns:
+                Boolean: true if the leverage is successfully adjusted
+        """
+
+        user_position = self.get_user_position({"symbol":symbol})
+
+        # implies user has an open position on-chain, perform on-chain leverage update
+        if(user_position != {}):
+            perp_contract = self.contracts.get_contract(name="Perpetual", market=symbol.value);
+            construct_txn = perp_contract.functions.adjustLeverage(
+                self.account.address, 
+                to_big_number(leverage)).buildTransaction({
+                    'from': self.account.address,
+                    'nonce': self.w3.eth.getTransactionCount(self.account.address),
+                    })
+
+            self._execute_tx(construct_txn)
+
+        else:
+            self.apis.post(
+                SERVICE_URLS["USER"]["ADJUST_LEVERAGE"],
+                {
+                    "symbol": symbol.value,
+                    "address": self.account.address,
+                    "leverage": to_big_number(leverage),
+                    "marginType": MARGIN_TYPE.ISOLATED.value,
+                    },
+                auth_required=True
+                )
+        
+        return True
+ 
+    def adjust_margin(self, symbol, operation, amount):
+        """
+            Adjusts user's on-chain position by adding or removing the specified amount of margin.
+            Performs on-chain contract call, the user must have gas tokens
+            Inputs:
+                symbol (MARKET_SYMBOLS): market for which to adjust user leverage
+                operation (ADJUST_MARGIN): ADD/REMOVE adding or removing margin to position
+                amount (number): amount of margin to be adjusted
+
+            Returns:
+                Boolean: true if the margin is adjusted
+        """
+
+        user_position = self.get_user_position({"symbol":symbol})
+
+        if(user_position == {}):
+            raise(Exception("User has no open position on market: {}".format(symbol)))
+        else:
+            perp_contract = self.contracts.get_contract(name="Perpetual", market=symbol.value);
+            on_chain_call = perp_contract.functions.addMargin if operation == ADJUST_MARGIN.ADD  else perp_contract.functions.removeMargin
+
+            construct_txn = on_chain_call(
+                self.account.address, 
+                to_big_number(amount)).buildTransaction({
+                    'from': self.account.address,
+                    'nonce': self.w3.eth.getTransactionCount(self.account.address),
+                    })
+
+            self._execute_tx(construct_txn)
+        
+        return True
+ 
+    def get_native_chain_token_balance(self):
+        """
+            Returns user's native chain token (ETH/BOBA) balance
+        """
+        try:
+            return big_number_to_base(self.w3.eth.get_balance(self.w3.toChecksumAddress(self.account.address)))
+        except Exception as e:
+            raise(Exception("Failed to get balance, Exception: {}".format(e)))
+
+    def get_usdc_balance(self):
+        """
+            Returns user's USDC token balance on Firefly.
+        """
+        try:
+            contract = self.contracts.get_contract(name="USDC")
+            raw_bal = contract.functions.balanceOf(self.account.address).call();
+            return big_number_to_base(int(raw_bal), 6)
+        except Exception as e:
+            raise(Exception("Failed to get balance, Exception: {}".format(e)))
+
+    def get_margin_bank_balance(self):
+        """
+            Returns user's Margin Bank balance.
+        """
+        try:
+            contract = self.contracts.get_contract(name="MarginBank")
+            return contract.functions.getAccountBankBalance(self.account.address).call()/1e18
+        except Exception as e:
+            raise(Exception("Failed to get balance, Exception: {}".format(e)))
+
+
+    
     ## Market endpoints
+    
     def get_orderbook(self, params:GetOrderbookRequest):
         """
             Returns a dictionary containing the orderbook snapshot.
@@ -334,6 +496,8 @@ class FireflyClient:
             Returns:
                 - dict: Orderbook snapshot
         """
+        params = extract_enums(params, ["symbol"])
+
         return self.apis.get(
             SERVICE_URLS["MARKET"]["ORDER_BOOK"], 
             params
@@ -345,10 +509,7 @@ class FireflyClient:
             Returns:
                 - dict: exchange status
         """
-        return self.apis.get(
-            SERVICE_URLS["STATUS"],
-            {} 
-            )
+        return self.apis.get(SERVICE_URLS["MARKET"]["STATUS"], {})
 
     def get_market_symbols(self):
         """
@@ -363,18 +524,15 @@ class FireflyClient:
 
     def get_funding_rate(self,symbol:MARKET_SYMBOLS):
         """
-            Returns a dictionary containing the orderbook snapshot.
+            Returns a dictionary containing the current funding rate on market.
             Inputs:
-                - params(GetOrderbookRequest): the order symbol and limit(orderbook depth) 
+                - symbol(MARKET_SYMBOLS): symbol of market
             Returns:
-                - dict: Orderbook snapshot
+                - dict: Funding rate into
         """
-        query = {}
-        if symbol:
-            query["symbol"] = symbol.value
         return self.apis.get(
             SERVICE_URLS["MARKET"]["FUNDING_RATE"],
-            query
+            {"symbol": symbol.value}
         ) 
 
     def get_market_meta_info(self,symbol:MARKET_SYMBOLS=None):
@@ -385,9 +543,8 @@ class FireflyClient:
             Returns:
                 - dict: meta info
         """
-        query = {}
-        if symbol:
-            query["symbol"] = symbol.value
+        query = {"symbol": symbol.value } if symbol else {}
+
         return self.apis.get(
             SERVICE_URLS["MARKET"]["META"], 
             query
@@ -395,15 +552,14 @@ class FireflyClient:
 
     def get_market_data(self,symbol:MARKET_SYMBOLS=None):
         """
-            Returns a dictionary containing market meta info.
+            Returns a dictionary containing market's current data about best ask/bid, 24 hour volume, market price etc..
             Inputs:
                 - symbol(MARKET_SYMBOLS): the market symbol  
             Returns:
                 - dict: meta info
         """
-        query = {}
-        if symbol:
-            query["symbol"] = symbol.value
+        query = {"symbol": symbol.value } if symbol else {}
+
         return self.apis.get(
             SERVICE_URLS["MARKET"]["MARKET_DATA"], 
             query
@@ -411,15 +567,14 @@ class FireflyClient:
     
     def get_exchange_info(self,symbol:MARKET_SYMBOLS=None):
         """
-            Returns a dictionary containing exchange.
+            Returns a dictionary containing exchange info for market(s). The min/max trade size, max allowed oi open
+            min/max trade price, step size, tick size etc...
             Inputs:
                 - symbol(MARKET_SYMBOLS): the market symbol  
             Returns:
                 - dict: exchange info
         """
-        query = {}
-        if symbol:
-            query["symbol"] = symbol.value
+        query = {"symbol": symbol.value } if symbol else {}
         return self.apis.get(
             SERVICE_URLS["MARKET"]["EXCHANGE_INFO"], 
             query
@@ -433,7 +588,8 @@ class FireflyClient:
             Returns:
                 - list: the candle stick data
         """
-        params = extract_enums(["symbol","interval"])
+        params = extract_enums(params, ["symbol","interval"])
+        
         return self.apis.get(
             SERVICE_URLS["MARKET"]["CANDLE_STICK_DATA"], 
             params
@@ -447,7 +603,8 @@ class FireflyClient:
             Returns:
                 - ist: the recent trades 
         """
-        params = extract_enums(params,["symbol"])
+        params = extract_enums(params, ["symbol", "traders"])
+
         return self.apis.get(
             SERVICE_URLS["MARKET"]["RECENT_TRADE"], 
             params
@@ -461,9 +618,7 @@ class FireflyClient:
             Returns:
                 - dict: all the contract addresses
         """
-        query = {}
-        if symbol:
-            query["symbol"] = symbol.value
+        query = {"symbol": symbol.value } if symbol else {}
 
         return self.apis.get(
             SERVICE_URLS["MARKET"]["CONTRACT_ADDRESSES"], 
@@ -493,6 +648,7 @@ class FireflyClient:
                 - list: a list of orders 
         """
         params = extract_enums(params,["symbol","statuses"])
+
         return self.apis.get(
             SERVICE_URLS["USER"]["ORDERS"],
             params,
@@ -554,7 +710,7 @@ class FireflyClient:
             auth_required = True
         )
         
-    def get_user_default_leverage(self, symbol:MARKET_SYMBOLS):
+    def get_user_leverage(self, symbol:MARKET_SYMBOLS):
         """
             Returns user market default leverage.
             Inputs:
@@ -563,39 +719,52 @@ class FireflyClient:
                 - str: user default leverage 
         """
         account_data_by_market = self.get_user_account_data()["accountDataByMarket"]
+        
         for i in account_data_by_market:
             if symbol.value==i["symbol"]:
-                return bn_to_number(i["selectedLeverage"])    
-        return "Provided Market Symbol({}) does not exist".format(symbol)
-    
-    def get_boba_balance(self):
+                return int(big_number_to_base(i["selectedLeverage"]))    
+
+        # default leverage on system is 3
+        # todo fetch from exchange info route
+        return 3
+
+       
+    ## Internal methods
+    def _get_order_signer(self,symbol:MARKET_SYMBOLS=None):
         """
-            Returns user's FFLY token balance.
+            Returns the order signer for the specified symbol, else returns a dictionary of symbol -> order signer
+            Inputs:
+                - symbol(MARKET_SYMBOLS): the symbol to get order signer for, optional
+            Returns:
+                - dict/order signer object
+        """
+        if symbol:
+            if symbol.value in self.order_signers.keys():
+                return self.order_signers[symbol.value]
+            else:
+                raise(Exception("Signer does not exist. Make sure to add market"))
+        else:
+            return self.order_signers
+
+    def _execute_tx(self, transaction):
+        """
+            An internal function to create signed tx and wait for its receipt
+        Args:
+            transaction: A constructed txn using self.account address
+
+        Returns:
+            tx_receipt: a receipt of txn mined on-chain
+        """
+        tx_create = self.w3.eth.account.signTransaction(transaction, self.account.key)
+        tx_hash = self.w3.eth.sendRawTransaction(tx_create.rawTransaction)
+        return self.w3.eth.waitForTransactionReceipt(tx_hash)
+
+    def _connect_w3(self,url):
+        """
+            Creates a connection to Web3 RPC given the RPC url.
         """
         try:
-            return self.w3.eth.get_balance(self.w3.toChecksumAddress(self.account.address))/1e18
-        except Exception as e:
-            raise(Exception("Failed to get balance, Exception: {}".format(e)))
-
-    def get_usdc_balance(self):
-        """
-            Returns user's USDC token balance on Firefly.
-        """
-        try:
-            contract = self.contracts.get_contract(name="USDC")
-            return contract.functions.balanceOf(self.account.address).call()/1e18
-        except Exception as e:
-            raise(Exception("Failed to get balance, Exception: {}".format(e)))
-
-    def get_margin_bank_balance(self):
-        """
-            Returns user's Margin Bank balance.
-        """
-        try:
-            contract = self.contracts.get_contract(name="MarginBank")
-            return contract.functions.getAccountBankBalance(self.account.address).call()/1e18
-        except Exception as e:
-            raise(Exception("Failed to get balance, Exception: {}".format(e)))
-
-
-    
+            return Web3(Web3.HTTPProvider(url))
+        except:
+            raise(Exception("Failed to connect to Host: {}".format(url)))
+           

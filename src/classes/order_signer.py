@@ -5,7 +5,7 @@ directory = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(os.path.abspath(os.path.join(directory, "../")))
 
 from web3 import Web3
-import utils
+import utilities
 import constants
 from signer import Signer
 
@@ -27,7 +27,7 @@ class OrderSigner(Signer):
         if order["isBuy"]:
             flag += constants.ORDER_FLAGS["IS_BUY"] 
         
-        saltBytes = utils.bn_to_bytes8(order["salt"])
+        saltBytes = utilities.bn_to_bytes8(order["salt"])
 
         return b''.join([
             "0x".encode('utf-8'), 
@@ -48,11 +48,11 @@ class OrderSigner(Signer):
             'bytes32'
         ],
         [
-            utils.hash_string(constants.EIP712_DOMAIN_STRING),
-            utils.hash_string(self.domain),
-            utils.hash_string(self.version),
+            utilities.hash_string(constants.EIP712_DOMAIN_STRING),
+            utilities.hash_string(self.domain),
+            utilities.hash_string(self.version),
             self.network_id,
-            utils.address_to_bytes32(self.contract_address)
+            utilities.address_to_bytes32(self.contract_address)
         ]
     ).hex()
 
@@ -78,13 +78,13 @@ class OrderSigner(Signer):
                 ],
 
             values=[
-                utils.hash_string(constants.EIP712_ORDER_STRUCT_STRING),
+                utilities.hash_string(constants.EIP712_ORDER_STRUCT_STRING),
                 flags,
                 int(order["quantity"]),
                 int(order["price"]),
                 int(order["triggerPrice"]),
                 int(order["leverage"]),
-                utils.address_to_bytes32(order["maker"]),
+                utilities.address_to_bytes32(order["maker"]),
                 int(order["expiration"])
             ]
         ).hex()
@@ -120,8 +120,8 @@ class OrderSigner(Signer):
         struct_hash = Web3.solidityKeccak(
             abi_types=['bytes32','bytes32','bytes32'],
             values=[
-                utils.hash_string(constants.EIP712_CANCEL_ORDER_STRUCT_STRING),
-                utils.hash_string("Cancel Orders"),
+                utilities.hash_string(constants.EIP712_CANCEL_ORDER_STRUCT_STRING),
+                utilities.hash_string("Cancel Orders"),
                 Web3.solidityKeccak(
                     abi_types=['bytes32' for i in range(len(order_hash))],
                     values=[hash for hash in order_hash]

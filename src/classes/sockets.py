@@ -1,5 +1,5 @@
 import socketio
-from enums import MARKET_SYMBOLS, SOCKET_EVENTS
+from enumerations import MARKET_SYMBOLS, SOCKET_EVENTS
 
 sio = socketio.Client()
       
