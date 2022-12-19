@@ -496,6 +496,8 @@ class FireflyClient:
             Returns:
                 - dict: Orderbook snapshot
         """
+        params = extract_enums(params, ["symbol"])
+
         return self.apis.get(
             SERVICE_URLS["MARKET"]["ORDER_BOOK"], 
             params
@@ -507,7 +509,7 @@ class FireflyClient:
             Returns:
                 - dict: exchange status
         """
-        return self.apis.get(SERVICE_URLS["STATUS"], {})
+        return self.apis.get(SERVICE_URLS["MARKET"]["STATUS"], {})
 
     def get_market_symbols(self):
         """
@@ -522,18 +524,15 @@ class FireflyClient:
 
     def get_funding_rate(self,symbol:MARKET_SYMBOLS):
         """
-            Returns a dictionary containing the orderbook snapshot.
+            Returns a dictionary containing the current funding rate on market.
             Inputs:
-                - params(GetOrderbookRequest): the order symbol and limit(orderbook depth) 
+                - symbol(MARKET_SYMBOLS): symbol of market
             Returns:
-                - dict: Orderbook snapshot
+                - dict: Funding rate into
         """
-        query = {}
-        if symbol:
-            query["symbol"] = symbol.value
         return self.apis.get(
             SERVICE_URLS["MARKET"]["FUNDING_RATE"],
-            query
+            {"symbol": symbol.value}
         ) 
 
     def get_market_meta_info(self,symbol:MARKET_SYMBOLS=None):
@@ -544,9 +543,8 @@ class FireflyClient:
             Returns:
                 - dict: meta info
         """
-        query = {}
-        if symbol:
-            query["symbol"] = symbol.value
+        query = {"symbol": symbol.value } if symbol else {}
+
         return self.apis.get(
             SERVICE_URLS["MARKET"]["META"], 
             query
@@ -554,15 +552,14 @@ class FireflyClient:
 
     def get_market_data(self,symbol:MARKET_SYMBOLS=None):
         """
-            Returns a dictionary containing market meta info.
+            Returns a dictionary containing market's current data about best ask/bid, 24 hour volume, market price etc..
             Inputs:
                 - symbol(MARKET_SYMBOLS): the market symbol  
             Returns:
                 - dict: meta info
         """
-        query = {}
-        if symbol:
-            query["symbol"] = symbol.value
+        query = {"symbol": symbol.value } if symbol else {}
+
         return self.apis.get(
             SERVICE_URLS["MARKET"]["MARKET_DATA"], 
             query
@@ -570,15 +567,14 @@ class FireflyClient:
     
     def get_exchange_info(self,symbol:MARKET_SYMBOLS=None):
         """
-            Returns a dictionary containing exchange.
+            Returns a dictionary containing exchange info for market(s). The min/max trade size, max allowed oi open
+            min/max trade price, step size, tick size etc...
             Inputs:
                 - symbol(MARKET_SYMBOLS): the market symbol  
             Returns:
                 - dict: exchange info
         """
-        query = {}
-        if symbol:
-            query["symbol"] = symbol.value
+        query = {"symbol": symbol.value } if symbol else {}
         return self.apis.get(
             SERVICE_URLS["MARKET"]["EXCHANGE_INFO"], 
             query
@@ -592,7 +588,8 @@ class FireflyClient:
             Returns:
                 - list: the candle stick data
         """
-        params = extract_enums(["symbol","interval"])
+        params = extract_enums(params, ["symbol","interval"])
+        
         return self.apis.get(
             SERVICE_URLS["MARKET"]["CANDLE_STICK_DATA"], 
             params
@@ -606,7 +603,8 @@ class FireflyClient:
             Returns:
                 - ist: the recent trades 
         """
-        params = extract_enums(params,["symbol"])
+        params = extract_enums(params, ["symbol", "traders"])
+
         return self.apis.get(
             SERVICE_URLS["MARKET"]["RECENT_TRADE"], 
             params
@@ -620,9 +618,7 @@ class FireflyClient:
             Returns:
                 - dict: all the contract addresses
         """
-        query = {}
-        if symbol:
-            query["symbol"] = symbol.value
+        query = {"symbol": symbol.value } if symbol else {}
 
         return self.apis.get(
             SERVICE_URLS["MARKET"]["CONTRACT_ADDRESSES"], 
