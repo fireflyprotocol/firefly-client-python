@@ -44,15 +44,7 @@ class FireflyClient:
         if user_onboarding:
             self.apis.auth_token = self.onboard_user()
 
-    def _connect_w3(self,url):
-        """
-            Creates a connection to Web3 RPC given the RPC url.
-        """
-        try:
-            return Web3(Web3.HTTPProvider(url))
-        except:
-            raise(Exception("Failed to connect to Host: {}".format(url)))
-            
+ 
 
     def onboard_user(self, token:str=None):
         """
@@ -218,7 +210,7 @@ class FireflyClient:
             - OrderSignatureResponse: generated cancel signature 
         """
         try:
-            signer:OrderSigner = self.get_order_signer(params["symbol"])
+            signer:OrderSigner = self._get_order_signer(params["symbol"])
             order_to_sign = self.create_order_to_sign(params)
             hash = signer.get_order_hash(order_to_sign)
             return self.create_signed_cancel_orders(params["symbol"],hash)
@@ -238,7 +230,7 @@ class FireflyClient:
         """
         if type(order_hash)!=list:
             order_hash = [order_hash]
-        order_signer:OrderSigner = self.get_order_signer(symbol)
+        order_signer:OrderSigner = self._get_order_signer(symbol)
         cancel_hash = order_signer.sign_cancellation_hash(order_hash)
         hash_sig = order_signer.sign_hash(cancel_hash,self.account.key.hex(), "01")
         return OrderCancellationRequest(
@@ -323,22 +315,7 @@ class FireflyClient:
             auth_required=True
             )
 
-    ## CONTRACT CALLS
-
-    def _execute_tx(self, transaction):
-        """
-            An internal function to create signed tx and wait for its receipt
-        Args:
-            transaction: A constructed txn using self.account address
-
-        Returns:
-            tx_receipt: a receipt of txn mined on-chain
-        """
-        tx_create = self.w3.eth.account.signTransaction(transaction, self.account.key)
-        tx_hash = self.w3.eth.sendRawTransaction(tx_create.rawTransaction)
-        return self.w3.eth.waitForTransactionReceipt(tx_hash)
-
-
+    ## Contract calls
     def deposit_margin_to_bank(self, amount):
         """
             Deposits given amount of USDC from user's account to margin bank
@@ -378,7 +355,6 @@ class FireflyClient:
 
         return True;
 
-
     def withdraw_margin_from_bank(self, amount):
         """
             Withdraws given amount of usdc from margin bank if possible
@@ -404,7 +380,6 @@ class FireflyClient:
         self._execute_tx(construct_txn)
 
         return True;
-
 
     def adjust_leverage(self, symbol, leverage):
         """
@@ -479,26 +454,40 @@ class FireflyClient:
         
         return True
  
-
-
-    ## GETTERS
-    def get_order_signer(self,symbol:MARKET_SYMBOLS=None):
+    def get_native_chain_token_balance(self):
         """
-            Returns the order signer for the specified symbol, else returns a dictionary of symbol -> order signer
-            Inputs:
-                - symbol(MARKET_SYMBOLS): the symbol to get order signer for, optional
-            Returns:
-                - dict/order signer object
+            Returns user's native chain token (ETH/BOBA) balance
         """
-        if symbol:
-            if symbol.value in self.order_signers.keys():
-                return self.order_signers[symbol.value]
-            else:
-                raise(Exception("Signer does not exist. Make sure to add market"))
-        else:
-            return self.order_signers
+        try:
+            return big_number_to_base(self.w3.eth.get_balance(self.w3.toChecksumAddress(self.account.address)))
+        except Exception as e:
+            raise(Exception("Failed to get balance, Exception: {}".format(e)))
 
+    def get_usdc_balance(self):
+        """
+            Returns user's USDC token balance on Firefly.
+        """
+        try:
+            contract = self.contracts.get_contract(name="USDC")
+            raw_bal = contract.functions.balanceOf(self.account.address).call();
+            return big_number_to_base(int(raw_bal), 6)
+        except Exception as e:
+            raise(Exception("Failed to get balance, Exception: {}".format(e)))
+
+    def get_margin_bank_balance(self):
+        """
+            Returns user's Margin Bank balance.
+        """
+        try:
+            contract = self.contracts.get_contract(name="MarginBank")
+            return contract.functions.getAccountBankBalance(self.account.address).call()/1e18
+        except Exception as e:
+            raise(Exception("Failed to get balance, Exception: {}".format(e)))
+
+
+    
     ## Market endpoints
+    
     def get_orderbook(self, params:GetOrderbookRequest):
         """
             Returns a dictionary containing the orderbook snapshot.
@@ -743,36 +732,43 @@ class FireflyClient:
         # todo fetch from exchange info route
         return 3
 
-    
-    def get_native_chain_token_balance(self):
+       
+    ## Internal methods
+    def _get_order_signer(self,symbol:MARKET_SYMBOLS=None):
         """
-            Returns user's native chain token (ETH/BOBA) balance
+            Returns the order signer for the specified symbol, else returns a dictionary of symbol -> order signer
+            Inputs:
+                - symbol(MARKET_SYMBOLS): the symbol to get order signer for, optional
+            Returns:
+                - dict/order signer object
+        """
+        if symbol:
+            if symbol.value in self.order_signers.keys():
+                return self.order_signers[symbol.value]
+            else:
+                raise(Exception("Signer does not exist. Make sure to add market"))
+        else:
+            return self.order_signers
+
+    def _execute_tx(self, transaction):
+        """
+            An internal function to create signed tx and wait for its receipt
+        Args:
+            transaction: A constructed txn using self.account address
+
+        Returns:
+            tx_receipt: a receipt of txn mined on-chain
+        """
+        tx_create = self.w3.eth.account.signTransaction(transaction, self.account.key)
+        tx_hash = self.w3.eth.sendRawTransaction(tx_create.rawTransaction)
+        return self.w3.eth.waitForTransactionReceipt(tx_hash)
+
+    def _connect_w3(self,url):
+        """
+            Creates a connection to Web3 RPC given the RPC url.
         """
         try:
-            return big_number_to_base(self.w3.eth.get_balance(self.w3.toChecksumAddress(self.account.address)))
-        except Exception as e:
-            raise(Exception("Failed to get balance, Exception: {}".format(e)))
-
-    def get_usdc_balance(self):
-        """
-            Returns user's USDC token balance on Firefly.
-        """
-        try:
-            contract = self.contracts.get_contract(name="USDC")
-            raw_bal = contract.functions.balanceOf(self.account.address).call();
-            return big_number_to_base(int(raw_bal), 6)
-        except Exception as e:
-            raise(Exception("Failed to get balance, Exception: {}".format(e)))
-
-    def get_margin_bank_balance(self):
-        """
-            Returns user's Margin Bank balance.
-        """
-        try:
-            contract = self.contracts.get_contract(name="MarginBank")
-            return contract.functions.getAccountBankBalance(self.account.address).call()/1e18
-        except Exception as e:
-            raise(Exception("Failed to get balance, Exception: {}".format(e)))
-
-
-    
+            return Web3(Web3.HTTPProvider(url))
+        except:
+            raise(Exception("Failed to connect to Host: {}".format(url)))
+           
