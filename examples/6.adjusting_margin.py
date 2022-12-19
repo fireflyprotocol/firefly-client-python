@@ -12,7 +12,6 @@ from firefly_client import FireflyClient
 from constants import Networks
 from enumerations import MARKET_SYMBOLS, ADJUST_MARGIN
 from utilities import big_number_to_base
-from pprint import pprint
 
 
 def main():
