@@ -53,5 +53,8 @@ def extract_query(value:dict):
 def extract_enums(params:dict,enums:list):
     for i in enums:
         if i in params.keys():
-            params[i] = params[i].value
+            if type(params[i]) == list:
+                params[i] = [x.value for x in params[i]]
+            else:
+                params[i] = params[i].value
     return params
