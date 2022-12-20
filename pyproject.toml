@@ -1,12 +1,18 @@
+[project]
+name = "firefly_exchange_client"
+version = "0.0.2"
+description = "Library to interact with firefly exchange protocol including its off-chain api-gateway and on-chain contracts"
+readme = "README.md"
+requires-python = ">=3.8"
+
+[project.urls]  # Optional
+"Homepage" = "https://github.com/fireflyprotocol/firefly_exchange_client"
+"Bug Reports" = "https://github.com/fireflyprotocol/firefly_exchange_client/issues"
+"Source" = "https://github.com/fireflyprotocol/firefly_exchange_client/"
+
 [build-system]
 requires = [
     "setuptools>=42",
     "wheel"
 ]
 build-backend = "setuptools.build_meta"
-
-[project]
-name = "firefly_exchange_client"
-version = "0.0.1"
-description = "Library to interact with firefly api gateway"
-readme = "README.md"
