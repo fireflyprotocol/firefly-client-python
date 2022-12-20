@@ -6,7 +6,11 @@
         "hexstr",
         "Keccak",
         "orderbook",
+        "outdir",
         "PERP",
+        "pypa",
+        "pypi",
+        "sdist",
         "UNDERCOLLATERALIZED"
     ],
     "python.analysis.extraPaths": [
