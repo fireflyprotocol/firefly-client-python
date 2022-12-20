@@ -3,7 +3,7 @@ name: publish_to_pypi
 on:
   pull_request:
     types:
-        - opened
+      - opened
 jobs:
   build-n-publish:
     name: Build and publish Python 🐍 distributions 📦 to PyPI and TestPyPI
