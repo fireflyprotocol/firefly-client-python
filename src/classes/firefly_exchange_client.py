@@ -32,6 +32,9 @@ class FireflyClient:
         self.onboarding_signer = OnboardingSigner()
         
 
+        if self.contracts.contract_addresses["error"]:
+            raise Exception("Error initializing client: {}".format(self.contracts.contract_addresses["error"]))
+
         # adding auxiliaryContracts to contracts class
         for i,j in self.contracts.get_contract_address(market="auxiliaryContractsAddresses").items():
             self.add_contract(name=i,address=j)
