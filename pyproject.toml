@@ -7,6 +7,6 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "firefly_exchange_client"
-version = "0.0.1"
-description = "Library to interact with firefly api gateway"
+version = "0.0.2"
+description = "Library to interact with firefly exchange protocol including its off-chain api-gateway and on-chain contracts"
 readme = "README.md"
