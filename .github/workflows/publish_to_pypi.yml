@@ -1,15 +1,11 @@
 ---
 name: publish_to_pypi
 on:
-  workflow_dispatch: null
   pull_request:
-    branches:
-      - main
     types:
-      - closed
+      - opened
 jobs:
   build-n-publish:
-    if: github.event.pull_request.merged == true
     name: Build and publish Python 🐍 distributions 📦 to PyPI and TestPyPI
     runs-on: ubuntu-latest
     steps:
