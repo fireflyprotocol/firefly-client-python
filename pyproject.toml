@@ -5,6 +5,11 @@ description = "Library to interact with firefly exchange protocol including its 
 readme = "README.md"
 requires-python = ">=3.8"
 
+[project.urls]  # Optional
+"Homepage" = "https://github.com/fireflyprotocol/firefly_exchange_client"
+"Bug Reports" = "https://github.com/fireflyprotocol/firefly_exchange_client/issues"
+"Source" = "https://github.com/fireflyprotocol/firefly_exchange_client/"
+
 [build-system]
 requires = [
     "setuptools>=42",
