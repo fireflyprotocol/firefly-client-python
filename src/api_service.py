@@ -16,10 +16,16 @@ class APIService():
                 - auth_required(bool): indicates whether authorization is required for the call or not.  
         """
         url = self._create_url(service_url)
+        response = None
         if auth_required:
-            return requests.get(url=url, params=query, headers={'Authorization': 'Bearer {}'.format(self.auth_token)}).json()
+            response = requests.get(url=url, params=query, headers={'Authorization': 'Bearer {}'.format(self.auth_token)})
         else:
-            return requests.get(url, params=query).json()
+            response = requests.get(url, params=query)
+
+        try:
+            return response.json()
+        except:
+            raise Exception("Error while getting {}: {}".format(url, response))
         
     def post(self, service_url, data, auth_required=False):
         """
@@ -30,10 +36,17 @@ class APIService():
                 - auth_required(bool): indicates whether authorization is required for the call or not.
         """
         url = self._create_url(service_url)
+        response = None
         if auth_required:
-            return requests.post(url=url, data=data, headers={'Authorization': 'Bearer {}'.format(self.auth_token)}).json()
+            response = requests.post(url=url, data=data, headers={'Authorization': 'Bearer {}'.format(self.auth_token)})
+
         else:
-            return requests.post(url=url, data=data).json()
+            response = requests.post(url=url, data=data)
+
+        if "error" in response:
+            raise Exception("Error while posting to {}: {}".format(url, response))
+        else:
+            return response.json()
 
     def delete(self,service_url, data, auth_required=False):
         """
