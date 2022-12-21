@@ -5,7 +5,7 @@ from enumerations import MARKET_SYMBOLS, ORDER_SIDE, ORDER_TYPE
 from interfaces import OrderSignatureRequest
 
 
- # initialise client
+ # initialize client
 client = FireflyClient(
     True, # agree to terms and conditions
     Networks[TEST_NETWORK], # network to connect with

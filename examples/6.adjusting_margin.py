@@ -7,7 +7,7 @@ from utilities import big_number_to_base
 
 def main():
 
-    # initialise client
+    # initialize client
     client = FireflyClient(
         True, # agree to terms and conditions
         Networks[TEST_NETWORK], # network to connect with

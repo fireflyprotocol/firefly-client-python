@@ -4,7 +4,7 @@ from constants import Networks
 
 def main():
 
-  # initialise client
+  # initialize client
   client = FireflyClient(
         True, # agree to terms and conditions
         Networks[TEST_NETWORK], # network to connect with
