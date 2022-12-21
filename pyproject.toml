@@ -1,11 +1,12 @@
 [project]
 name = "firefly_exchange_client"
-version = "0.0.2"
+version = "0.0.4"
 description = "Library to interact with firefly exchange protocol including its off-chain api-gateway and on-chain contracts"
 readme = "README.md"
 requires-python = ">=3.8"
 
-[project.urls]  # Optional
+
+[project.urls] 
 "Homepage" = "https://github.com/fireflyprotocol/firefly_exchange_client"
 "Bug Reports" = "https://github.com/fireflyprotocol/firefly_exchange_client/issues"
 "Source" = "https://github.com/fireflyprotocol/firefly_exchange_client/"
