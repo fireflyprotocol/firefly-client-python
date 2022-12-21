@@ -8,6 +8,7 @@
         "orderbook",
         "outdir",
         "PERP",
+        "pprint",
         "pypa",
         "pypi",
         "sdist",
