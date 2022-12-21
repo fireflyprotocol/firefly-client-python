@@ -1,30 +1,28 @@
-import os
-import sys
-
-# paths
-script_dir = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(os.path.abspath(os.path.join(script_dir, "../src")))
-sys.path.append(os.path.abspath(os.path.join(script_dir, "../src/classes")))
-
-
-from config import TEST_ACCT_KEY
+from config import TEST_ACCT_KEY, TEST_NETWORK
 from firefly_exchange_client import FireflyClient
 from constants import Networks
 from enumerations import MARKET_SYMBOLS, ORDER_SIDE, ORDER_TYPE
 from interfaces import OrderSignatureRequest
 
 
+ # initialise client
+client = FireflyClient(
+    True, # agree to terms and conditions
+    Networks[TEST_NETWORK], # network to connect with
+    TEST_ACCT_KEY, # private key of wallet
+    True, # on boards user on firefly. Must be set to true for first time use
+    )
+
+# add market that you wish to trade on ETH/BTC are supported currently
+client.add_market(MARKET_SYMBOLS.ETH)
+
+# default leverage of account is set to 3 on firefly
+user_leverage = client.get_user_leverage(MARKET_SYMBOLS.BTC)
+
+
 def place_limit_order():
-    # initialise client
-    client = FireflyClient(
-        True, # agree to terms and conditions
-        Networks["TESTNET_ARBITRUM"], # network to connect with
-        TEST_ACCT_KEY, # private key of wallet
-        True, # on boards user on firefly. Must be set to true for first time use
-        )
+   
     
-    # add market that you wish to trade on ETH/BTC are supported currently
-    print('Market added:', client.add_market(MARKET_SYMBOLS.ETH))
 
     # default leverage of account is set to 3 on firefly
     user_leverage = client.get_user_leverage(MARKET_SYMBOLS.ETH)
@@ -52,23 +50,11 @@ def place_limit_order():
     return
 
 def place_market_order():
-     # initialise client
-    client = FireflyClient(
-        True, # agree to terms and conditions
-        Networks["TESTNET_ARBITRUM"], # network to connect with
-        TEST_ACCT_KEY, # private key of wallet
-        True, # on boards user on firefly. Must be set to true for first time use
-        )
     
-    # add market that you wish to trade on ETH/BTC are supported currently
-    print('Market added:', client.add_market(MARKET_SYMBOLS.BTC))
-
-    # default leverage of account is set to 3 on firefly
-    user_leverage = client.get_user_leverage(MARKET_SYMBOLS.BTC)
 
     # creates a LIMIT order to be signed
     signature_request = OrderSignatureRequest(
-        symbol=MARKET_SYMBOLS.BTC,  # market symbol
+        symbol=MARKET_SYMBOLS.ETH,  # market symbol
         price=0,  # price at which you want to place order
         quantity=0.01, # quantity
         side=ORDER_SIDE.BUY, 
