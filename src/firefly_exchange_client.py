@@ -1,11 +1,3 @@
-import os
-import sys
-
-# paths
-script_dir = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(os.path.abspath(os.path.join(script_dir, "../")))
-
-
 from api_service import APIService
 from contracts import Contracts
 from order_signer import OrderSigner
@@ -32,7 +24,7 @@ class FireflyClient:
         self.onboarding_signer = OnboardingSigner()
         
 
-        if self.contracts.contract_addresses["error"]:
+        if "error" in self.contracts.contract_addresses:
             raise Exception("Error initializing client: {}".format(self.contracts.contract_addresses["error"]))
 
         # adding auxiliaryContracts to contracts class
@@ -130,10 +122,10 @@ class FireflyClient:
         """
         abi = self.contracts.get_contract_abi(name)
         if market:
-            contract=self.w3.eth.contract(address=address, abi=abi)
+            contract=self.w3.eth.contract(address=Web3.toChecksumAddress(address), abi=abi)
             self.contracts.set_contracts(market=market,name=name,contract=contract)
         else:
-            contract=self.w3.eth.contract(address=address, abi=abi)
+            contract=self.w3.eth.contract(address=Web3.toChecksumAddress(address), abi=abi)
             self.contracts.set_contracts(name=name,contract=contract)
         return 
 

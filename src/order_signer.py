@@ -1,13 +1,8 @@
-import os
-import sys
-from interfaces import Order
-directory = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(os.path.abspath(os.path.join(directory, "../")))
-
 from web3 import Web3
 import utilities
 import constants
 from signer import Signer
+from interfaces import Order
 
 
 class OrderSigner(Signer):

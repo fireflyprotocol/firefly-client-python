@@ -8,12 +8,13 @@
         "orderbook",
         "outdir",
         "PERP",
+        "pprint",
         "pypa",
         "pypi",
         "sdist",
         "UNDERCOLLATERALIZED"
     ],
     "python.analysis.extraPaths": [
-        "./src/classes"
+        "./src"
     ]
 }

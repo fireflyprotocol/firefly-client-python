@@ -2,3 +2,5 @@
 ./sandbox.py
 dist/
 *.txt
+firefly_exchange_client.egg-info/
+build/

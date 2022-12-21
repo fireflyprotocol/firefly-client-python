@@ -1,8 +1,3 @@
-import os
-import sys
-directory = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(os.path.abspath(os.path.join(directory, "../")))
-
 from web3 import Web3
 from interfaces import *
 from signer import Signer

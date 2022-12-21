@@ -1,11 +1,11 @@
 import json, os
+import contract_abis
 
 class Contracts:
     def __init__(self):
         self.contracts = {}
         self.contract_addresses = {}
-        self.abi_path = os.path.join(os.getcwd(),"src/abi")
-
+        
     def set_contract_addresses(self,contract_address,market=None,name=None):
         if market and name:
             if name:
@@ -41,14 +41,16 @@ class Contracts:
             Inputs:
                 - name(str): The contract name.
         """
-        if name+".json" in os.listdir(self.abi_path):
-            abi_fp = os.path.join(self.abi_path,name+".json")
-            with open(abi_fp,"r") as f:
-                abi = json.loads(f.read())["abi"]
-            return abi
-        else:
-            return "Unknown contract name"
 
+        if name == "MarginBank":
+            return contract_abis.MarginBank["abi"]
+        elif name == "Perpetual":
+            return contract_abis.Perpetual["abi"]
+        elif name == "USDC":
+            return contract_abis.USDC["abi"]
+        else:
+            raise Exception("Unknown contract name: {}".format(name))
+            
     def get_contract(self,name,market=""):
         """
             Returns the contract object.
