@@ -1,6 +1,6 @@
 from config import TEST_ACCT_KEY, TEST_NETWORK
 
-import os,sys
+import os,sys, time
 script_dir = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(os.path.abspath(os.path.join(script_dir, "../src")))
 
@@ -30,22 +30,32 @@ def main():
   status = client.socket.subscribe_global_updates_by_symbol(MARKET_SYMBOLS.BTC)
   print("Subscribed to global BTC events: {}".format(status))
 
+  # subscribe to local user events
   client.socket.subscribe_user_update_by_token()
   print("Subscribed to user events")
 
+  # triggered when order book updates
   print("Listening to Orderbook updates")
-  client.socket.listen(SOCKET_EVENTS.ORDERBOOK_UPDATE, callback)
+  client.socket.listen(SOCKET_EVENTS.ORDERBOOK_UPDATE.value, callback)
 
+  # triggered when status of any user order updates
   print("Listening to user order updates")
-  client.socket.listen(SOCKET_EVENTS.ORDER_UPDATE, callback)
+  client.socket.listen(SOCKET_EVENTS.ORDER_UPDATE.value, callback)
 
+  # SOCKET_EVENTS contains all events that can be listened to
+  
+  # logs event name and data for all markets and users that are subscribed.
+  # helpful for debugging
+  # client.socket.listen("default",callback)
+
+  time.sleep(60)
   # unsubscribe from global events
-#   status = client.socket.unsubscribe_global_updates_by_symbol(MARKET_SYMBOLS.BTC)
-#   print("Unsubscribed from global BTC events: {}".format(status))
+  status = client.socket.unsubscribe_global_updates_by_symbol(MARKET_SYMBOLS.BTC)
+  print("Unsubscribed from global BTC events: {}".format(status))
 
-#   # close socket connection
-#   print("Closing sockets!")
-#   client.socket.close()
+  # close socket connection
+  print("Closing sockets!")
+  client.socket.close()
 
 
 if __name__ == "__main__":
