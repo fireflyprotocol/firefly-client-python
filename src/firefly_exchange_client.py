@@ -38,6 +38,7 @@ class FireflyClient:
         
         if user_onboarding:
             self.apis.auth_token = self.onboard_user()
+            self.socket.set_token(self.apis.auth_token)
 
  
 
