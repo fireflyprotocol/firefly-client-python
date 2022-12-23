@@ -28,8 +28,10 @@ class OrderSignatureRequest(RequiredOrderFields):
   reduceOnly: bool # (optional)  is order to be reduce only true/false, default its false
   salt: int # (optional)  random number for uniqueness of order. Generated randomly if not provided
   expiration: int # (optional) time at which order will expire. Will be set to 1 month if not provided
-
+  maker: str # (optional) maker of the order, if not provided the account used to initialize the client will be default maker
+  
 class OrderSignatureResponse(RequiredOrderFields):
+  maker: str 
   orderSignature: str
 
 class PlaceOrderRequest(OrderSignatureResponse):
