@@ -65,21 +65,24 @@ class Interval(Enum):
 
 class SOCKET_EVENTS(Enum):
     GET_LAST_KLINE_WITH_INTERVAL = "{symbol}@kline@{interval}"
+    # rooms that can be joined
     GLOBAL_UPDATES_ROOM = "globalUpdates"
-    GlobalUpdatesRoom = "globalUpdates"
-    MarketDataUpdateKey = "MarketDataUpdate"
-    RecentTradesKey = "RecentTrades"
-    OrderbookUpdateKey = "OrderbookUpdate"
-    AdjustMarginKey = "AdjustMargin"
-    MarketHealthKey = "MarketHealth"
-    ExchangeHealthKey = "ExchangeHealth"
-    UserUpdatesRoom = "userUpdates"
-    OrderUpdateKey = "OrderUpdate"
-    OrderCancelledKey = "OrderCancelled"
-    PositionUpdateKey = "PositionUpdate"
-    UserTradeKey = "UserTrade"
-    UserTransaction = "UserTransaction"
-    AccountDataUpdateKey = "AccountDataUpdate"
+    USER_UPDATES_ROOM = "userUpdates"
+    # events that can be listened
+    MARKET_DATA_UPDATE = "MarketDataUpdate"
+    RECENT_TRADES = "RecentTrades"
+    ORDERBOOK_UPDATE = "OrderbookUpdate"
+    ADJUST_MARGIN = "AdjustMargin"
+    MARKET_HEALTH = "MarketHealth"
+    EXCHANGE_HEALTH = "ExchangeHealth"
+    ORDER_UPDATE = "OrderUpdate"
+    ORDER_CANCELLATION = "OrderCancelled"
+    POSITION_UPDATE = "PositionUpdate"
+    USER_TRADE = "UserTrade"
+    USER_TRANSACTION = "UserTransaction"
+    ACCOUNT_DATA = "AccountDataUpdate"
+
+
 
 class MARGIN_TYPE(Enum):
     ISOLATED = "ISOLATED"
