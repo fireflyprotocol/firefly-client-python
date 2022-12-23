@@ -152,7 +152,7 @@ class FireflyClient:
             price = to_big_number(params["price"]),
             quantity =  to_big_number(params["quantity"]),
             leverage =  to_big_number(default_value(params, "leverage", 1)),
-            maker =  self.account.address.lower(),
+            maker =  params["maker"].lower() if "maker" in params else self.account.address.lower(),
             reduceOnly =  default_value(params, "reduceOnly", False),
             triggerPrice =  0,
             expiration =  default_value(params, "expiration", expiration),
@@ -172,7 +172,7 @@ class FireflyClient:
         
         # from params create order to sign
         order = self.create_order_to_sign(params)
-
+        
         symbol = params["symbol"].value
         order_signer = self.order_signers.get(symbol) 
 
@@ -192,6 +192,7 @@ class FireflyClient:
             expiration=order["expiration"],
             orderSignature=order_signature,
             orderType=params["orderType"],
+            maker=order["maker"]
         )
     
     def create_signed_cancel_order(self,params:OrderSignatureRequest):
@@ -297,7 +298,7 @@ class FireflyClient:
             "price": to_big_number(params["price"]),
             "quantity": to_big_number(params["quantity"]),
             "leverage": to_big_number(params["leverage"]),
-            "userAddress": self.account.address.lower(),
+            "userAddress": params["maker"],
             "orderType": params["orderType"].value,
             "side": params["side"].value,            
             "reduceOnly": params["reduceOnly"],
@@ -449,7 +450,31 @@ class FireflyClient:
             self._execute_tx(construct_txn)
         
         return True
- 
+    
+    def update_sub_account(self, symbol, sub_account_address, status):
+        """
+            Used to whitelist and account as a sub account or revoke sub account status from an account.
+            Inputs:
+                symbol (MARKET_SYMBOLS): market on which sub account status is to be updated
+                sub_account_address (str): address of the sub account
+                status (bool): new status of the sub account
+
+            Returns:
+                Boolean: true if the sub account status is update
+        """
+        perp_contract = self.contracts.get_contract(name="Perpetual", market=symbol.value);
+
+        construct_txn = perp_contract.functions.setSubAccount(
+                sub_account_address, 
+                status).buildTransaction({
+                    'from': self.account.address,
+                    'nonce': self.w3.eth.getTransactionCount(self.account.address),
+                    })
+
+        self._execute_tx(construct_txn)
+
+        return True
+
     def get_native_chain_token_balance(self):
         """
             Returns user's native chain token (ETH/BOBA) balance
