@@ -1,13 +1,8 @@
+import time
 from config import TEST_ACCT_KEY, TEST_NETWORK
-
-import os,sys, time
-script_dir = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(os.path.abspath(os.path.join(script_dir, "../src")))
-
 from firefly_exchange_client import FireflyClient
 from constants import Networks
 from enumerations import MARKET_SYMBOLS, SOCKET_EVENTS
-from pprint import pprint
 
 def callback(event):
     print("Event data:", event)
@@ -52,6 +47,10 @@ def main():
   # unsubscribe from global events
   status = client.socket.unsubscribe_global_updates_by_symbol(MARKET_SYMBOLS.BTC)
   print("Unsubscribed from global BTC events: {}".format(status))
+
+  status = client.socket.unsubscribe_user_update_by_token()
+  print("Unsubscribed from user events: {}".format(status))
+
 
   # close socket connection
   print("Closing sockets!")
