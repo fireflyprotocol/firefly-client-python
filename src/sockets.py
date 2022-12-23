@@ -131,7 +131,7 @@ class Sockets:
         except:
             return False
 
-    def unsubscribe_user_update_by_token(self,user_token:str): 
+    def unsubscribe_user_update_by_token(self,user_token:str=None): 
         """
             Allows user to unsubscribe to their account updates.
             Inputs:
