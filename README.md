@@ -1,4 +1,8 @@
 # Firefly Client Library
+
+![Firefly logo](https://github.com/fireflyprotocol/firefly_exchange_client/tree/myym/banner/res/banner.png)
+
+
 Python client library to interact with firefly api gateway to place orders on firefly exchange and to interact with on-chain firefly contracts.
 ​
 ### How to use
