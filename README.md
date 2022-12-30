@@ -1,6 +1,6 @@
 # Firefly Client Library
 
-[<img alt="Firefly logo" src="res/banner2.png" />](#)
+[<img alt="Firefly logo" src="res/banner.png" />](#)
 
 Python client library to interact with firefly api gateway to place orders on firefly exchange and to interact with on-chain firefly contracts.
 ​
