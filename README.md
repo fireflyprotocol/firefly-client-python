@@ -14,7 +14,7 @@
 Python client library to interact with firefly api gateway to place orders on firefly exchange and to interact with on-chain firefly contracts.
 ​
 ### How to use
-The package can be installed from PyPI using pip:
+The package can be installed from [PyPI](https://pypi.org/project/firefly-exchange-client/) using pip:
 ```
 pip install firefly-exchange-client
 ```
