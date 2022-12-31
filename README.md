@@ -1,6 +1,6 @@
 # Firefly Client Library
-[![pypi version](https://img.shields.io/pypi/v/firefly_exchange_client?logo=pypi)](https://pypi.org/project/firefly_exchange_client/)
 ![GitHub Workflow Status (with branch)](https://img.shields.io/github/actions/workflow/status/fireflyprotocol/firefly_exchange_client/publish_to_pypi.yml)
+[![pypi version](https://img.shields.io/pypi/v/firefly_exchange_client?logo=pypi)](https://pypi.org/project/firefly_exchange_client/)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [<img alt="Firefly logo" src="res/banner.png" />](#)
 
