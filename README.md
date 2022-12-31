@@ -1,5 +1,6 @@
 # Firefly Client Library
-[<img alt="Firefly logo" src="https://github.com/fireflyprotocol/firefly_exchange_client/blob/main/res/banner.png" />](#)
+[<img alt="Firefly logo" src="https://raw.githubusercontent.com/fireflyprotocol/firefly_exchange_client/main/res/banner.png" />](#)
+
 
 <div align="center">
 
