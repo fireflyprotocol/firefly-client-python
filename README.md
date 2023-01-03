@@ -10,16 +10,18 @@
 
 
 
-Python client library to interact with firefly api gateway to place orders on firefly exchange and to interact with on-chain firefly contracts.
+Python Client for the Firefly Exchange API and Smart Contracts.
 ​
 ### How to use
-The package can be installed from [PyPI](https://pypi.org/project/firefly-exchange-client/) using pip:
+The package can be installed from [PyPi](https://pypi.org/project/firefly-exchange-client/) using pip:
 ```
 pip install firefly-exchange-client
 ```
 
-**Client initialization:**
-When initializing the client, user must accept [terms and conditions](https://firefly.exchange/terms-of-use), provide a network object of type containing the following key/values:
+Find complete documentation on the library at https://docs.firefly.exchange/.
+
+**Getting Started**
+When initializing the client, users must accept [terms and conditions](https://firefly.exchange/terms-of-use) and define network object containing the following values:
 ```
 {
     "url": "https://goerli-rollup.arbitrum.io/rpc",
@@ -30,14 +32,12 @@ When initializing the client, user must accept [terms and conditions](https://fi
     "onboardingUrl": "https://testnet.firefly.exchange",
 },
 ```
-User can import predefined networks from [constants](https://github.com/fireflyprotocol/firefly_exchange_client/blob/main/src/constants.py) like:
+Users can import predefined networks from [constants](https://github.com/fireflyprotocol/firefly_exchange_client/blob/main/src/constants.py):
 ```
 from constants import Networks
 ```
-For testing purposes use `Networks[TESTNET_ARBITRUM]` and for prod use `Networks[MAINNET_ARBITRUM]`
+For testing purposes use `Networks[TESTNET_ARBITRUM]` and for production please use `Networks[MAINNET_ARBITRUM]`
 ​
-
-Provide private key of the account used to sign the orders. **The key never leaves the client and is only used to sign transactions/orders off-chain.** The last argument is a boolean which must be passed as `True` when connecting the account specified by private key for the first time on firefly protocol. For future client initialization, this last flag can be passed as `False` as the account is already initialized.
 ​
 ```
 from firefly_exchange_client import FireflyClient
@@ -48,7 +48,7 @@ from pprint import pprint
 client = FireflyClient(
       True, # agree to terms and conditions
       Networks["TESTNET_ARBITRUM"], # network to connect with e.g. TESTNET_ARBITRUM | MAINNET_ARBITRUM
-      "0x.....", # private key of wallet
+      "0x.....", # PK for the account
       True, # on boards user on firefly. Must be set to true for first time use
       )
 ​
