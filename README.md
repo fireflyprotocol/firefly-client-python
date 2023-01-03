@@ -12,7 +12,7 @@
 
 Python Client for the Firefly Exchange API and Smart Contracts.
 ​
-### How to use
+### Install
 The package can be installed from [PyPi](https://pypi.org/project/firefly-exchange-client/) using pip:
 ```
 pip install firefly-exchange-client
@@ -20,7 +20,7 @@ pip install firefly-exchange-client
 
 Find complete documentation on the library at https://docs.firefly.exchange/.
 
-**Getting Started**
+### Getting Started
 
 When initializing the client, users must accept [terms and conditions](https://firefly.exchange/terms-of-use) and define network object containing the following values:
 ```
