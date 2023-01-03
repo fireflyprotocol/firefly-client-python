@@ -21,6 +21,7 @@ pip install firefly-exchange-client
 Find complete documentation on the library at https://docs.firefly.exchange/.
 
 **Getting Started**
+
 When initializing the client, users must accept [terms and conditions](https://firefly.exchange/terms-of-use) and define network object containing the following values:
 ```
 {
@@ -127,4 +128,4 @@ client.socket.unsubscribe_user_update_by_token()
 client.socket.close()
 ​
 ```
-Look at [example](https://github.com/fireflyprotocol/firefly_exchange_client/tree/main/examples) directory to learn more about client usage.
+Look at the [example](https://github.com/fireflyprotocol/firefly_exchange_client/tree/main/examples) directory to see more examples on how to use this library.
