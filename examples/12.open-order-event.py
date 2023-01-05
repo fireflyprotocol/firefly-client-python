@@ -61,7 +61,7 @@ def place_limit_order():
 print("Making socket connection to firefly exchange")
 client.socket.open()
 
-# subscribe to global event updates for BTC market 
+# subscribe to user events 
 client.socket.subscribe_user_update_by_token()
 print("Subscribed to user events")
 
