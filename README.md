@@ -17,13 +17,12 @@ The package can be installed from [PyPi](https://pypi.org/project/firefly-exchan
 ```
 pip install firefly-exchange-client
 ```
-
-Find complete documentation on the library at https://docs.firefly.exchange/.
+The package currently supports python `>=3.8`. Find complete documentation on the library at https://docs.firefly.exchange/.
 
 ### Getting Started
 
 When initializing the client, users must accept [terms and conditions](https://firefly.exchange/terms-of-use) and define network object containing the following values:
-```
+```json
 {
     "url": "https://goerli-rollup.arbitrum.io/rpc",
     "chainId": 421613,
@@ -34,13 +33,13 @@ When initializing the client, users must accept [terms and conditions](https://f
 },
 ```
 Users can import predefined networks from [constants](https://github.com/fireflyprotocol/firefly_exchange_client/blob/main/src/constants.py):
-```
+```python
 from constants import Networks
 ```
 For testing purposes use `Networks[TESTNET_ARBITRUM]` and for production please use `Networks[MAINNET_ARBITRUM]`
 ​
 ​
-```
+```python
 from firefly_exchange_client import FireflyClient
 from constants import Networks
 from pprint import pprint
@@ -62,7 +61,7 @@ pprint(data)
 ```
 ​
 **Placing Orders:**
-```
+```python
 from firefly_exchange_client import FireflyClient
 from constants import Networks
 from enumerations import MARKET_SYMBOLS, ORDER_SIDE, ORDER_TYPE
@@ -93,7 +92,7 @@ print(resp)
 ```
 ​
 **Listening To Events:**
-```
+```python
 from firefly_exchange_client import FireflyClient
 from constants import Networks
 from enumerations import MARKET_SYMBOLS, ORDER_SIDE, ORDER_TYPE
