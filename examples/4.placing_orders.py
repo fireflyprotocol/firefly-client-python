@@ -3,7 +3,7 @@ from firefly_exchange_client import FireflyClient
 from constants import Networks
 from enumerations import MARKET_SYMBOLS, ORDER_SIDE, ORDER_TYPE
 from interfaces import OrderSignatureRequest
-
+import asyncio
 
  # initialize client
 client = FireflyClient(
@@ -16,16 +16,10 @@ client = FireflyClient(
 # add market that you wish to trade on ETH/BTC are supported currently
 client.add_market(MARKET_SYMBOLS.ETH)
 
-# default leverage of account is set to 3 on firefly
-user_leverage = client.get_user_leverage(MARKET_SYMBOLS.BTC)
-
-
-def place_limit_order():
+async def place_limit_order():
    
-    
-
     # default leverage of account is set to 3 on firefly
-    user_leverage = client.get_user_leverage(MARKET_SYMBOLS.ETH)
+    user_leverage = await client.get_user_leverage(MARKET_SYMBOLS.ETH)
 
     # creates a LIMIT order to be signed
     signature_request = OrderSignatureRequest(
@@ -42,15 +36,18 @@ def place_limit_order():
 
     print("Placing a limit order")
     # place signed order on orderbook
-    resp = client.post_signed_order(signed_order)
+    resp = await client.post_signed_order(signed_order)
 
     # returned order with PENDING state
     print(resp)
 
     return
 
-def place_market_order():
+async def place_market_order():
     
+
+    # default leverage of account is set to 3 on firefly
+    user_leverage = await client.get_user_leverage(MARKET_SYMBOLS.ETH)
 
     # creates a LIMIT order to be signed
     signature_request = OrderSignatureRequest(
@@ -67,7 +64,7 @@ def place_market_order():
 
     print("Placing a market order")
     # place signed order on orderbook
-    resp = client.post_signed_order(signed_order)
+    resp = await client.post_signed_order(signed_order)
 
     # returned order with PENDING state
     print(resp)
@@ -75,10 +72,10 @@ def place_market_order():
 
     return
 
-def main():
-    place_limit_order()
-    place_market_order()
+async def main():
+    await place_limit_order()
+    await place_market_order()
     
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

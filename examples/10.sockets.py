@@ -3,11 +3,12 @@ from config import TEST_ACCT_KEY, TEST_NETWORK
 from firefly_exchange_client import FireflyClient
 from constants import Networks
 from enumerations import MARKET_SYMBOLS, SOCKET_EVENTS
+import asyncio
 
 def callback(event):
     print("Event data:", event)
 
-def main():
+async def main():
 
   # initialize client
   client = FireflyClient(
@@ -19,10 +20,10 @@ def main():
 
   # must open socket before subscribing
   print("Making socket connection to firefly exchange")
-  client.socket.open()
+  await client.socket.open()
 
   # subscribe to global event updates for BTC market 
-  status = client.socket.subscribe_global_updates_by_symbol(MARKET_SYMBOLS.BTC)
+  status = await client.socket.subscribe_global_updates_by_symbol(MARKET_SYMBOLS.BTC)
   print("Subscribed to global BTC events: {}".format(status))
 
   # subscribe to local user events
@@ -31,11 +32,11 @@ def main():
 
   # triggered when order book updates
   print("Listening to Orderbook updates")
-  client.socket.listen(SOCKET_EVENTS.ORDERBOOK_UPDATE.value, callback)
+  await client.socket.listen(SOCKET_EVENTS.ORDERBOOK_UPDATE.value, callback)
 
   # triggered when status of any user order updates
   print("Listening to user order updates")
-  client.socket.listen(SOCKET_EVENTS.ORDER_UPDATE.value, callback)
+  await client.socket.listen(SOCKET_EVENTS.ORDER_UPDATE.value, callback)
 
   # SOCKET_EVENTS contains all events that can be listened to
   
@@ -45,17 +46,17 @@ def main():
 
   time.sleep(60)
   # unsubscribe from global events
-  status = client.socket.unsubscribe_global_updates_by_symbol(MARKET_SYMBOLS.BTC)
+  status = await client.socket.unsubscribe_global_updates_by_symbol(MARKET_SYMBOLS.BTC)
   print("Unsubscribed from global BTC events: {}".format(status))
 
-  status = client.socket.unsubscribe_user_update_by_token()
+  status = await client.socket.unsubscribe_user_update_by_token()
   print("Unsubscribed from user events: {}".format(status))
 
 
   # close socket connection
   print("Closing sockets!")
-  client.socket.close()
+  await client.socket.close()
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

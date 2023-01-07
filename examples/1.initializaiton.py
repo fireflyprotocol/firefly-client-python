@@ -2,8 +2,9 @@ from config import TEST_ACCT_KEY, TEST_NETWORK
 from firefly_exchange_client import FireflyClient
 from constants import Networks
 from pprint import pprint
+import asyncio
 
-def main():
+async def main():
 
   # initialize client
   client = FireflyClient(
@@ -16,10 +17,10 @@ def main():
   print('Account Address:', client.get_public_address());
 
   # # gets user account data on-chain
-  data = client.get_user_account_data()
+  data = await client.get_user_account_data()
 
   pprint(data)
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

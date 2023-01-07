@@ -9,6 +9,7 @@ from constants import Networks
 from enumerations import MARKET_SYMBOLS, SOCKET_EVENTS
 from interfaces import OrderSignatureRequest
 from enumerations import MARKET_SYMBOLS, ORDER_SIDE, ORDER_TYPE
+import asyncio
 
 client:FireflyClient = FireflyClient(
     True, # agree to terms and conditions
@@ -22,17 +23,17 @@ client.add_market(MARKET_SYMBOLS.ETH)
 def callback(event):
     print("Event data:", event)
     
-    status = client.socket.unsubscribe_user_update_by_token()
+    status = asyncio.run(client.socket.unsubscribe_user_update_by_token())
     print("Unsubscribed from user events: {}".format(status))
 
     # close socket connection
     print("Closing sockets!")
-    client.socket.close()
+    asyncio.run(client.socket.close())
 
-def place_limit_order():
+async def place_limit_order():
        
     # default leverage of account is set to 3 on firefly
-    user_leverage = client.get_user_leverage(MARKET_SYMBOLS.ETH)
+    user_leverage = await client.get_user_leverage(MARKET_SYMBOLS.ETH)
 
     # creates a LIMIT order to be signed
     signature_request = OrderSignatureRequest(
@@ -49,7 +50,7 @@ def place_limit_order():
 
     print("Placing a limit order")
     # place signed order on orderbook
-    resp = client.post_signed_order(signed_order)
+    resp = await client.post_signed_order(signed_order)
 
     # returned order with PENDING state
     print(resp)
@@ -57,16 +58,22 @@ def place_limit_order():
     return
 
 
-# must open socket before subscribing
-print("Making socket connection to firefly exchange")
-client.socket.open()
+async def main():
 
-# subscribe to user events 
-client.socket.subscribe_user_update_by_token()
-print("Subscribed to user events")
+    # must open socket before subscribing
+    print("Making socket connection to firefly exchange")
+    await client.socket.open()
 
-print("Listening to user order updates")
-client.socket.listen(SOCKET_EVENTS.ORDER_UPDATE.value, callback)
+    # subscribe to user events 
+    await client.socket.subscribe_user_update_by_token()
+    print("Subscribed to user events")
+
+    print("Listening to user order updates")
+    await client.socket.listen(SOCKET_EVENTS.ORDER_UPDATE.value, callback)
+
+    await place_limit_order();
 
 
-place_limit_order()
+if __name__ == "__main__":
+    asyncio.run(main())
+
