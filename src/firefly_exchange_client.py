@@ -8,7 +8,7 @@ from interfaces import *
 from eth_account import Account
 from sockets import Sockets
 from enumerations import *
-
+import asyncio
 
 class FireflyClient:
     def __init__(self, are_terms_accepted, network, private_key, user_onboarding=True):
@@ -20,7 +20,7 @@ class FireflyClient:
         self.socket = Sockets(self.network["socketURL"])
         self.contracts = Contracts()
         self.order_signers = {}
-        self.contracts.contract_addresses = self.get_contract_addresses()
+        self.contracts.contract_addresses = asyncio.run(self.get_contract_addresses())
         self.onboarding_signer = OnboardingSigner()
         
 
@@ -629,7 +629,7 @@ class FireflyClient:
             params
             ) 
 
-    def get_contract_addresses(self, symbol:MARKET_SYMBOLS=None):
+    async def get_contract_addresses(self, symbol:MARKET_SYMBOLS=None):
         """
             Returns all contract addresses for the provided market.
             Inputs:
