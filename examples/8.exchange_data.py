@@ -3,9 +3,10 @@ from firefly_exchange_client import FireflyClient
 from constants import Networks
 from enumerations import MARKET_SYMBOLS, Interval, TRADE_TYPE
 from pprint import pprint
+import asyncio
 
 
-def main():
+async def main():
 
     # initialize client
     client = FireflyClient(
@@ -16,41 +17,41 @@ def main():
         )
 
     # returns status/health of exchange
-    status = client.get_exchange_status()
+    status = await client.get_exchange_status()
     pprint(status)
 
     # gets state of order book. Gets first 10 asks and bids
-    orderbook = client.get_orderbook({"symbol": MARKET_SYMBOLS.ETH, "limit":10})
+    orderbook = await client.get_orderbook({"symbol": MARKET_SYMBOLS.ETH, "limit":10})
     pprint(orderbook)
 
     # returns available market for trading
-    market_symbols = client.get_market_symbols()
+    market_symbols = await client.get_market_symbols()
     print(market_symbols)
 
     # gets current funding rate on market
-    funding_rate = client.get_funding_rate(MARKET_SYMBOLS.ETH)
+    funding_rate = await client.get_funding_rate(MARKET_SYMBOLS.ETH)
     pprint(funding_rate)
 
     # gets markets meta data about contracts, blockchain, exchange url
-    meta = client.get_market_meta_info() # (optional param MARKET_SYMBOL)
+    meta = await client.get_market_meta_info() # (optional param MARKET_SYMBOL)
     # should log meta for all markets
     pprint(meta)
 
     # gets market's current state
-    market_data = client.get_market_data(MARKET_SYMBOLS.ETH)
+    market_data = await client.get_market_data(MARKET_SYMBOLS.ETH)
     pprint(market_data)
 
 
     # gets market data about min/max order size, oracle price, fee etc..
-    exchange_info = client.get_exchange_info(MARKET_SYMBOLS.ETH)
+    exchange_info = await client.get_exchange_info(MARKET_SYMBOLS.ETH)
     pprint(exchange_info)
 
     # gets market candle info
-    candle_data = client.get_market_candle_stick_data({"symbol": MARKET_SYMBOLS.ETH, "interval": Interval._1M})
+    candle_data = await client.get_market_candle_stick_data({"symbol": MARKET_SYMBOLS.ETH, "interval": Interval._1M})
     pprint(candle_data)
 
     # gets recent isolated/normal trades on ETH market
-    recent_trades = client.get_market_recent_trades({"symbol": MARKET_SYMBOLS.ETH, "traders": TRADE_TYPE.ISOLATED})
+    recent_trades = await client.get_market_recent_trades({"symbol": MARKET_SYMBOLS.ETH, "traders": TRADE_TYPE.ISOLATED})
     pprint(recent_trades)
 
 
@@ -59,4 +60,4 @@ def main():
     pprint(contract_address)
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

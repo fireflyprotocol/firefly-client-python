@@ -1,12 +1,12 @@
-
 from config import TEST_ACCT_KEY, TEST_NETWORK
 from firefly_exchange_client import FireflyClient
 from constants import Networks
 from enumerations import MARKET_SYMBOLS
 from pprint import pprint
+import asyncio
 
 
-def main():
+async def main():
 
     # initialize client
     client = FireflyClient(
@@ -21,16 +21,16 @@ def main():
 
     pprint(data)
 
-    position = client.get_user_position({"symbol":MARKET_SYMBOLS.ETH})
+    position = await client.get_user_position({"symbol":MARKET_SYMBOLS.ETH})
     
     # returns {} when user has no position
     pprint(position)
 
-    position = client.get_user_position({"symbol":MARKET_SYMBOLS.BTC})
+    position = await client.get_user_position({"symbol":MARKET_SYMBOLS.BTC})
     
     # returns user position if exists
     pprint(position)
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

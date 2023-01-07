@@ -3,8 +3,9 @@ from firefly_exchange_client import FireflyClient
 from enumerations import MARKET_SYMBOLS, ORDER_SIDE, ORDER_TYPE
 from constants import Networks
 from interfaces import OrderSignatureRequest
+import asyncio
 
-def main():
+async def main():
 
   # initialize client with parent account
   clientParent = FireflyClient(
@@ -27,7 +28,7 @@ def main():
   print("Child: ", clientChild.get_public_address())
 
   # # whitelist sub account
-  status = clientParent.update_sub_account(MARKET_SYMBOLS.ETH, clientChild.get_public_address(), True)
+  status = await clientParent.update_sub_account(MARKET_SYMBOLS.ETH, clientChild.get_public_address(), True)
   print("Sub account created: {}".format(status))
 
 
@@ -47,9 +48,9 @@ def main():
   signed_order = clientChild.create_signed_order(signature_request);
 
 
-  resp = clientChild.post_signed_order(signed_order)
+  resp = await clientChild.post_signed_order(signed_order)
 
   print(resp)
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
