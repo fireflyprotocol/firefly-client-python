@@ -43,7 +43,8 @@ For testing purposes use `Networks[TESTNET_ARBITRUM]` and for production please 
 from firefly_exchange_client import FireflyClient
 from constants import Networks
 from pprint import pprint
-​
+​import asyncio
+
 # initialize client
 client = FireflyClient(
       True, # agree to terms and conditions
@@ -55,7 +56,10 @@ client = FireflyClient(
 print('Account Address:', client.get_public_address());
 ​
 # # gets user account data on-chain
-data = client.get_user_account_data()
+# if running in async method
+data = await client.get_user_account_data() 
+# if running in a sync method
+# data = asyncio.run(client.get_user_account_data())
 ​
 pprint(data)
 ```
@@ -66,7 +70,8 @@ from firefly_exchange_client import FireflyClient
 from constants import Networks
 from enumerations import MARKET_SYMBOLS, ORDER_SIDE, ORDER_TYPE
 from interfaces import OrderSignatureRequest
-​
+​import asyncio
+
 # initialize
 client = FireflyClient(....) 
 ​
@@ -85,7 +90,7 @@ signed_order = client.create_signed_order(signature_request);
 ​
 print("Placing a market order")
 # place signed order on orderbook
-resp = client.post_signed_order(signed_order)
+resp = await client.post_signed_order(signed_order)
 ​
 # returned order with PENDING state
 print(resp)
@@ -105,13 +110,13 @@ def callback(event):
 client = FireflyClient(....) 
 ​
 # make connection with firefly exchange
-client.socket.open()
+await client.socket.open()
 ​
 # subscribe to local user events
-client.socket.subscribe_user_update_by_token()
+await client.socket.subscribe_user_update_by_token()
 ​
 # listen to user order updates and trigger callback
-client.socket.listen(SOCKET_EVENTS.ORDER_UPDATE.value, callback)
+await client.socket.listen(SOCKET_EVENTS.ORDER_UPDATE.value, callback)
 ​
 #
 # place some orders to exchange, that will trigger callback
@@ -121,10 +126,10 @@ client.socket.listen(SOCKET_EVENTS.ORDER_UPDATE.value, callback)
 time.sleep(10)
 ​
 # unsubscribe from user events
-client.socket.unsubscribe_user_update_by_token()
+await client.socket.unsubscribe_user_update_by_token()
 ​
 # close socket connection
-client.socket.close()
+await client.socket.close()
 ​
 ```
 Look at the [example](https://github.com/fireflyprotocol/firefly_exchange_client/tree/main/examples) directory to see more examples on how to use this library.
