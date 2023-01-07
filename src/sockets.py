@@ -29,7 +29,7 @@ class Sockets:
         """
         self.token = token
 
-    def open(self):
+    async def open(self):
         """
             opens socket instance connection
         """
@@ -40,7 +40,7 @@ class Sockets:
         return
         
 
-    def close(self):
+    async def close(self):
         """
             closes the socket instance connection
         """
@@ -63,14 +63,14 @@ class Sockets:
             pass
         return 
 
-    def listen(self,event,callback):
+    async def listen(self,event,callback):
         """
             Assigns callbacks to desired events
         """
         Sockets.callbacks[event] = callback
         return 
 
-    def subscribe_global_updates_by_symbol(self,symbol: MARKET_SYMBOLS):
+    async def subscribe_global_updates_by_symbol(self,symbol: MARKET_SYMBOLS):
         """
             Allows user to subscribe to global updates for the desired symbol.
             Inputs:
@@ -91,7 +91,7 @@ class Sockets:
             print("Error: ", e)
             return False
 
-    def unsubscribe_global_updates_by_symbol(self,symbol: MARKET_SYMBOLS):
+    async def unsubscribe_global_updates_by_symbol(self,symbol: MARKET_SYMBOLS):
         """
             Allows user to unsubscribe to global updates for the desired symbol.
                 Inputs:
@@ -111,7 +111,7 @@ class Sockets:
         except:
             return False
 
-    def subscribe_user_update_by_token(self,user_token: str=None):
+    async def subscribe_user_update_by_token(self,user_token: str=None):
         """
             Allows user to subscribe to their account updates.
             Inputs:
@@ -131,7 +131,7 @@ class Sockets:
         except:
             return False
 
-    def unsubscribe_user_update_by_token(self,user_token:str=None): 
+    async def unsubscribe_user_update_by_token(self,user_token:str=None): 
         """
             Allows user to unsubscribe to their account updates.
             Inputs:
