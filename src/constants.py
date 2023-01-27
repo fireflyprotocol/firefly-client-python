@@ -10,8 +10,8 @@ Networks = {
   "TESTNET_ARBITRUM": {
     "url": "https://goerli-rollup.arbitrum.io/rpc",
     "chainId": 421613,
-    "apiGateway": "https://dapi-testnet.firefly.exchange",
-    "socketURL": "wss://dapi-testnet.firefly.exchange",
+    "apiGateway": "https://api.arbitrum-staging.firefly.exchange/dapi-server",
+    "socketURL": "wss://api.arbitrum-staging.firefly.exchange/dapi-server-notifier/",
     "webSocketURL": "",
     "onboardingUrl": "https://testnet.firefly.exchange",
   },
@@ -26,11 +26,12 @@ Networks = {
   "MAINNET_ARBITRUM": {
     "url": "https://arb1.arbitrum.io/rpc/",
     "chainId": 42161,
-    "apiGateway": "https://dapi-arb.firefly.exchange",
-    "socketURL": "wss://dapi-arb.firefly.exchange",
+    "apiGateway": "https://dapi.api.arbitrum-prod.firefly.exchange",
+    "socketURL": "wss://dapi.api.arbitrum-prod.firefly.exchange",
     "onboardingUrl": "https://trade-arb.firefly.exchange",
   },
 }
+
 
 EIP712_DOMAIN_NAME = "IsolatedTrader"
 
