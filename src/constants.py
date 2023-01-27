@@ -10,8 +10,8 @@ Networks = {
   "TESTNET_ARBITRUM": {
     "url": "https://goerli-rollup.arbitrum.io/rpc",
     "chainId": 421613,
-    "apiGateway": "https://api.arbitrum-staging.firefly.exchange/dapi-server",
-    "socketURL": "wss://dapi-testnet.firefly.exchange",
+    "apiGateway": "https://dapi.api.arbitrum-staging.firefly.exchange",
+    "socketURL": "wss://dapi.api.arbitrum-staging.firefly.exchange",
     "webSocketURL": "",
     "onboardingUrl": "https://testnet.firefly.exchange",
   },
