@@ -16,7 +16,7 @@ client = FireflyClient(
 async def main():
 
     # gets user account data on firefly exchange
-    data = client.get_user_account_data()
+    data = await client.get_user_account_data()
 
     pprint(data)
 

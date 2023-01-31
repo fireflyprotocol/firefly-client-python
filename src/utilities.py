@@ -5,6 +5,8 @@ from web3 import Web3
 
 def to_big_number(value, num_decimals=18):    
     val = int(value* (10**num_decimals))
+    print(val);
+    print(val%(10**6));
     return val - val%(10**6)
 
 def big_number_to_base(value, num_decimals=18):
