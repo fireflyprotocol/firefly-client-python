@@ -2,7 +2,7 @@ from config import TEST_ACCT_KEY, TEST_NETWORK
 from firefly_exchange_client import FireflyClient
 from constants import Networks
 from enumerations import MARKET_SYMBOLS, ADJUST_MARGIN
-from utilities import big_number_to_base
+from eth_utils import from_wei
 import asyncio
 
 # initialize client
@@ -18,7 +18,7 @@ async def main():
 
     
     position = await client.get_user_position({"symbol":MARKET_SYMBOLS.BTC});
-    print("Current margin in position:", big_number_to_base(position["margin"]))
+    print("Current margin in position:", from_wei(position["margin"], "ether"))
 
     # adding 100$ from our margin bank into our BTC position on-chain
     # must have native chain tokens to pay for gas fee
@@ -28,14 +28,14 @@ async def main():
     # to on-chain positions on exchange as off-chain infrastructure waits for blockchain
     # to emit position update event
     position = await client.get_user_position({"symbol":MARKET_SYMBOLS.BTC});
-    print("Current margin in position:", big_number_to_base(position["margin"]))
+    print("Current margin in position:", from_wei(position["margin"], "ether"))
 
 
     # removing 100$ from margin
     await client.adjust_margin(MARKET_SYMBOLS.BTC, ADJUST_MARGIN.REMOVE, 100);
 
     position = await client.get_user_position({"symbol":MARKET_SYMBOLS.BTC});
-    print("Current margin in position:", big_number_to_base(position["margin"]))
+    print("Current margin in position:", from_wei(position["margin"], "ether"))
 
 
     # will throw as user does not have any open position on ETH to adjust margin on
