@@ -5,16 +5,16 @@ from enumerations import MARKET_SYMBOLS
 import asyncio
 
 
+# initialize client
+client = FireflyClient(
+    True, # agree to terms and conditions
+    Networks[TEST_NETWORK], # network to connect with
+    TEST_ACCT_KEY, # private key of wallet
+    True, # on boards user on firefly. Must be set to true for first time use
+    )
+
 async def main():
 
-    # initialize client
-    client = FireflyClient(
-        True, # agree to terms and conditions
-        Networks[TEST_NETWORK], # network to connect with
-        TEST_ACCT_KEY, # private key of wallet
-        True, # on boards user on firefly. Must be set to true for first time use
-        )
-    
 
     print('Leverage on BTC market:', await client.get_user_leverage(MARKET_SYMBOLS.BTC))
     # we have a position on BTC so this will perform on-chain leverage update

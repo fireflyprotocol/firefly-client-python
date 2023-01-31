@@ -3,16 +3,15 @@ from firefly_exchange_client import FireflyClient
 from constants import Networks
 import asyncio
 
+# initialize client
+client = FireflyClient(
+      True, # agree to terms and conditions
+      Networks[TEST_NETWORK], # network to connect with
+      TEST_ACCT_KEY, # private key of wallet
+      True, # on boards user on firefly. Must be set to true for first time use
+      )
+
 async def main():
-
-  # initialize client
-  client = FireflyClient(
-        True, # agree to terms and conditions
-        Networks[TEST_NETWORK], # network to connect with
-        TEST_ACCT_KEY, # private key of wallet
-        True, # on boards user on firefly. Must be set to true for first time use
-        )
-
   # checks chain native token balance.
   # A user must have native tokens to perform contract calls
   print('Chain token balance:', await client.get_native_chain_token_balance());

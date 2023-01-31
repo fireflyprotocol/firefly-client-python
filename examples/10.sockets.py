@@ -5,18 +5,19 @@ from constants import Networks
 from enumerations import MARKET_SYMBOLS, SOCKET_EVENTS
 import asyncio
 
+
+# initialize client
+client = FireflyClient(
+      True, # agree to terms and conditions
+      Networks[TEST_NETWORK], # network to connect with
+      TEST_ACCT_KEY, # private key of wallet
+      True, # on boards user on firefly. Must be set to true for first time use
+      )
+
 def callback(event):
     print("Event data:", event)
 
 async def main():
-
-  # initialize client
-  client = FireflyClient(
-        True, # agree to terms and conditions
-        Networks[TEST_NETWORK], # network to connect with
-        TEST_ACCT_KEY, # private key of wallet
-        True, # on boards user on firefly. Must be set to true for first time use
-        )
 
   # must open socket before subscribing
   print("Making socket connection to firefly exchange")

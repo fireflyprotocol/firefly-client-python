@@ -5,15 +5,17 @@ from enumerations import MARKET_SYMBOLS, ADJUST_MARGIN
 from utilities import big_number_to_base
 import asyncio
 
+# initialize client
+client = FireflyClient(
+    True, # agree to terms and conditions
+    Networks[TEST_NETWORK], # network to connect with
+    TEST_ACCT_KEY, # private key of wallet
+    True, # on boards user on firefly. Must be set to true for first time use
+    )
+
 async def main():
 
-    # initialize client
-    client = FireflyClient(
-        True, # agree to terms and conditions
-        Networks[TEST_NETWORK], # network to connect with
-        TEST_ACCT_KEY, # private key of wallet
-        True, # on boards user on firefly. Must be set to true for first time use
-        )
+
     
     position = await client.get_user_position({"symbol":MARKET_SYMBOLS.BTC});
     print("Current margin in position:", big_number_to_base(position["margin"]))
