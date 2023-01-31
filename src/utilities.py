@@ -3,13 +3,6 @@ from random import randint
 from web3 import Web3
 
 
-def to_big_number(value, num_decimals=18):    
-    val = int(value* (10**num_decimals))
-    return val - val%(10**6)
-
-def big_number_to_base(value, num_decimals=18):
-    return int(value) / 10**num_decimals
-
 def strip_hex_prefix(input):
     if input[0:2] == '0x':
         return input[2:]

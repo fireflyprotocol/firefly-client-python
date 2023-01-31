@@ -9,6 +9,7 @@ from eth_account import Account
 from sockets import Sockets
 from enumerations import *
 import asyncio
+from eth_utils import to_wei, from_wei
 
 class FireflyClient:
     def __init__(self, are_terms_accepted, network, private_key, user_onboarding=True):
@@ -149,9 +150,9 @@ class FireflyClient:
 
         return Order (
             isBuy = params["side"] == ORDER_SIDE.BUY,
-            price = to_big_number(params["price"]),
-            quantity =  to_big_number(params["quantity"]),
-            leverage =  to_big_number(default_value(params, "leverage", 1)),
+            price = to_wei(params["price"], "ether"),
+            quantity =  to_wei(params["quantity"], "ether"),
+            leverage =  to_wei(default_value(params, "leverage", 1), "ether"),
             maker =  params["maker"].lower() if "maker" in params else self.account.address.lower(),
             reduceOnly =  default_value(params, "reduceOnly", False),
             triggerPrice =  0,
@@ -172,7 +173,8 @@ class FireflyClient:
         
         # from params create order to sign
         order = self.create_order_to_sign(params)
-        
+        print(order)
+
         symbol = params["symbol"].value
         order_signer = self.order_signers.get(symbol) 
 
@@ -295,9 +297,9 @@ class FireflyClient:
             SERVICE_URLS["ORDERS"]["ORDERS"],
             {
             "symbol": params["symbol"],
-            "price": to_big_number(params["price"]),
-            "quantity": to_big_number(params["quantity"]),
-            "leverage": to_big_number(params["leverage"]),
+            "price": to_wei(params["price"], "ether"),
+            "quantity": to_wei(params["quantity"], "ether"),
+            "leverage": to_wei(params["leverage"], "ether"),
             "userAddress": params["maker"],
             "orderType": params["orderType"].value,
             "side": params["side"].value,            
@@ -327,7 +329,7 @@ class FireflyClient:
         usdc_contract = self.contracts.get_contract(name="USDC");
         mb_contract = self.contracts.get_contract(name="MarginBank");
 
-        amount = to_big_number(amount,6);
+        amount = to_wei(amount,"mwei");
 
         # approve funds on usdc
         
@@ -364,7 +366,7 @@ class FireflyClient:
         """
 
         mb_contract = self.contracts.get_contract(name="MarginBank");
-        amount = to_big_number(amount,6);
+        amount = to_wei(amount,"mwei");
 
         # withdraw from margin bank
         construct_txn = mb_contract.functions.withdrawFromBank(
@@ -398,7 +400,7 @@ class FireflyClient:
             perp_contract = self.contracts.get_contract(name="Perpetual", market=symbol.value);
             construct_txn = perp_contract.functions.adjustLeverage(
                 self.account.address, 
-                to_big_number(leverage)).buildTransaction({
+                to_wei(leverage, "ether")).buildTransaction({
                     'from': self.account.address,
                     'nonce': self.w3.eth.getTransactionCount(self.account.address),
                     })
@@ -411,7 +413,7 @@ class FireflyClient:
                 {
                     "symbol": symbol.value,
                     "address": self.account.address,
-                    "leverage": to_big_number(leverage),
+                    "leverage": to_wei(leverage, "ether"),
                     "marginType": MARGIN_TYPE.ISOLATED.value,
                     },
                 auth_required=True
@@ -442,7 +444,7 @@ class FireflyClient:
 
             construct_txn = on_chain_call(
                 self.account.address, 
-                to_big_number(amount)).buildTransaction({
+                to_wei(amount, "ether")).buildTransaction({
                     'from': self.account.address,
                     'nonce': self.w3.eth.getTransactionCount(self.account.address),
                     })
@@ -480,7 +482,7 @@ class FireflyClient:
             Returns user's native chain token (ETH/BOBA) balance
         """
         try:
-            return big_number_to_base(self.w3.eth.get_balance(self.w3.toChecksumAddress(self.account.address)))
+            return from_wei(self.w3.eth.get_balance(self.w3.toChecksumAddress(self.account.address)), "ether")
         except Exception as e:
             raise(Exception("Failed to get balance, Exception: {}".format(e)))
 
@@ -491,7 +493,7 @@ class FireflyClient:
         try:
             contract = self.contracts.get_contract(name="USDC")
             raw_bal = contract.functions.balanceOf(self.account.address).call();
-            return big_number_to_base(int(raw_bal), 6)
+            return from_wei(int(raw_bal), "mwei")
         except Exception as e:
             raise(Exception("Failed to get balance, Exception: {}".format(e)))
 
@@ -741,7 +743,7 @@ class FireflyClient:
         
         for i in account_data_by_market:
             if symbol.value==i["symbol"]:
-                return int(big_number_to_base(i["selectedLeverage"]))    
+                return int(from_wei(int(i["selectedLeverage"]), "ether"))    
 
         # default leverage on system is 3
         # todo fetch from exchange info route
