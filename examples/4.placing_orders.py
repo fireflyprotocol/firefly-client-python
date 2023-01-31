@@ -24,9 +24,9 @@ async def place_limit_order():
     # creates a LIMIT order to be signed
     signature_request = OrderSignatureRequest(
         symbol=MARKET_SYMBOLS.ETH,  # market symbol
-        price=1562.8,  # price at which you want to place order
+        price=1632.8,  # price at which you want to place order
         quantity=0.01, # quantity
-        side=ORDER_SIDE.SELL, 
+        side=ORDER_SIDE.BUY, 
         orderType=ORDER_TYPE.LIMIT,
         leverage=user_leverage
     )  
@@ -74,7 +74,7 @@ async def place_market_order():
 
 async def main():
     await place_limit_order()
-    # await place_market_order()
+    await place_market_order()
     
 
 if __name__ == "__main__":
