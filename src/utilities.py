@@ -4,7 +4,8 @@ from web3 import Web3
 
 
 def to_big_number(value, num_decimals=18):    
-    return int(value* (10**num_decimals))
+    val = int(value* (10**num_decimals))
+    return val - val%(10**6)
 
 def big_number_to_base(value, num_decimals=18):
     return int(value) / 10**num_decimals
