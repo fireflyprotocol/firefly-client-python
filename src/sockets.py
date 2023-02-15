@@ -16,7 +16,7 @@ class Sockets:
             Connects to the desired url
         """
         try:
-            sio.connect(self.url,wait_timeout=self.timeout)
+            sio.connect(self.url,wait_timeout=self.timeout,transports=["websocket"])
             return True
         except:
             return False
