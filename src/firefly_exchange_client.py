@@ -503,7 +503,7 @@ class FireflyClient:
         """
         try:
             contract = self.contracts.get_contract(name="MarginBank")
-            return contract.functions.getAccountBankBalance(self.account.address).call()/1e18
+            return from_wei(contract.functions.getAccountBankBalance(self.account.address).call(),"ether")
         except Exception as e:
             raise(Exception("Failed to get balance, Exception: {}".format(e)))
 
