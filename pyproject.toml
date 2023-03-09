@@ -1,6 +1,6 @@
 [project]
 name = "firefly_exchange_client"
-version = "0.0.16"
+version = "0.0.17"
 description = "Library to interact with firefly exchange protocol including its off-chain api-gateway and on-chain contracts"
 readme = "README.md"
 requires-python = ">=3.8"
@@ -9,6 +9,7 @@ dependencies = [
   'web3 ~= 5.31.3',
   'requests ~= 2.28.1',
   'python-socketio ~= 5.7.2',
+  'websocket-client ~= 1.5.1'
 ]
 
 [project.urls]

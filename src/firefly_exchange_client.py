@@ -10,6 +10,7 @@ from sockets import Sockets
 from enumerations import *
 import asyncio
 from eth_utils import to_wei, from_wei
+from websocket_client import WebsocketClient
 
 class FireflyClient:
     def __init__(self, are_terms_accepted, network, private_key, user_onboarding=True):
@@ -19,6 +20,7 @@ class FireflyClient:
         self.account = Account.from_key(private_key)
         self.apis = APIService(self.network["apiGateway"])
         self.socket = Sockets(self.network["socketURL"])
+        self.webSocketClient = WebsocketClient(self.network["webSocketURL"])
         self.contracts = Contracts()
         self.order_signers = {}
         self.contracts.contract_addresses = asyncio.run(self.get_contract_addresses())
@@ -40,6 +42,7 @@ class FireflyClient:
         if user_onboarding:
             self.apis.auth_token = self.onboard_user()
             self.socket.set_token(self.apis.auth_token)
+            self.webSocketClient.set_token(self.apis.auth_token)
 
  
 
