@@ -24,7 +24,7 @@ async def main():
 
   # must open socket before subscribing
   print("Making socket connection to firefly exchange")
-  client.webSocketClient.initialize_socket(on_open=on_open)
+  client.webSocketClient.initialize_socket(on_open=on_open, on_error=on_error,on_close=on_close)
 
 def on_open(ws):
    # subscribe to global event updates for BTC market 
@@ -61,6 +61,12 @@ def on_open(ws):
   # close socket connection
   print("Closing sockets!")
   client.webSocketClient.stop()
+
+def on_error(ws, error):
+    print(error)
+
+def on_close(ws, close_status_code, close_msg):
+    print("### closed ###")
 
 if __name__ == "__main__":
     asyncio.run(main())
