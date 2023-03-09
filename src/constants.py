@@ -12,7 +12,7 @@ Networks = {
     "chainId": 421613,
     "apiGateway": "https://dapi.api.arbitrum-staging.firefly.exchange",
     "socketURL": "wss://dapi.api.arbitrum-staging.firefly.exchange",
-    "webSocketURL": "",
+    "webSocketURL": "wss://notifications.api.arbitrum-staging.firefly.exchange",
     "onboardingUrl": "https://testnet.firefly.exchange",
   },
 
@@ -28,6 +28,7 @@ Networks = {
     "chainId": 42161,
     "apiGateway": "https://dapi.api.arbitrum-prod.firefly.exchange",
     "socketURL": "wss://dapi.api.arbitrum-prod.firefly.exchange",
+    "webSocketURL": "wss://notifications.api.arbitrum-prod.firefly.exchange",
     "onboardingUrl": "https://trade-arb.firefly.exchange",
   },
 }
