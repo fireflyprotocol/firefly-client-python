@@ -96,7 +96,7 @@ resp = await client.post_signed_order(signed_order)
 print(resp)
 ```
 ​
-**Listening To Events:**
+**Listening To Events Using Socket.io:**
 ```python
 from firefly_exchange_client import FireflyClient
 from constants import Networks
@@ -133,3 +133,39 @@ await client.socket.close()
 ​
 ```
 Look at the [example](https://github.com/fireflyprotocol/firefly_exchange_client/tree/main/examples) directory to see more examples on how to use this library.
+
+**Listening To Events Using Web Sockets:**
+```python
+from firefly_exchange_client import FireflyClient
+from constants import Networks
+from enumerations import MARKET_SYMBOLS, ORDER_SIDE, ORDER_TYPE, SOCKET_EVENTS
+from interfaces import OrderSignatureRequest
+import time
+def callback(event):
+    print("Event data:", event)
+
+# initialize
+client = FireflyClient(....) 
+
+# make connection with firefly exchange
+client.webSocketClient.initialize_socket(on_open=on_open)
+
+
+def on_open(ws):
+  # subscribe to local user events
+  client.webSocketClient.subscribe_user_update_by_token()
+  
+  # listen to user order updates and trigger callback
+  client.webSocketClient.listen(SOCKET_EVENTS.ORDER_UPDATE.value, callback)
+  #
+  # place some orders to exchange, that will trigger callback
+  # resp = client.post_signed_order(signed_order)
+  #
+  time.sleep(10)
+
+  # unsubscribe from user events
+  client.webSocketClient.unsubscribe_user_update_by_token()
+
+  # close socket connection
+  client.webSocketClient.stop()
+```
