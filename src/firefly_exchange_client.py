@@ -557,7 +557,25 @@ class FireflyClient:
         return self.apis.get(
             SERVICE_URLS["MARKET"]["FUNDING_RATE"],
             {"symbol": symbol.value}
-        ) 
+        )
+
+    async def get_funding_history(self,params:GetFundingHistoryRequest):
+        """
+            Returns a list of the user's funding payments, a boolean indicating if there is/are more page(s),
+                and the next page number
+            Inputs:
+                - params(GetFundingHistoryRequest): params required to fetch funding history  
+            Returns:
+                - GetFundingHistoryResponse: 
+                    - isMoreDataAvailable: boolean indicating if there is/are more page(s)
+                    - nextCursor: the next page number
+                    - data: a list of the user's funding payments
+        """
+        return self.apis.get(
+            SERVICE_URLS["USER"]["FUNDING_HISTORY"],
+            params,
+            auth_required=True
+        )
 
     async def get_market_meta_info(self,symbol:MARKET_SYMBOLS=None):
         """
