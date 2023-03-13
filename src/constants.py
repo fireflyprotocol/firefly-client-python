@@ -88,6 +88,7 @@ SERVICE_URLS = {
     "AUTHORIZE": "/authorize",
     "ADJUST_LEVERAGE": "/account/adjustLeverage",
     "FUND_GAS": "/account/fundGas",
+    "FUNDING_HISTORY": "/userFundingHistory",
   },
   "ORDERS": {
     "ORDERS": "/orders",

@@ -135,4 +135,27 @@ class GetUserTradesRequest(TypedDict):
 class GetOrderRequest(GetTransactionHistoryRequest):
   statuses:ORDER_STATUS # status of orders to be fetched
 
+class GetFundingHistoryRequest(TypedDict):
+  symbol: MARKET_SYMBOLS  # will fetch orders of provided market
+  pageSize: int  # will get only provided number of orders must be <= 50
+  cursor: int  # will fetch particular page records. A single page contains 50 records.
 
+class FundingHistoryResponse(TypedDict):
+  id: int # unique id
+  symbol: MARKET_SYMBOLS # market for which to create order
+  userAddress: str # user public address
+  quantity: int # size of position
+  time: int # created time
+  appliedFundingRate: str # funding rate percent applied
+  isFundingRatePositive: bool # was funding rate +ve or -ve
+  payment: str # amount
+  isPaymentPositive: bool # whether payment was deducted or added
+  oraclePrice: str # price from oracle
+  side: ORDER_SIDE # BUY/SELL
+  blockNumber: int # transaction block number
+  isPositionPositive: bool # is position LONG or SHORT
+
+class GetFundingHistoryResponse(TypedDict):
+  isMoreDataAvailable: bool # boolean indicating if there is more data available
+  nextCursor: int # next page number
+  data: list[FundingHistoryResponse]
