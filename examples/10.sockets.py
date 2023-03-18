@@ -22,7 +22,7 @@ async def main():
   print("Subscribed to global BTC events: {}".format(status))
 
   # subscribe to local user events
-  client.socket.subscribe_user_update_by_token()
+  await client.socket.subscribe_user_update_by_token()
   print("Subscribed to user events")
 
   # triggered when order book updates
