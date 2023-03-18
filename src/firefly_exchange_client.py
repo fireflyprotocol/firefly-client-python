@@ -572,6 +572,9 @@ class FireflyClient:
                     - nextCursor: the next page number
                     - data: a list of the user's funding payments
         """
+
+        params = extract_enums(params,["symbol"])
+        
         return await self.apis.get(
             SERVICE_URLS["USER"]["FUNDING_HISTORY"],
             params,
