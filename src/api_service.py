@@ -23,7 +23,10 @@ class APIService():
 
         response = None
         if auth_required:
-            response = await self.client.get(url, params=query, headers={'Authorization': 'Bearer {}'.format(self.auth_token)})
+            response = await self.client.get(
+                url, 
+                params=query, 
+                headers={'Authorization': 'Bearer {}'.format(self.auth_token)})
         else:
             response = await self.client.get(url, params=query)
 
@@ -43,17 +46,19 @@ class APIService():
         url = self._create_url(service_url)
         response = None
 
-
         if auth_required:
-            response = await self.client.post(url=url, json=data, headers={'Authorization': 'Bearer {}'.format(self.auth_token)})
+            response = await self.client.post(
+                url=url, 
+                data=data, 
+                headers={'Authorization': 'Bearer {}'.format(self.auth_token)})
         else:
-            response = await self.client.post(url=url, json=data)
+            response = await self.client.post(url=url, data=data)
 
         try:
             return await response.json()
         except:
             raise Exception("Error while posting to {}: {}".format(url, response))
-
+        
     async def delete(self,service_url, data, auth_required=False):
         """
             Makes a DELETE request and returns the results
@@ -66,9 +71,12 @@ class APIService():
 
         response = None
         if auth_required:
-            response = await self.client.delete(url=url, json=data, headers={'Authorization': 'Bearer {}'.format(self.auth_token)}).json()
+            response = await self.client.delete(
+                url=url, 
+                data=data, 
+                headers={'Authorization': 'Bearer {}'.format(self.auth_token)})
         else:
-            response =  await self.client.delete(url=url, json=data).json()
+            response = await self.client.delete(url=url, data=data)
         
         try:
             return await response.json()
