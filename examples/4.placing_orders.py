@@ -78,7 +78,7 @@ async def main():
     client.add_market(MARKET_SYMBOLS.ETH)
 
     await place_limit_order(client)
-    # await place_market_order(client)
+    await place_market_order(client)
     
     await client.apis.close_session();
 
