@@ -13,7 +13,7 @@ from eth_utils import to_wei, from_wei
 from websocket_client import WebsocketClient
 
 class FireflyClient:
-    def __init__(self, are_terms_accepted, network, private_key, user_onboarding=True):
+    def __init__(self, are_terms_accepted, network, private_key):
         self.are_terms_accepted = are_terms_accepted
         self.network = network
         self.w3 = self._connect_w3(self.network["url"])
@@ -23,9 +23,11 @@ class FireflyClient:
         self.webSocketClient = WebsocketClient(self.network["webSocketURL"])
         self.contracts = Contracts()
         self.order_signers = {}
-        self.contracts.contract_addresses = asyncio.run(self.get_contract_addresses())
         self.onboarding_signer = OnboardingSigner()
         
+            
+    async def init(self, user_onboarding=True):
+        self.contracts.contract_addresses = await self.get_contract_addresses()
 
         if "error" in self.contracts.contract_addresses:
             raise Exception("Error initializing client: {}".format(self.contracts.contract_addresses["error"]))
@@ -38,15 +40,14 @@ class FireflyClient:
         for k, v in self.contracts.contract_addresses.items():
             if 'PERP' in k:
                 self.add_contract(name="Perpetual",address=v["Perpetual"], market=k)
-        
+
         if user_onboarding:
-            self.apis.auth_token = self.onboard_user()
+            self.apis.auth_token = await self.onboard_user()
             self.socket.set_token(self.apis.auth_token)
             self.webSocketClient.set_token(self.apis.auth_token)
 
- 
 
-    def onboard_user(self, token:str=None):
+    async def onboard_user(self, token:str=None):
         """
             On boards the user address and returns user authentication token.
             Inputs:
@@ -62,7 +63,7 @@ class FireflyClient:
                 self.network["onboardingUrl"], 
                 self.account.key)
 
-            response = self.authorize_signed_hash(onboarding_signature);
+            response = await self.authorize_signed_hash(onboarding_signature);
             
             if 'error' in response:
                 raise SystemError("Authorization error: {}".format(response['error']['message']))
@@ -71,7 +72,7 @@ class FireflyClient:
 
         return user_auth_token
 
-    def authorize_signed_hash(self, signed_hash:str):
+    async def authorize_signed_hash(self, signed_hash:str):
         """
             Registers user as an authorized user on server and returns authorization token.
             Inputs:
@@ -79,7 +80,7 @@ class FireflyClient:
             Returns:
                 - dict: response from user authorization API Firefly
         """
-        return self.apis.post(
+        return await self.apis.post(
             SERVICE_URLS["USER"]["AUTHORIZE"],
             {
                 "signature": signed_hash,
@@ -250,7 +251,7 @@ class FireflyClient:
                 - dict: response from orders delete API Firefly
         """
 
-        return self.apis.delete(
+        return await self.apis.delete(
             SERVICE_URLS["ORDERS"]["ORDERS_HASH"],
             {
             "symbol": params["symbol"],
@@ -296,7 +297,7 @@ class FireflyClient:
                 OrderSignatureResponse: order raw info and generated signature
         """
 
-        return self.apis.post(
+        return await self.apis.post(
             SERVICE_URLS["ORDERS"]["ORDERS"],
             {
             "symbol": params["symbol"],
@@ -411,7 +412,7 @@ class FireflyClient:
             self._execute_tx(construct_txn)
 
         else:
-            self.apis.post(
+            await self.apis.post(
                 SERVICE_URLS["USER"]["ADJUST_LEVERAGE"],
                 {
                     "symbol": symbol.value,
@@ -522,7 +523,7 @@ class FireflyClient:
         """
         params = extract_enums(params, ["symbol"])
 
-        return self.apis.get(
+        return await self.apis.get(
             SERVICE_URLS["MARKET"]["ORDER_BOOK"], 
             params
             )
@@ -533,7 +534,7 @@ class FireflyClient:
             Returns:
                 - dict: exchange status
         """
-        return self.apis.get(SERVICE_URLS["MARKET"]["STATUS"], {})
+        return await self.apis.get(SERVICE_URLS["MARKET"]["STATUS"], {})
 
     async def get_market_symbols(self):
         """
@@ -541,7 +542,7 @@ class FireflyClient:
             Returns:
                 - list: active market symbols
         """
-        return self.apis.get(
+        return await self.apis.get(
             SERVICE_URLS["MARKET"]["SYMBOLS"],
             {} 
             )
@@ -554,7 +555,7 @@ class FireflyClient:
             Returns:
                 - dict: Funding rate into
         """
-        return self.apis.get(
+        return await self.apis.get(
             SERVICE_URLS["MARKET"]["FUNDING_RATE"],
             {"symbol": symbol.value}
         )
@@ -571,7 +572,7 @@ class FireflyClient:
                     - nextCursor: the next page number
                     - data: a list of the user's funding payments
         """
-        return self.apis.get(
+        return await self.apis.get(
             SERVICE_URLS["USER"]["FUNDING_HISTORY"],
             params,
             auth_required=True
@@ -587,7 +588,7 @@ class FireflyClient:
         """
         query = {"symbol": symbol.value } if symbol else {}
 
-        return self.apis.get(
+        return await self.apis.get(
             SERVICE_URLS["MARKET"]["META"], 
             query
             )
@@ -602,7 +603,7 @@ class FireflyClient:
         """
         query = {"symbol": symbol.value } if symbol else {}
 
-        return self.apis.get(
+        return await self.apis.get(
             SERVICE_URLS["MARKET"]["MARKET_DATA"], 
             query
             )
@@ -617,7 +618,7 @@ class FireflyClient:
                 - dict: exchange info
         """
         query = {"symbol": symbol.value } if symbol else {}
-        return self.apis.get(
+        return await self.apis.get(
             SERVICE_URLS["MARKET"]["EXCHANGE_INFO"], 
             query
             )
@@ -632,7 +633,7 @@ class FireflyClient:
         """
         params = extract_enums(params, ["symbol","interval"])
         
-        return self.apis.get(
+        return await self.apis.get(
             SERVICE_URLS["MARKET"]["CANDLE_STICK_DATA"], 
             params
             )
@@ -647,7 +648,7 @@ class FireflyClient:
         """
         params = extract_enums(params, ["symbol", "traders"])
 
-        return self.apis.get(
+        return await self.apis.get(
             SERVICE_URLS["MARKET"]["RECENT_TRADE"], 
             params
             ) 
@@ -662,7 +663,7 @@ class FireflyClient:
         """
         query = {"symbol": symbol.value } if symbol else {}
 
-        return self.apis.get(
+        return await self.apis.get(
             SERVICE_URLS["MARKET"]["CONTRACT_ADDRESSES"], 
             query
             )   
@@ -691,7 +692,7 @@ class FireflyClient:
         """
         params = extract_enums(params,["symbol","statuses"])
 
-        return self.apis.get(
+        return await self.apis.get(
             SERVICE_URLS["USER"]["ORDERS"],
             params,
             True
@@ -706,7 +707,7 @@ class FireflyClient:
                 - list: a list of transactions
         """
         params = extract_enums(params,["symbol"])
-        return self.apis.get(
+        return await self.apis.get(
             SERVICE_URLS["USER"]["USER_TRANSACTION_HISTORY"],
             params,
             True
@@ -721,7 +722,7 @@ class FireflyClient:
                 - list: a list of positions
         """
         params = extract_enums(params,["symbol"])
-        return self.apis.get(
+        return await self.apis.get(
             SERVICE_URLS["USER"]["USER_POSITIONS"],
             params,
             True
@@ -736,7 +737,7 @@ class FireflyClient:
                 - list: a list of positions
         """
         params = extract_enums(params,["symbol","type"])
-        return self.apis.get(
+        return await self.apis.get(
             SERVICE_URLS["USER"]["USER_TRADES"],
             params,
             True
@@ -746,9 +747,9 @@ class FireflyClient:
         """
             Returns user account data.
         """
-        return self.apis.get(
+        return await self.apis.get(
             service_url = SERVICE_URLS["USER"]["ACCOUNT"],
-            query = '',
+            query = {},
             auth_required = True
         )
         
