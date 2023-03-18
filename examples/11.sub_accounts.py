@@ -25,6 +25,8 @@ async def main():
 
   clientChild.add_market(MARKET_SYMBOLS.ETH)
 
+  parent_leverage =  await clientParent.get_user_leverage(MARKET_SYMBOLS.ETH)
+
   signature_request = OrderSignatureRequest(
         symbol=MARKET_SYMBOLS.ETH, # sub account is only whitelisted for ETH market
         maker=clientParent.get_public_address(),  # maker of the order is the parent account
@@ -32,12 +34,11 @@ async def main():
         quantity=0.02,
         side=ORDER_SIDE.BUY, 
         orderType=ORDER_TYPE.MARKET,
-        leverage=3,
+        leverage=parent_leverage,
     )  
 
   # order is signed using sub account's private key
   signed_order = clientChild.create_signed_order(signature_request);
-
 
   resp = await clientChild.post_signed_order(signed_order)
 
