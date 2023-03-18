@@ -4,18 +4,12 @@ from constants import Networks
 from enumerations import MARKET_SYMBOLS
 from pprint import pprint
 import asyncio
-
 from interfaces import GetFundingHistoryRequest
 
-# initialize client
-client = FireflyClient(
-    True, # agree to terms and conditions
-    Networks[TEST_NETWORK], # network to connect with
-    TEST_ACCT_KEY, # private key of wallet
-    True, # on boards user on firefly. Must be set to true for first time use
-)
-
 async def main():
+    client = FireflyClient(True, Networks[TEST_NETWORK], TEST_ACCT_KEY)
+    await client.init(True)
+ 
 
     # create a funding history request
     funding_history_request = GetFundingHistoryRequest(
@@ -30,6 +24,9 @@ async def main():
     # returns funding history response
     pprint(funding_history_response)
 
+    await client.apis.close_session();
+
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    event_loop = asyncio.get_event_loop()
+    event_loop.run_until_complete(main())

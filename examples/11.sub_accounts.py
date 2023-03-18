@@ -5,24 +5,14 @@ from constants import Networks
 from interfaces import OrderSignatureRequest
 import asyncio
 
-# initialize client with parent account
-clientParent = FireflyClient(
-      True, 
-      Networks[TEST_NETWORK], 
-      TEST_ACCT_KEY,
-      True,
-      )
-
-
-# initialize client with sub account key
-clientChild = FireflyClient(
-      True,
-      Networks[TEST_NETWORK], 
-      TEST_SUB_ACCT_KEY, 
-      True,
-      )
 
 async def main():
+
+  clientParent = FireflyClient(True, Networks[TEST_NETWORK], TEST_ACCT_KEY)
+  await clientParent.init(True)
+
+  clientChild = FireflyClient(True, Networks[TEST_NETWORK], TEST_SUB_ACCT_KEY)
+  await clientChild.init(True)
 
   print("Parent: ", clientParent.get_public_address())
 
@@ -53,5 +43,10 @@ async def main():
 
   print(resp)
 
+  await clientChild.apis.close_session();
+  await clientParent.apis.close_session();
+
+
 if __name__ == "__main__":
-    asyncio.run(main())
+    event_loop = asyncio.get_event_loop()
+    event_loop.run_until_complete(main())

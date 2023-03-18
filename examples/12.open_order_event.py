@@ -11,26 +11,11 @@ from interfaces import OrderSignatureRequest
 from enumerations import MARKET_SYMBOLS, ORDER_SIDE, ORDER_TYPE
 import asyncio
 
-client:FireflyClient = FireflyClient(
-    True, # agree to terms and conditions
-    Networks[TEST_NETWORK], # network to connect with
-    TEST_ACCT_KEY, # private key of wallet
-    True, # on boards user on firefly. Must be set to true for first time use
-    )
 
-client.add_market(MARKET_SYMBOLS.ETH)
 
-def callback(event):
-    print("Event data:", event)
-    
-    status = asyncio.run(client.socket.unsubscribe_user_update_by_token())
-    print("Unsubscribed from user events: {}".format(status))
 
-    # close socket connection
-    print("Closing sockets!")
-    asyncio.run(client.socket.close())
 
-async def place_limit_order():
+async def place_limit_order(client:FireflyClient):
        
     # default leverage of account is set to 3 on firefly
     user_leverage = await client.get_user_leverage(MARKET_SYMBOLS.ETH)
@@ -60,6 +45,21 @@ async def place_limit_order():
 
 async def main():
 
+    client = FireflyClient(True, Networks[TEST_NETWORK], TEST_ACCT_KEY)
+    await client.init(True)
+
+    client.add_market(MARKET_SYMBOLS.ETH)
+
+    def callback(event):
+        print("Event data:", event)
+
+        status = asyncio.run(client.socket.unsubscribe_user_update_by_token())
+        print("Unsubscribed from user events: {}".format(status))
+
+        # close socket connection
+        print("Closing sockets!")
+        asyncio.run(client.socket.close())
+
     # must open socket before subscribing
     print("Making socket connection to firefly exchange")
     await client.socket.open()
@@ -71,9 +71,13 @@ async def main():
     print("Listening to user order updates")
     await client.socket.listen(SOCKET_EVENTS.ORDER_UPDATE.value, callback)
 
-    await place_limit_order();
+    await place_limit_order(client);
+
+    await client.apis.close_session();
+
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    event_loop = asyncio.get_event_loop()
+    event_loop.run_until_complete(main())
 
