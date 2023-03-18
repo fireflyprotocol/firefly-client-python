@@ -51,7 +51,7 @@ async def main():
 
 
     # gets addresses of on-chain contracts
-    contract_address = client.get_contract_addresses()
+    contract_address = await client.get_contract_addresses()
     pprint(contract_address)
 
     await client.apis.close_session();
