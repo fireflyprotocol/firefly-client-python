@@ -11,7 +11,7 @@ class APIService():
         if self.client is not None:
             return await self.client.close()
 
-    async def get(self, service_url, query, auth_required=False):
+    async def get(self, service_url, query={}, auth_required=False):
         """
             Makes a GET request and returns the results
             Inputs:
