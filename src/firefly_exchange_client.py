@@ -752,7 +752,6 @@ class FireflyClient:
         """
         return await self.apis.get(
             service_url = SERVICE_URLS["USER"]["ACCOUNT"],
-            query = {},
             auth_required = True
         )
         
