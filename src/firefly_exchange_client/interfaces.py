@@ -1,4 +1,4 @@
-from typing import TypedDict
+from typing import TypedDict, List
 from .enumerations import *
 
 class Order(TypedDict):
@@ -158,4 +158,4 @@ class FundingHistoryResponse(TypedDict):
 class GetFundingHistoryResponse(TypedDict):
   isMoreDataAvailable: bool # boolean indicating if there is more data available
   nextCursor: int # next page number
-  data: list[FundingHistoryResponse]
+  data: List[FundingHistoryResponse]
