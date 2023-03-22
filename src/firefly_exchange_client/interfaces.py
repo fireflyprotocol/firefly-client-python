@@ -40,7 +40,7 @@ class PlaceOrderRequest(OrderSignatureResponse):
   clientId: str # id of the client
 
 class GetOrderbookRequest(TypedDict):
-  symbol: str
+  symbol: MARKET_SYMBOLS
   limit: int # number of bids/asks to retrieve, should be <= 50
 
 class OnboardingMessage(TypedDict):
