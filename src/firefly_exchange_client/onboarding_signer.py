@@ -1,6 +1,6 @@
 from web3 import Web3
-from interfaces import *
-from signer import Signer
+from .interfaces import *
+from .signer import Signer
 
 class OnboardingSigner(Signer):
     def __init__(self):

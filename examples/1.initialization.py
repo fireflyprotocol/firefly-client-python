@@ -1,6 +1,5 @@
 from config import TEST_ACCT_KEY, TEST_NETWORK
-from firefly_exchange_client import FireflyClient
-from constants import Networks
+from firefly_exchange_client import FireflyClient, Networks
 from pprint import pprint
 import asyncio
 

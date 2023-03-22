@@ -1,5 +1,5 @@
 import aiohttp
-from interfaces import *
+from .interfaces import *
 
 class APIService():
     def __init__(self, url):

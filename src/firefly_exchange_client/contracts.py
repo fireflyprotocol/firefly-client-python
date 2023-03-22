@@ -1,5 +1,4 @@
-import json, os
-import contract_abis
+from .contract_abis import MarginBank, Perpetual, USDC
 
 class Contracts:
     def __init__(self):
@@ -43,11 +42,11 @@ class Contracts:
         """
 
         if name == "MarginBank":
-            return contract_abis.MarginBank["abi"]
+            return MarginBank["abi"]
         elif name == "Perpetual":
-            return contract_abis.Perpetual["abi"]
+            return Perpetual["abi"]
         elif name == "USDC":
-            return contract_abis.USDC["abi"]
+            return USDC["abi"]
         else:
             raise Exception("Unknown contract name: {}".format(name))
             

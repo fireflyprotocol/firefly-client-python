@@ -3,11 +3,7 @@ When ever the state of orderbook changes, an event is emitted by exchange.
 In this code example we open a socket connection and listen to orderbook update event
 '''
 from config import TEST_ACCT_KEY, TEST_NETWORK
-from firefly_exchange_client import FireflyClient
-from constants import Networks
-from enumerations import MARKET_SYMBOLS, SOCKET_EVENTS
-from interfaces import OrderSignatureRequest
-from enumerations import MARKET_SYMBOLS, ORDER_SIDE, ORDER_TYPE
+from firefly_exchange_client import FireflyClient, Networks, MARKET_SYMBOLS, SOCKET_EVENTS, ORDER_SIDE, ORDER_TYPE, OrderSignatureRequest
 import asyncio
 
 

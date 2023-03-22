@@ -1,7 +1,7 @@
 import json
 import logging
-from socket_manager import SocketManager
-from enumerations import MARKET_SYMBOLS, SOCKET_EVENTS
+from .socket_manager import SocketManager
+from .enumerations import MARKET_SYMBOLS, SOCKET_EVENTS
 
 class WebsocketClient:
     def __init__(
