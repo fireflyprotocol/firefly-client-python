@@ -5,24 +5,14 @@ from constants import Networks
 from interfaces import OrderSignatureRequest
 import asyncio
 
-# initialize client with parent account
-clientParent = FireflyClient(
-      True, 
-      Networks[TEST_NETWORK], 
-      TEST_ACCT_KEY,
-      True,
-      )
-
-
-# initialize client with sub account key
-clientChild = FireflyClient(
-      True,
-      Networks[TEST_NETWORK], 
-      TEST_SUB_ACCT_KEY, 
-      True,
-      )
 
 async def main():
+
+  clientParent = FireflyClient(True, Networks[TEST_NETWORK], TEST_ACCT_KEY)
+  await clientParent.init(True)
+
+  clientChild = FireflyClient(True, Networks[TEST_NETWORK], TEST_SUB_ACCT_KEY)
+  await clientChild.init(True)
 
   print("Parent: ", clientParent.get_public_address())
 
@@ -35,6 +25,8 @@ async def main():
 
   clientChild.add_market(MARKET_SYMBOLS.ETH)
 
+  parent_leverage =  await clientParent.get_user_leverage(MARKET_SYMBOLS.ETH)
+
   signature_request = OrderSignatureRequest(
         symbol=MARKET_SYMBOLS.ETH, # sub account is only whitelisted for ETH market
         maker=clientParent.get_public_address(),  # maker of the order is the parent account
@@ -42,16 +34,20 @@ async def main():
         quantity=0.02,
         side=ORDER_SIDE.BUY, 
         orderType=ORDER_TYPE.MARKET,
-        leverage=3,
+        leverage=parent_leverage,
     )  
 
   # order is signed using sub account's private key
   signed_order = clientChild.create_signed_order(signature_request);
 
-
   resp = await clientChild.post_signed_order(signed_order)
 
   print(resp)
 
+  await clientChild.apis.close_session();
+  await clientParent.apis.close_session();
+
+
 if __name__ == "__main__":
-    asyncio.run(main())
+    event_loop = asyncio.get_event_loop()
+    event_loop.run_until_complete(main())

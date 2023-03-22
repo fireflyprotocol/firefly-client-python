@@ -5,18 +5,9 @@ from enumerations import MARKET_SYMBOLS, ORDER_SIDE, ORDER_TYPE
 from interfaces import OrderSignatureRequest
 import asyncio
 
- # initialize client
-client = FireflyClient(
-    True, # agree to terms and conditions
-    Networks[TEST_NETWORK], # network to connect with
-    TEST_ACCT_KEY, # private key of wallet
-    True, # on boards user on firefly. Must be set to true for first time use
-    )
 
-# add market that you wish to trade on ETH/BTC are supported currently
-client.add_market(MARKET_SYMBOLS.ETH)
 
-async def place_limit_order():
+async def place_limit_order(client: FireflyClient):
    
     # default leverage of account is set to 3 on firefly
     user_leverage = await client.get_user_leverage(MARKET_SYMBOLS.ETH)
@@ -43,7 +34,7 @@ async def place_limit_order():
 
     return
 
-async def place_market_order():
+async def place_market_order(client: FireflyClient):
     
 
     # default leverage of account is set to 3 on firefly
@@ -73,9 +64,25 @@ async def place_market_order():
     return
 
 async def main():
-    await place_limit_order()
-    await place_market_order()
+
+    # initialize client
+    client = FireflyClient(
+        True, # agree to terms and conditions
+        Networks[TEST_NETWORK], # network to connect with
+        TEST_ACCT_KEY, # private key of wallet
+        )
+
+    await client.init(True) 
+
+    # add market that you wish to trade on ETH/BTC are supported currently
+    client.add_market(MARKET_SYMBOLS.ETH)
+
+    await place_limit_order(client)
+    await place_market_order(client)
     
+    await client.apis.close_session();
+
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    event_loop = asyncio.get_event_loop()
+    event_loop.run_until_complete(main())

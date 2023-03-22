@@ -40,28 +40,37 @@ For testing purposes use `Networks[TESTNET_ARBITRUM]` and for production please 
 ​
 ​
 ```python
+from config import TEST_ACCT_KEY, TEST_NETWORK
 from firefly_exchange_client import FireflyClient
 from constants import Networks
 from pprint import pprint
-​import asyncio
+import asyncio
 
-# initialize client
-client = FireflyClient(
+async def main():
+  # initialize client
+  client = FireflyClient(
       True, # agree to terms and conditions
-      Networks["TESTNET_ARBITRUM"], # network to connect with e.g. TESTNET_ARBITRUM | MAINNET_ARBITRUM
-      "0x.....", # PK for the account
-      True, # on boards user on firefly. Must be set to true for first time use
+      Networks[TEST_NETWORK], # network to connect with
+      TEST_ACCT_KEY, # private key of wallet
       )
-​
-print('Account Address:', client.get_public_address());
-​
-# # gets user account data on-chain
-# if running in async method
-data = await client.get_user_account_data() 
-# if running in a sync method
-# data = asyncio.run(client.get_user_account_data())
-​
-pprint(data)
+
+  # initialize the client
+  # on boards user on firefly. Must be set to true for first time use
+  await client.init(True) 
+  
+  print('Account Address:', client.get_public_address());
+
+  # # gets user account data on-chain
+  data = await client.get_user_account_data()
+
+  # close aio http connection
+  await client.apis.close_session()
+
+  pprint(data)
+
+if __name__ == "__main__":
+    event_loop = asyncio.get_event_loop()
+    event_loop.run_until_complete(main())
 ```
 ​
 **Placing Orders:**
@@ -74,7 +83,8 @@ from interfaces import OrderSignatureRequest
 
 # initialize
 client = FireflyClient(....) 
-​
+​client.init(True)
+
 # creates a LIMIT order to be signed
 signature_request = OrderSignatureRequest(
     symbol=MARKET_SYMBOLS.ETH,  # market symbol
@@ -108,7 +118,8 @@ def callback(event):
 ​
 # initialize
 client = FireflyClient(....) 
-​
+​client.init(True)
+
 # make connection with firefly exchange
 await client.socket.open()
 ​
@@ -146,6 +157,7 @@ def callback(event):
 
 # initialize
 client = FireflyClient(....) 
+client.init()
 
 # make connection with firefly exchange
 client.webSocketClient.initialize_socket(on_open=on_open)

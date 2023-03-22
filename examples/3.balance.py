@@ -3,15 +3,21 @@ from firefly_exchange_client import FireflyClient
 from constants import Networks
 import asyncio
 
-# initialize client
-client = FireflyClient(
-      True, # agree to terms and conditions
-      Networks[TEST_NETWORK], # network to connect with
-      TEST_ACCT_KEY, # private key of wallet
-      True, # on boards user on firefly. Must be set to true for first time use
-      )
+
+
 
 async def main():
+   # create client instance
+  client = FireflyClient(
+        True, # agree to terms and conditions
+        Networks[TEST_NETWORK], # network to connect with
+        TEST_ACCT_KEY, # private key of wallet
+        )
+    
+  # initialize the client
+  # on boards user on firefly. Must be set to true for first time use
+  await client.init(True) 
+
   # checks chain native token balance.
   # A user must have native tokens to perform contract calls
   print('Chain token balance:', await client.get_native_chain_token_balance());
@@ -35,5 +41,9 @@ async def main():
   # check margin bank balance
   print('Margin bank balance:', await client.get_margin_bank_balance());
 
+  await client.apis.close_session();
+
+
 if __name__ == "__main__":
-    asyncio.run(main())
+    event_loop = asyncio.get_event_loop()
+    event_loop.run_until_complete(main())
