@@ -32,17 +32,16 @@ When initializing the client, users must accept [terms and conditions](https://f
     "onboardingUrl": "https://testnet.firefly.exchange",
 },
 ```
-Users can import predefined networks from [constants](https://github.com/fireflyprotocol/firefly_exchange_client/blob/main/src/constants.py):
+Users can import predefined networks from [constants](https://github.com/fireflyprotocol/firefly_exchange_client/blob/main/src/firefly_exchange_client/constants.py):
 ```python
-from constants import Networks
+from firefly_exchange_client import Networks
 ```
 For testing purposes use `Networks[TESTNET_ARBITRUM]` and for production please use `Networks[MAINNET_ARBITRUM]`
 ​
 ​
 ```python
 from config import TEST_ACCT_KEY, TEST_NETWORK
-from firefly_exchange_client import FireflyClient
-from constants import Networks
+from firefly_exchange_client import FireflyClient, Networks
 from pprint import pprint
 import asyncio
 
@@ -75,10 +74,7 @@ if __name__ == "__main__":
 ​
 **Placing Orders:**
 ```python
-from firefly_exchange_client import FireflyClient
-from constants import Networks
-from enumerations import MARKET_SYMBOLS, ORDER_SIDE, ORDER_TYPE
-from interfaces import OrderSignatureRequest
+from firefly_exchange_client import FireflyClient, Networks, MARKET_SYMBOLS, ORDER_SIDE, ORDER_TYPE, OrderSignatureRequest
 ​import asyncio
 
 # initialize
@@ -108,10 +104,7 @@ print(resp)
 ​
 **Listening To Events Using Socket.io:**
 ```python
-from firefly_exchange_client import FireflyClient
-from constants import Networks
-from enumerations import MARKET_SYMBOLS, ORDER_SIDE, ORDER_TYPE
-from interfaces import OrderSignatureRequest
+from firefly_exchange_client import FireflyClient, Networks, MARKET_SYMBOLS, ORDER_SIDE, ORDER_TYPE, OrderSignatureRequest
 ​
 def callback(event):
     print("Event data:", event)
@@ -147,10 +140,7 @@ Look at the [example](https://github.com/fireflyprotocol/firefly_exchange_client
 
 **Listening To Events Using Web Sockets:**
 ```python
-from firefly_exchange_client import FireflyClient
-from constants import Networks
-from enumerations import MARKET_SYMBOLS, ORDER_SIDE, ORDER_TYPE, SOCKET_EVENTS
-from interfaces import OrderSignatureRequest
+from firefly_exchange_client import FireflyClient, Networks, MARKET_SYMBOLS, ORDER_SIDE, ORDER_TYPE, SOCKET_EVENTS, OrderSignatureRequest
 import time
 def callback(event):
     print("Event data:", event)
