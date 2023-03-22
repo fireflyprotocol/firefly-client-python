@@ -1,10 +1,7 @@
 from config import TEST_ACCT_KEY, TEST_NETWORK
-from firefly_exchange_client import FireflyClient
-from constants import Networks
-from enumerations import MARKET_SYMBOLS
+from firefly_exchange_client import FireflyClient, Networks, MARKET_SYMBOLS, GetFundingHistoryRequest
 from pprint import pprint
 import asyncio
-from interfaces import GetFundingHistoryRequest
 
 async def main():
     client = FireflyClient(True, Networks[TEST_NETWORK], TEST_ACCT_KEY)

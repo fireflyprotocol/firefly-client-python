@@ -1,5 +1,5 @@
-from typing import TypedDict
-from enumerations import *
+from typing import TypedDict, List
+from .enumerations import *
 
 class Order(TypedDict):
     isBuy: bool 
@@ -40,7 +40,7 @@ class PlaceOrderRequest(OrderSignatureResponse):
   clientId: str # id of the client
 
 class GetOrderbookRequest(TypedDict):
-  symbol: str
+  symbol: MARKET_SYMBOLS
   limit: int # number of bids/asks to retrieve, should be <= 50
 
 class OnboardingMessage(TypedDict):
@@ -158,4 +158,4 @@ class FundingHistoryResponse(TypedDict):
 class GetFundingHistoryResponse(TypedDict):
   isMoreDataAvailable: bool # boolean indicating if there is more data available
   nextCursor: int # next page number
-  data: list[FundingHistoryResponse]
+  data: List[FundingHistoryResponse]

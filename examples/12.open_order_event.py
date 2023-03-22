@@ -4,11 +4,7 @@ It places a limit order and as soon as its OPENED on order book, we receive
 an event, log its data and terminate connection
 '''
 from config import TEST_ACCT_KEY, TEST_NETWORK
-from firefly_exchange_client import FireflyClient
-from constants import Networks
-from enumerations import MARKET_SYMBOLS, SOCKET_EVENTS
-from interfaces import OrderSignatureRequest
-from enumerations import MARKET_SYMBOLS, ORDER_SIDE, ORDER_TYPE
+from firefly_exchange_client import FireflyClient, Networks, MARKET_SYMBOLS, SOCKET_EVENTS, ORDER_SIDE, ORDER_TYPE, OrderSignatureRequest
 import asyncio
 
 
