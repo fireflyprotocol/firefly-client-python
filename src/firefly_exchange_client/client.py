@@ -177,7 +177,6 @@ class FireflyClient:
         
         # from params create order to sign
         order = self.create_order_to_sign(params)
-        print(order)
 
         symbol = params["symbol"].value
         order_signer = self.order_signers.get(symbol) 
@@ -313,7 +312,8 @@ class FireflyClient:
             "orderSignature": params["orderSignature"],
             "timeInForce": default_enum_value(params, "timeInForce", TIME_IN_FORCE.GOOD_TILL_TIME),
             "postOnly": default_value(params, "postOnly", False),
-            "clientId": "firefly-client: {}".format(params["clientId"]) if "clientId" in params else "firefly-client"
+            "cancelOnRevert": default_value(params, "cancelOnRevert", False),
+            "clientId": "firefly-client: {}".format(default_value(params, "clientId", "firefly-client"))
             },
             auth_required=True
             )
