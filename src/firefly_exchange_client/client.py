@@ -177,7 +177,6 @@ class FireflyClient:
         
         # from params create order to sign
         order = self.create_order_to_sign(params)
-        print(order)
 
         symbol = params["symbol"].value
         order_signer = self.order_signers.get(symbol) 
