@@ -132,6 +132,7 @@ class GetUserTradesRequest(TypedDict):
   pageSize: int
   pageNumber: int
   type: ORDER_TYPE
+  parentAddress: str # (optional) should be provided by sub account
 
 class GetOrderRequest(GetTransactionHistoryRequest):
   statuses:ORDER_STATUS # status of orders to be fetched
