@@ -200,13 +200,14 @@ class FireflyClient:
             maker=order["maker"]
         )
     
-    def create_signed_cancel_order(self,params:OrderSignatureRequest):
+    def create_signed_cancel_order(self,params:OrderSignatureRequest, parentAddress:str=""):
         """
             Creates a cancel order request from provided params and signs it using the private
             key of the account
 
         Inputs:
             - params (OrderSignatureRequest): parameters to create cancel order with
+            - parentAddress (str): Only provided by a sub account
  
         Returns:
             - OrderSignatureResponse: generated cancel signature 
@@ -215,30 +216,32 @@ class FireflyClient:
             signer:OrderSigner = self._get_order_signer(params["symbol"])
             order_to_sign = self.create_order_to_sign(params)
             hash = signer.get_order_hash(order_to_sign)
-            return self.create_signed_cancel_orders(params["symbol"],hash)
+            return self.create_signed_cancel_orders(params["symbol"], hash, parentAddress)
         except Exception as e:
             return ""
 
-    def create_signed_cancel_orders(self,symbol:MARKET_SYMBOLS,order_hash:list):
+    def create_signed_cancel_orders(self, symbol:MARKET_SYMBOLS, order_hash:list, parentAddress:str=""):
         """
             Creates a cancel order from provided params and sign it using the private
             key of the account
 
         Inputs:
-            params (list): a list of order hashes
- 
+            - params (list): a list of order hashes
+            - parentAddress (str): only provided by a sub account
         Returns:
             OrderCancellationRequest: containing symbol, hashes and signature
         """
         if type(order_hash)!=list:
             order_hash = [order_hash]
+
         order_signer:OrderSigner = self._get_order_signer(symbol)
         cancel_hash = order_signer.sign_cancellation_hash(order_hash)
         hash_sig = order_signer.sign_hash(cancel_hash,self.account.key.hex(), "01")
         return OrderCancellationRequest(
             symbol=symbol.value,
             hashes=order_hash,
-            signature=hash_sig
+            signature=hash_sig,
+            parentAddress=parentAddress
         )
 
     async def post_cancel_order(self,params:OrderCancellationRequest):
@@ -255,22 +258,25 @@ class FireflyClient:
             {
             "symbol": params["symbol"],
             "orderHashes":params["hashes"],
-            "cancelSignature":params["signature"]
+            "cancelSignature":params["signature"],
+            "parentAddress": params["parentAddress"],
             },
             auth_required=True
             )
     
-    async def cancel_all_open_orders(self,symbol:MARKET_SYMBOLS):
+    async def cancel_all_open_orders(self,symbol:MARKET_SYMBOLS, parentAddress:str=""):
         """
             GETs all open orders for the specified symbol, creates a cancellation request 
             for all orders and POSTs the cancel order request to Firefly
             Inputs:
-                - symbol(MARKET_SYMBOLS) 
+                - symbol (MARKET_SYMBOLS): Market for which orders are to be cancelled 
+                - parentAddress (str): address of parent account, only provided by sub account
             Returns:
                 - dict: response from orders delete API Firefly
         """
         orders = await self.get_orders({
             "symbol":symbol,
+            "parentAddress": parentAddress,
             "statuses":[ORDER_STATUS.OPEN, ORDER_STATUS.PARTIAL_FILLED]
         })
 
@@ -279,7 +285,7 @@ class FireflyClient:
             hashes.append(i["hash"])
         
         if len(hashes) > 0:
-            req = self.create_signed_cancel_orders(symbol,hashes)
+            req = self.create_signed_cancel_orders(symbol, hashes, parentAddress)
             return await self.post_cancel_order(req)
 
         return False
