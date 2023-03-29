@@ -384,7 +384,7 @@ class FireflyClient:
 
         return True;
 
-    async def adjust_leverage(self, symbol, leverage):
+    async def adjust_leverage(self, symbol, leverage, parentAddress:str=""):
         """
             Adjusts user leverage to the provided one for their current position on-chain and off-chain.
             If a user has no position for the provided symbol, leverage only recorded off-chain
@@ -392,23 +392,25 @@ class FireflyClient:
             Inputs:
                 symbol (MARKET_SYMBOLS): market for which to adjust user leverage
                 leverage (number): new leverage to be set. Must be in base decimals (1,2 etc.)
-
+                parentAddress (str): optional, if provided, the leverage of parent is 
+                                    being adjusted (for sub accounts only)
             Returns:
                 Boolean: true if the leverage is successfully adjusted
         """
 
-        user_position = await self.get_user_position({"symbol":symbol})
-
+        user_position = await self.get_user_position({"symbol":symbol, "parentAddress": parentAddress})
+        
+        account_address = Web3.toChecksumAddress(self.account.address if parentAddress == "" else parentAddress)
+            
         # implies user has an open position on-chain, perform on-chain leverage update
         if(user_position != {}):
             perp_contract = self.contracts.get_contract(name="Perpetual", market=symbol.value);
             construct_txn = perp_contract.functions.adjustLeverage(
-                self.account.address, 
+                account_address, 
                 to_wei(leverage, "ether")).buildTransaction({
                     'from': self.account.address,
                     'nonce': self.w3.eth.getTransactionCount(self.account.address),
-                    })
-
+                    })            
             self._execute_tx(construct_txn)
 
         else:
@@ -416,7 +418,7 @@ class FireflyClient:
                 SERVICE_URLS["USER"]["ADJUST_LEVERAGE"],
                 {
                     "symbol": symbol.value,
-                    "address": self.account.address,
+                    "address": account_address,
                     "leverage": to_wei(leverage, "ether"),
                     "marginType": MARGIN_TYPE.ISOLATED.value,
                     },
@@ -758,7 +760,7 @@ class FireflyClient:
             auth_required = True
         )
         
-    async def get_user_leverage(self, symbol:MARKET_SYMBOLS):
+    async def get_user_leverage(self, symbol:MARKET_SYMBOLS, parentAddress:str=""):
         """
             Returns user market default leverage.
             Inputs:
@@ -766,7 +768,7 @@ class FireflyClient:
             Returns:
                 - str: user default leverage 
         """
-        account_data_by_market = (await self.get_user_account_data())["accountDataByMarket"]
+        account_data_by_market = (await self.get_user_account_data(parentAddress))["accountDataByMarket"]
         
         for i in account_data_by_market:
             if symbol.value==i["symbol"]:
