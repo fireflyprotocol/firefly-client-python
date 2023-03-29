@@ -140,6 +140,8 @@ class GetFundingHistoryRequest(TypedDict):
   symbol: MARKET_SYMBOLS  # will fetch orders of provided market
   pageSize: int  # will get only provided number of orders must be <= 50
   cursor: int  # will fetch particular page records. A single page contains 50 records.
+  parentAddress: str # (optional) should be provided by a sub account 
+
 
 class FundingHistoryResponse(TypedDict):
   id: int # unique id
