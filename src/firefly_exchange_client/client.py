@@ -746,12 +746,15 @@ class FireflyClient:
             True
         )
 
-    async def get_user_account_data(self):
+    async def get_user_account_data(self, parentAddress:str = ""):
         """
             Returns user account data.
+            Inputs:
+                - parentAddress: an optional field, used by sub accounts to fetch parent account state 
         """
         return await self.apis.get(
             service_url = SERVICE_URLS["USER"]["ACCOUNT"],
+            query = { "parentAddress": parentAddress },
             auth_required = True
         )
         
