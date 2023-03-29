@@ -29,7 +29,7 @@ class OrderSignatureRequest(RequiredOrderFields):
   salt: int # (optional)  random number for uniqueness of order. Generated randomly if not provided
   expiration: int # (optional) time at which order will expire. Will be set to 1 month if not provided
   maker: str # (optional) maker of the order, if not provided the account used to initialize the client will be default maker
-  
+
 class OrderSignatureResponse(RequiredOrderFields):
   maker: str 
   orderSignature: str
@@ -99,6 +99,7 @@ class GetMarketRecentTradesRequest(TypedDict):
 class OrderCancelSignatureRequest(TypedDict):
   symbol: MARKET_SYMBOLS
   hashes: list
+  parentAddress: str # (optional) should only be provided by a sub account
 
 class OrderCancellationRequest(OrderCancelSignatureRequest):
   signature: str
