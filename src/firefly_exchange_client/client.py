@@ -433,7 +433,7 @@ class FireflyClient:
         
         return True
  
-    async def adjust_margin(self, symbol, operation, amount):
+    async def adjust_margin(self, symbol, operation, amount, parentAddress:str=""):
         """
             Adjusts user's on-chain position by adding or removing the specified amount of margin.
             Performs on-chain contract call, the user must have gas tokens
@@ -441,12 +441,15 @@ class FireflyClient:
                 symbol (MARKET_SYMBOLS): market for which to adjust user leverage
                 operation (ADJUST_MARGIN): ADD/REMOVE adding or removing margin to position
                 amount (number): amount of margin to be adjusted
-
+                parentAddress (str): optional, if provided, the margin of parent is 
+                                    being adjusted (for sub accounts only)
             Returns:
                 Boolean: true if the margin is adjusted
         """
 
-        user_position = await self.get_user_position({"symbol":symbol})
+        user_position = await self.get_user_position({"symbol":symbol, "parentAddress": parentAddress})
+
+        account_address = Web3.toChecksumAddress(self.account.address if parentAddress == "" else parentAddress)
 
         if(user_position == {}):
             raise(Exception("User has no open position on market: {}".format(symbol)))
@@ -455,7 +458,7 @@ class FireflyClient:
             on_chain_call = perp_contract.functions.addMargin if operation == ADJUST_MARGIN.ADD  else perp_contract.functions.removeMargin
 
             construct_txn = on_chain_call(
-                self.account.address, 
+                account_address, 
                 to_wei(amount, "ether")).buildTransaction({
                     'from': self.account.address,
                     'nonce': self.w3.eth.getTransactionCount(self.account.address),
