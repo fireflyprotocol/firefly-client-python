@@ -118,10 +118,7 @@ class GetTransactionHistoryRequest(TypedDict):
   pageSize: int  # will get only provided number of orders must be <= 50
   pageNumber: int  # will fetch particular page records. A single page contains 50 records.
 
-class GetPositionRequest(TypedDict):
-  symbol: MARKET_SYMBOLS  # will fetch orders of provided market
-  pageSize: int  # will get only provided number of orders must be <= 50
-  pageNumber: int  # will fetch particular page records. A single page contains 50 records.
+class GetPositionRequest(GetTransactionHistoryRequest):
   parentAddress : str # (optional) should be provided by sub accounts
 
 class GetUserTradesRequest(TypedDict):
@@ -137,6 +134,7 @@ class GetUserTradesRequest(TypedDict):
 
 class GetOrderRequest(GetTransactionHistoryRequest):
   statuses:ORDER_STATUS # status of orders to be fetched
+  parentAddress : str # (optional) should be provided by sub accounts
 
 class GetFundingHistoryRequest(TypedDict):
   symbol: MARKET_SYMBOLS  # will fetch orders of provided market
