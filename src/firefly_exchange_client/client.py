@@ -200,13 +200,14 @@ class FireflyClient:
             maker=order["maker"]
         )
     
-    def create_signed_cancel_order(self,params:OrderSignatureRequest):
+    def create_signed_cancel_order(self,params:OrderSignatureRequest, parentAddress:str=""):
         """
             Creates a cancel order request from provided params and signs it using the private
             key of the account
 
         Inputs:
             - params (OrderSignatureRequest): parameters to create cancel order with
+            - parentAddress (str): Only provided by a sub account
  
         Returns:
             - OrderSignatureResponse: generated cancel signature 
@@ -215,30 +216,32 @@ class FireflyClient:
             signer:OrderSigner = self._get_order_signer(params["symbol"])
             order_to_sign = self.create_order_to_sign(params)
             hash = signer.get_order_hash(order_to_sign)
-            return self.create_signed_cancel_orders(params["symbol"],hash)
+            return self.create_signed_cancel_orders(params["symbol"], hash, parentAddress)
         except Exception as e:
             return ""
 
-    def create_signed_cancel_orders(self,symbol:MARKET_SYMBOLS,order_hash:list):
+    def create_signed_cancel_orders(self, symbol:MARKET_SYMBOLS, order_hash:list, parentAddress:str=""):
         """
             Creates a cancel order from provided params and sign it using the private
             key of the account
 
         Inputs:
-            params (list): a list of order hashes
- 
+            - params (list): a list of order hashes
+            - parentAddress (str): only provided by a sub account
         Returns:
             OrderCancellationRequest: containing symbol, hashes and signature
         """
         if type(order_hash)!=list:
             order_hash = [order_hash]
+
         order_signer:OrderSigner = self._get_order_signer(symbol)
         cancel_hash = order_signer.sign_cancellation_hash(order_hash)
         hash_sig = order_signer.sign_hash(cancel_hash,self.account.key.hex(), "01")
         return OrderCancellationRequest(
             symbol=symbol.value,
             hashes=order_hash,
-            signature=hash_sig
+            signature=hash_sig,
+            parentAddress=parentAddress
         )
 
     async def post_cancel_order(self,params:OrderCancellationRequest):
@@ -255,22 +258,25 @@ class FireflyClient:
             {
             "symbol": params["symbol"],
             "orderHashes":params["hashes"],
-            "cancelSignature":params["signature"]
+            "cancelSignature":params["signature"],
+            "parentAddress": params["parentAddress"],
             },
             auth_required=True
             )
     
-    async def cancel_all_open_orders(self,symbol:MARKET_SYMBOLS):
+    async def cancel_all_open_orders(self,symbol:MARKET_SYMBOLS, parentAddress:str=""):
         """
             GETs all open orders for the specified symbol, creates a cancellation request 
             for all orders and POSTs the cancel order request to Firefly
             Inputs:
-                - symbol(MARKET_SYMBOLS) 
+                - symbol (MARKET_SYMBOLS): Market for which orders are to be cancelled 
+                - parentAddress (str): address of parent account, only provided by sub account
             Returns:
                 - dict: response from orders delete API Firefly
         """
         orders = await self.get_orders({
             "symbol":symbol,
+            "parentAddress": parentAddress,
             "statuses":[ORDER_STATUS.OPEN, ORDER_STATUS.PARTIAL_FILLED]
         })
 
@@ -279,7 +285,7 @@ class FireflyClient:
             hashes.append(i["hash"])
         
         if len(hashes) > 0:
-            req = self.create_signed_cancel_orders(symbol,hashes)
+            req = self.create_signed_cancel_orders(symbol, hashes, parentAddress)
             return await self.post_cancel_order(req)
 
         return False
@@ -384,7 +390,7 @@ class FireflyClient:
 
         return True;
 
-    async def adjust_leverage(self, symbol, leverage):
+    async def adjust_leverage(self, symbol, leverage, parentAddress:str=""):
         """
             Adjusts user leverage to the provided one for their current position on-chain and off-chain.
             If a user has no position for the provided symbol, leverage only recorded off-chain
@@ -392,23 +398,25 @@ class FireflyClient:
             Inputs:
                 symbol (MARKET_SYMBOLS): market for which to adjust user leverage
                 leverage (number): new leverage to be set. Must be in base decimals (1,2 etc.)
-
+                parentAddress (str): optional, if provided, the leverage of parent is 
+                                    being adjusted (for sub accounts only)
             Returns:
                 Boolean: true if the leverage is successfully adjusted
         """
 
-        user_position = await self.get_user_position({"symbol":symbol})
-
+        user_position = await self.get_user_position({"symbol":symbol, "parentAddress": parentAddress})
+        
+        account_address = Web3.toChecksumAddress(self.account.address if parentAddress == "" else parentAddress)
+            
         # implies user has an open position on-chain, perform on-chain leverage update
         if(user_position != {}):
             perp_contract = self.contracts.get_contract(name="Perpetual", market=symbol.value);
             construct_txn = perp_contract.functions.adjustLeverage(
-                self.account.address, 
+                account_address, 
                 to_wei(leverage, "ether")).buildTransaction({
                     'from': self.account.address,
                     'nonce': self.w3.eth.getTransactionCount(self.account.address),
-                    })
-
+                    })            
             self._execute_tx(construct_txn)
 
         else:
@@ -416,7 +424,7 @@ class FireflyClient:
                 SERVICE_URLS["USER"]["ADJUST_LEVERAGE"],
                 {
                     "symbol": symbol.value,
-                    "address": self.account.address,
+                    "address": account_address,
                     "leverage": to_wei(leverage, "ether"),
                     "marginType": MARGIN_TYPE.ISOLATED.value,
                     },
@@ -425,7 +433,7 @@ class FireflyClient:
         
         return True
  
-    async def adjust_margin(self, symbol, operation, amount):
+    async def adjust_margin(self, symbol, operation, amount, parentAddress:str=""):
         """
             Adjusts user's on-chain position by adding or removing the specified amount of margin.
             Performs on-chain contract call, the user must have gas tokens
@@ -433,12 +441,15 @@ class FireflyClient:
                 symbol (MARKET_SYMBOLS): market for which to adjust user leverage
                 operation (ADJUST_MARGIN): ADD/REMOVE adding or removing margin to position
                 amount (number): amount of margin to be adjusted
-
+                parentAddress (str): optional, if provided, the margin of parent is 
+                                    being adjusted (for sub accounts only)
             Returns:
                 Boolean: true if the margin is adjusted
         """
 
-        user_position = await self.get_user_position({"symbol":symbol})
+        user_position = await self.get_user_position({"symbol":symbol, "parentAddress": parentAddress})
+
+        account_address = Web3.toChecksumAddress(self.account.address if parentAddress == "" else parentAddress)
 
         if(user_position == {}):
             raise(Exception("User has no open position on market: {}".format(symbol)))
@@ -447,7 +458,7 @@ class FireflyClient:
             on_chain_call = perp_contract.functions.addMargin if operation == ADJUST_MARGIN.ADD  else perp_contract.functions.removeMargin
 
             construct_txn = on_chain_call(
-                self.account.address, 
+                account_address, 
                 to_wei(amount, "ether")).buildTransaction({
                     'from': self.account.address,
                     'nonce': self.w3.eth.getTransactionCount(self.account.address),
@@ -746,16 +757,19 @@ class FireflyClient:
             True
         )
 
-    async def get_user_account_data(self):
+    async def get_user_account_data(self, parentAddress:str = ""):
         """
             Returns user account data.
+            Inputs:
+                - parentAddress: an optional field, used by sub accounts to fetch parent account state 
         """
         return await self.apis.get(
             service_url = SERVICE_URLS["USER"]["ACCOUNT"],
+            query = { "parentAddress": parentAddress },
             auth_required = True
         )
         
-    async def get_user_leverage(self, symbol:MARKET_SYMBOLS):
+    async def get_user_leverage(self, symbol:MARKET_SYMBOLS, parentAddress:str=""):
         """
             Returns user market default leverage.
             Inputs:
@@ -763,7 +777,7 @@ class FireflyClient:
             Returns:
                 - str: user default leverage 
         """
-        account_data_by_market = (await self.get_user_account_data())["accountDataByMarket"]
+        account_data_by_market = (await self.get_user_account_data(parentAddress))["accountDataByMarket"]
         
         for i in account_data_by_market:
             if symbol.value==i["symbol"]:
