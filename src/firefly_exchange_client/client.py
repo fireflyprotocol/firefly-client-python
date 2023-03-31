@@ -264,12 +264,13 @@ class FireflyClient:
             auth_required=True
             )
     
-    async def cancel_all_open_orders(self,symbol:MARKET_SYMBOLS, parentAddress:str=""):
+    async def cancel_all_open_orders(self, symbol:MARKET_SYMBOLS, status: List[ORDER_STATUS], parentAddress:str=""):
         """
             GETs all open orders for the specified symbol, creates a cancellation request 
             for all orders and POSTs the cancel order request to Firefly
             Inputs:
                 - symbol (MARKET_SYMBOLS): Market for which orders are to be cancelled 
+                - status (List[ORDER_STATUS]): status of orders that need to be cancelled 
                 - parentAddress (str): address of parent account, only provided by sub account
             Returns:
                 - dict: response from orders delete API Firefly
@@ -277,7 +278,7 @@ class FireflyClient:
         orders = await self.get_orders({
             "symbol":symbol,
             "parentAddress": parentAddress,
-            "statuses":[ORDER_STATUS.OPEN, ORDER_STATUS.PARTIAL_FILLED]
+            "statuses":status
         })
 
         hashes = []
