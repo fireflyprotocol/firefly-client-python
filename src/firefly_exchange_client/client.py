@@ -266,8 +266,9 @@ class FireflyClient:
     
     async def cancel_all_orders(self, symbol:MARKET_SYMBOLS, status: List[ORDER_STATUS], parentAddress:str=""):
         """
-            GETs all open orders for the specified symbol, creates a cancellation request 
-            for all orders and POSTs the cancel order request to Firefly
+            GETs all orders of specified status for the specified symbol, 
+            and creates a cancellation request for all orders and 
+            POSTs the cancel order request to Firefly
             Inputs:
                 - symbol (MARKET_SYMBOLS): Market for which orders are to be cancelled 
                 - status (List[ORDER_STATUS]): status of orders that need to be cancelled 
