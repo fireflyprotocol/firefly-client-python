@@ -1,6 +1,6 @@
 import time
 from config import TEST_ACCT_KEY, TEST_NETWORK
-from firefly_exchange_client import FireflyClient, Networks, MARKET_SYMBOLS, ORDER_SIDE, ORDER_TYPE
+from firefly_exchange_client import FireflyClient, Networks, MARKET_SYMBOLS, ORDER_SIDE, ORDER_TYPE, ORDER_STATUS
 from pprint import pprint
 import asyncio
 
@@ -46,7 +46,7 @@ async def main():
     pprint(resp)
 
     # cancels all open orders, returns false if there is no open order to cancel
-    resp = await client.cancel_all_open_orders(MARKET_SYMBOLS.ETH)
+    resp = await client.cancel_all_open_orders(MARKET_SYMBOLS.ETH, [ORDER_STATUS.OPEN, ORDER_STATUS.PARTIAL_FILLED])
 
     if resp == False:
         print('No open order to cancel')
