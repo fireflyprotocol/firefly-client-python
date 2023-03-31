@@ -46,7 +46,7 @@ async def main():
     pprint(resp)
 
     # cancels all open orders, returns false if there is no open order to cancel
-    resp = await client.cancel_all_open_orders(MARKET_SYMBOLS.ETH, [ORDER_STATUS.OPEN, ORDER_STATUS.PARTIAL_FILLED])
+    resp = await client.cancel_all_orders(MARKET_SYMBOLS.ETH, [ORDER_STATUS.OPEN, ORDER_STATUS.PARTIAL_FILLED])
 
     if resp == False:
         print('No open order to cancel')
