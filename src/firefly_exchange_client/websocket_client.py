@@ -101,11 +101,11 @@ class WebsocketClient:
         except:
             return False
 
-    def subscribe_user_update_by_token(self,user_token: str=None):
+    def subscribe_user_update_by_token(self, user_token: str=None):
         """
             Allows user to subscribe to their account updates.
             Inputs:
-                - token: auth token generated when onboarding on firefly
+                - token(str): auth token generated when onboarding on firefly
         """
         try:
             if not self.socket_manager.ws.connected:
@@ -121,7 +121,7 @@ class WebsocketClient:
         except:
             return False
 
-    def unsubscribe_user_update_by_token(self,user_token:str=None): 
+    def unsubscribe_user_update_by_token(self, user_token:str=None): 
         """
             Allows user to unsubscribe to their account updates.
             Inputs:

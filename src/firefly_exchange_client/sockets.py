@@ -111,11 +111,13 @@ class Sockets:
         except:
             return False
 
-    async def subscribe_user_update_by_token(self,user_token: str=None):
+    async def subscribe_user_update_by_token(self, parent_account: str=None, user_token: str=None):
         """
             Allows user to subscribe to their account updates.
             Inputs:
-                - token: auth token generated when onboarding on firefly
+                - parent_account(str): address of parent account. Only whitelisted 
+                  sub-account can listen to its parent account position updates
+                - token(str): auth token generated when onboarding on firefly
         """
         try:
             if not self.connection_established:
@@ -124,17 +126,20 @@ class Sockets:
             sio.emit("SUBSCRIBE", [
             {
                 "e": SOCKET_EVENTS.USER_UPDATES_ROOM.value,
+                'pa': parent_account,
                 "t": self.token if user_token == None else user_token,
             },
             ])
             return True
-        except:
+        except Exception as e:
+            print(e);
             return False
 
-    async def unsubscribe_user_update_by_token(self,user_token:str=None): 
+    async def unsubscribe_user_update_by_token(self, parent_account: str=None, user_token:str=None): 
         """
             Allows user to unsubscribe to their account updates.
             Inputs:
+                - parent_account(str): address of parent account. Only for sub-accounts
                 - token: auth token generated when onboarding on firefly
         """
         try:
@@ -144,6 +149,7 @@ class Sockets:
             sio.emit("UNSUBSCRIBE", [
             {
                 "e": SOCKET_EVENTS.USER_UPDATES_ROOM.value,
+                'pa': parent_account,
                 "t": self.token if user_token == None else user_token,
             },
             ])
