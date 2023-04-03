@@ -101,12 +101,10 @@ class WebsocketClient:
         except:
             return False
 
-    def subscribe_user_update_by_token(self, parent_account: str=None, user_token: str=None):
+    def subscribe_user_update_by_token(self, user_token: str=None):
         """
             Allows user to subscribe to their account updates.
             Inputs:
-                - parent_account(str): address of parent account. Only whitelisted 
-                  sub-account can listen to its parent account position updates
                 - token(str): auth token generated when onboarding on firefly
         """
         try:
@@ -116,7 +114,6 @@ class WebsocketClient:
             self.socket_manager.send_message(json.dumps((["SUBSCRIBE", [
             {
                 "e": SOCKET_EVENTS.USER_UPDATES_ROOM.value,
-                'pa': parent_account,
                 "t": self.token if user_token == None else user_token,
             },
             ]])))
@@ -124,11 +121,10 @@ class WebsocketClient:
         except:
             return False
 
-    def unsubscribe_user_update_by_token(self, parent_account: str=None, user_token:str=None): 
+    def unsubscribe_user_update_by_token(self, user_token:str=None): 
         """
             Allows user to unsubscribe to their account updates.
             Inputs:
-                - parent_account(str): address of parent account. Only for sub-accounts
                 - token: auth token generated when onboarding on firefly
         """
         try:
@@ -138,7 +134,6 @@ class WebsocketClient:
             self.socket_manager.send_message(json.dumps((["UNSUBSCRIBE", [
             {
                 "e": SOCKET_EVENTS.USER_UPDATES_ROOM.value,
-                'pa': parent_account,
                 "t": self.token if user_token == None else user_token,
             },
             ]])))
