@@ -706,7 +706,7 @@ class FireflyClient:
             Returns:
                 - list: a list of orders 
         """
-        params = extract_enums(params,["symbol","statuses"])
+        params = extract_enums(params,["symbol","statuses", "orderType"])
 
         return await self.apis.get(
             SERVICE_URLS["USER"]["ORDERS"],
