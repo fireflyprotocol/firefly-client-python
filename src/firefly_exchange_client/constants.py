@@ -1,4 +1,4 @@
-Networks = {
+Networks:dict = {
   "DEV": {
     "url": "https://l2-dev.firefly.exchange/",
     "chainId": 78602,
@@ -36,9 +36,7 @@ Networks = {
 
 EIP712_DOMAIN_NAME = "IsolatedTrader"
 
-
 EIP712_DOMAIN_STRING = "EIP712Domain(string name,string version,uint128 chainId,address verifyingContract)"
-
 
 EIP712_ORDER_STRUCT_STRING = \
     "Order(" +  \
@@ -60,10 +58,6 @@ TIME = {
   "SECONDS_IN_A_MINUTE": 60,
   "SECONDS_IN_A_DAY": 86400,
   "SECONDS_IN_A_MONTH": 2592000
-}
-
-ADDRESSES = {
-  "ZERO": "0x0000000000000000000000000000000000000000",
 }
 
 SERVICE_URLS = {

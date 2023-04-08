@@ -1,4 +1,5 @@
 from web3 import Web3
+from typing import List
 from .utilities import bn_to_bytes8, hash_string, address_to_bytes32
 from .constants import *
 from .signer import Signer
@@ -6,14 +7,22 @@ from .interfaces import Order
 
 
 class OrderSigner(Signer):
-    def __init__(self, network_id, orders_contract_address, domain="IsolatedTrader", version="1.0"):
+    def __init__(self, network_id:int, orders_contract_address:dict, domain:str="IsolatedTrader", version:str="1.0") -> None:
         super().__init__()
         self.network_id = network_id
         self.contract_address = orders_contract_address;
         self.domain = domain
         self.version = version 
 
-    def get_order_flags(self, order):
+    def get_order_flags(self, order:Order) -> str:
+        """
+            Creates value of order flags based on the booleans.
+            Inputs:
+                - order: the order to be signed
+            Returns:
+                - str: encoded flags of the order
+        """
+
         flag = 0 
 
         if order["reduceOnly"]:
@@ -30,7 +39,7 @@ class OrderSigner(Signer):
             str(flag).encode('utf-8')
             ]).decode().ljust(66, '0')
     
-    def get_domain_hash(self):
+    def get_domain_hash(self) -> str:
         """
             Returns domain hash
         """
@@ -86,14 +95,14 @@ class OrderSigner(Signer):
 
         return self.get_eip712_hash(self.get_domain_hash(), struct_hash) if struct_hash else "";
 
-    def sign_order(self, order:Order, private_key):
+    def sign_order(self, order:Order, private_key:str) -> str:
         """
             Used to create an order signature. The method will use the provided key 
             in params(if any) to sign the order.
 
             Args:
-                order (Order): an order containing order fields (look at Order interface)
-                private_key (str): private key of the account to be used for signing
+                order: an order containing order fields (look at Order interface)
+                private_key: private key of the account to be used for signing
     
             Returns:
                 str: generated signature
@@ -101,14 +110,14 @@ class OrderSigner(Signer):
         order_hash = self.get_order_hash(order)
         return self.sign_hash(order_hash, private_key, "01")
 
-    def sign_cancellation_hash(self,order_hash:list):
+    def sign_cancellation_hash(self, order_hash:List[str]) -> str:
         """
             Used to create a cancel order signature. The method will use the provided key 
             in params(if any) to sign the cancel order.
 
             Args:
-                order_hash(list): a list containing all orders to be cancelled
-                private_key (str): private key of the account to be used for signing
+                order_hash: a list containing all orders to be cancelled
+                private_key: private key of the account to be used for signing
             Returns:
                 str: generated signature
         """

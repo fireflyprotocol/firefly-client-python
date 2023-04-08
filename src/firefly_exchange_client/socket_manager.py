@@ -19,7 +19,7 @@ class SocketManager(threading.Thread):
         on_ping=None,
         on_pong=None,
         logger=None,
-    ):
+    ) -> None:
         threading.Thread.__init__(self)
         if not logger:
             logger = logging.getLogger(__name__)
@@ -32,7 +32,7 @@ class SocketManager(threading.Thread):
         self.on_pong = on_pong
         self.on_error = on_error
 
-    def create_ws_connection(self):
+    def create_ws_connection(self) -> None:
         self.logger.debug(
             "Creating connection with WebSocket Server: %s", self.stream_url
         )
@@ -42,17 +42,17 @@ class SocketManager(threading.Thread):
         )
         self._callback(self.on_open)
 
-    def run(self):
+    def run(self) -> None:
         self.read_data()
 
-    def send_message(self, message):
+    def send_message(self, message) -> None:
         self.logger.debug("Sending message to WebSocket Server: %s", message)
         self.ws.send(message)
 
-    def ping(self):
+    def ping(self) -> None:
         self.ws.ping()
 
-    def read_data(self):
+    def read_data(self) -> None:
         data = ""
         while True:
             try:
@@ -86,14 +86,14 @@ class SocketManager(threading.Thread):
                     data = data.decode("utf-8")
                 self._callback(self.on_message, data)
 
-    def close(self):
+    def close(self) -> None:
         if not self.ws.connected:
             self.logger.warn("Websocket already closed")
         else:
             self.ws.send_close()
         return
 
-    def _callback(self, callback, *args):
+    def _callback(self, callback, *args) -> None:
         if callback:
             try:
                 callback(self, *args)

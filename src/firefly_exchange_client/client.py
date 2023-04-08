@@ -8,12 +8,14 @@ from .interfaces import *
 from .sockets import Sockets
 from .enumerations import *
 from .websocket_client import WebsocketClient
+from typing import Union
+from decimal import Decimal
 
 from eth_account import Account
 from eth_utils import to_wei, from_wei
 
 class FireflyClient:
-    def __init__(self, are_terms_accepted, network, private_key):
+    def __init__(self, are_terms_accepted:bool, network:Network, private_key:str) -> None:
         self.are_terms_accepted = are_terms_accepted
         self.network = network
         self.w3 = self._connect_w3(self.network["url"])
@@ -26,7 +28,14 @@ class FireflyClient:
         self.onboarding_signer = OnboardingSigner()
         
             
-    async def init(self, user_onboarding=True):
+    async def init(self, user_onboarding:bool=True) -> None:
+        """
+            Initializes the client and on boards user onto exchange
+
+            Inputs:
+                - user_onboarding: boolean indicating if a user wants to onboard on to exchange or not
+        """
+                
         self.contracts.contract_addresses = await self.get_contract_addresses()
 
         if "error" in self.contracts.contract_addresses:
@@ -47,7 +56,7 @@ class FireflyClient:
             self.webSocketClient.set_token(self.apis.auth_token)
 
 
-    async def onboard_user(self, token:str=None):
+    async def onboard_user(self, token:str=None) -> str :
         """
             On boards the user address and returns user authentication token.
             Inputs:
@@ -72,13 +81,13 @@ class FireflyClient:
 
         return user_auth_token
 
-    async def authorize_signed_hash(self, signed_hash:str):
+    async def authorize_signed_hash(self, signed_hash:str) -> dict:
         """
             Registers user as an authorized user on server and returns authorization token.
             Inputs:
                 - signed_hash: signed onboarding hash
             Returns:
-                - dict: response from user authorization API Firefly
+                - dict: response from user authorization API Bluefin
         """
         return await self.apis.post(
             SERVICE_URLS["USER"]["AUTHORIZE"],
@@ -88,9 +97,10 @@ class FireflyClient:
                 "isTermAccepted": self.are_terms_accepted,
             })
 
-    def add_market(self, symbol: MARKET_SYMBOLS, trader_contract=None):
+    def add_market(self, symbol: MARKET_SYMBOLS, trader_contract=None) -> bool:
         """
             Adds Order signer for market to instance's order_signers dict.
+
             Inputs:
                 - symbol(MARKET_SYMBOLS): Market symbol of order signer.
                 - orders_contract(str): Contract address of the orders contract.
@@ -117,30 +127,31 @@ class FireflyClient:
             )
         return True 
 
-    def add_contract(self,name,address,market=None):
+    def add_contract(self, name:str, address: str, market=None) -> None:
         """
             Adds contracts to the instance's contracts dictionary. 
             The contract name should match the contract's abi name in ./abi directory or a new abi should be added with the desired name.
             Inputs:
-                - name(str): The contract name.
-                - address(str): The contract address.
-                - market(str): The market (ETH/BTC) this contract belongs to (required for market specific contracts).
+                - name: The contract name.
+                - address: The contract address.
+                - market: The market (ETH/BTC) this contract belongs to (required for market specific contracts).
         """
         abi = self.contracts.get_contract_abi(name)
         if market:
             contract=self.w3.eth.contract(address=Web3.toChecksumAddress(address), abi=abi)
-            self.contracts.set_contracts(market=market,name=name,contract=contract)
+            self.contracts.set_contracts(contract, name, market)
         else:
             contract=self.w3.eth.contract(address=Web3.toChecksumAddress(address), abi=abi)
-            self.contracts.set_contracts(name=name,contract=contract)
+            self.contracts.set_contracts(contract, name)
         return 
 
-    def create_order_to_sign(self, params:OrderSignatureRequest):
+    def create_order_to_sign(self, params:OrderSignatureRequest) -> Order:
         """
             Creates order signature request for an order.
+
             Inputs:
-                - params (OrderSignatureRequest): parameters to create order with 
-            
+                - params: parameters to create order with 
+
             Returns:
                 - Order: order raw info
         """
@@ -164,15 +175,16 @@ class FireflyClient:
             salt =  default_value(params, "salt", random_number(1000000)),
             )
 
-    def create_signed_order(self, params:OrderSignatureRequest):
+    def create_signed_order(self, params:OrderSignatureRequest) -> OrderSignatureResponse:
         """
             Create an order from provided params and signs it using the private 
             key of the account
-        Inputs:
-            - params (OrderSignatureRequest): parameters to create order with
- 
-        Returns:
-            - OrderSignatureResponse: order raw info and generated signature
+
+            Inputs:
+                - params: parameters to create order with
+
+            Returns:
+                - OrderSignatureResponse: order raw info and generated signature
         """
         
         # from params create order to sign
@@ -200,34 +212,33 @@ class FireflyClient:
             maker=order["maker"]
         )
     
-    def create_signed_cancel_order(self,params:OrderSignatureRequest, parentAddress:str=""):
+    def create_signed_cancel_order(self, params:OrderSignatureRequest, parentAddress:str="") -> bool:
         """
             Creates a cancel order request from provided params and signs it using the private
             key of the account
 
         Inputs:
-            - params (OrderSignatureRequest): parameters to create cancel order with
-            - parentAddress (str): Only provided by a sub account
+            - params: parameters to create cancel order with
+            - parentAddress (optional): Only provided by a sub account
  
         Returns:
             - OrderSignatureResponse: generated cancel signature 
         """
-        try:
-            signer:OrderSigner = self._get_order_signer(params["symbol"])
-            order_to_sign = self.create_order_to_sign(params)
-            hash = signer.get_order_hash(order_to_sign)
-            return self.create_signed_cancel_orders(params["symbol"], hash, parentAddress)
-        except Exception as e:
-            return ""
+        signer:OrderSigner = self._get_order_signer(params["symbol"])
+        order_to_sign = self.create_order_to_sign(params)
+        hash = signer.get_order_hash(order_to_sign)
+        return self.create_signed_cancel_orders(params["symbol"], hash, parentAddress)
 
-    def create_signed_cancel_orders(self, symbol:MARKET_SYMBOLS, order_hash:list, parentAddress:str=""):
+
+    def create_signed_cancel_orders(self, symbol:MARKET_SYMBOLS, order_hash:List[str], parentAddress:str="") -> OrderCancellationRequest:
         """
             Creates a cancel order from provided params and sign it using the private
             key of the account
 
         Inputs:
-            - params (list): a list of order hashes
-            - parentAddress (str): only provided by a sub account
+            - symbol: the market for which cancel orders are to be signed for
+            - order_hash: list of order hashes to be cancelled
+            - parentAddress (optional): only provided by a sub account
         Returns:
             OrderCancellationRequest: containing symbol, hashes and signature
         """
@@ -244,11 +255,11 @@ class FireflyClient:
             parentAddress=parentAddress
         )
 
-    async def post_cancel_order(self,params:OrderCancellationRequest):
+    async def post_cancel_order(self,params:OrderCancellationRequest) -> dict:
         """
             POST cancel order request to Firefly
             Inputs:
-                - params(dict): a dictionary with OrderCancellationRequest required params
+                - params: a dictionary with OrderCancellationRequest required params
             Returns:
                 - dict: response from orders delete API Firefly
         """
@@ -264,15 +275,17 @@ class FireflyClient:
             auth_required=True
             )
     
-    async def cancel_all_orders(self, symbol:MARKET_SYMBOLS, status: List[ORDER_STATUS], parentAddress:str=""):
+    async def cancel_all_orders(self, symbol:MARKET_SYMBOLS, status: List[ORDER_STATUS], parentAddress:str="") -> dict:
         """
             GETs all orders of specified status for the specified symbol, 
             and creates a cancellation request for all orders and 
             POSTs the cancel order request to Firefly
+
             Inputs:
                 - symbol (MARKET_SYMBOLS): Market for which orders are to be cancelled 
                 - status (List[ORDER_STATUS]): status of orders that need to be cancelled 
                 - parentAddress (str): address of parent account, only provided by sub account
+
             Returns:
                 - dict: response from orders delete API Firefly
         """
@@ -289,10 +302,8 @@ class FireflyClient:
         if len(hashes) > 0:
             req = self.create_signed_cancel_orders(symbol, hashes, parentAddress)
             return await self.post_cancel_order(req)
-
-        return False
     
-    async def post_signed_order(self, params:PlaceOrderRequest):
+    async def post_signed_order(self, params:PlaceOrderRequest) -> dict:
         """
             Creates an order from provided params and signs it using the private
             key of the account
@@ -327,15 +338,15 @@ class FireflyClient:
             )
 
     ## Contract calls
-    async def deposit_margin_to_bank(self, amount):
+    async def deposit_margin_to_bank(self, amount:Union[int, str, float]) -> bool:
         """
             Deposits given amount of USDC from user's account to margin bank
 
             Inputs:
-                amount (number): quantity of usdc to be deposited to bank in base decimals (1,2 etc)
+                amount: quantity of usdc to be deposited to bank in base decimals (1,2 etc)
 
             Returns:
-                Boolean: true if amount is successfully deposited, false otherwise
+                Boolean: true if amount is successfully deposited
         """
 
         usdc_contract = self.contracts.get_contract(name="USDC");
@@ -366,15 +377,15 @@ class FireflyClient:
 
         return True;
 
-    async def withdraw_margin_from_bank(self, amount):
+    async def withdraw_margin_from_bank(self, amount:Union[int, str, float]) -> bool:
         """
             Withdraws given amount of usdc from margin bank if possible
 
             Inputs:
-                amount (number): quantity of usdc to be withdrawn from bank in base decimals (1,2 etc)
+                amount: quantity of usdc to be withdrawn from bank in base decimals (1,2 etc)
 
             Returns:
-                Boolean: true if amount is successfully withdrawn, false otherwise
+                Boolean: true if amount is successfully withdrawn
         """
 
         mb_contract = self.contracts.get_contract(name="MarginBank");
@@ -392,15 +403,15 @@ class FireflyClient:
 
         return True;
 
-    async def adjust_leverage(self, symbol, leverage, parentAddress:str=""):
+    async def adjust_leverage(self, symbol: MARKET_SYMBOLS, leverage: Union[int, str], parentAddress:str="") -> Union[bool, dict]:
         """
             Adjusts user leverage to the provided one for their current position on-chain and off-chain.
             If a user has no position for the provided symbol, leverage only recorded off-chain
 
             Inputs:
-                symbol (MARKET_SYMBOLS): market for which to adjust user leverage
-                leverage (number): new leverage to be set. Must be in base decimals (1,2 etc.)
-                parentAddress (str): optional, if provided, the leverage of parent is 
+                symbol: market for which to adjust user leverage
+                leverage: new leverage to be set. Must be in base decimals (1,2 etc.)
+                parentAddress (optional): if provided, the leverage of parent is 
                                     being adjusted (for sub accounts only)
             Returns:
                 Boolean: true if the leverage is successfully adjusted
@@ -435,15 +446,15 @@ class FireflyClient:
         
         return True
  
-    async def adjust_margin(self, symbol, operation, amount, parentAddress:str=""):
+    async def adjust_margin(self, symbol: MARKET_SYMBOLS, operation: ADJUST_MARGIN, amount: Union[int, float, str], parentAddress:str="") -> bool:
         """
             Adjusts user's on-chain position by adding or removing the specified amount of margin.
             Performs on-chain contract call, the user must have gas tokens
             Inputs:
-                symbol (MARKET_SYMBOLS): market for which to adjust user leverage
-                operation (ADJUST_MARGIN): ADD/REMOVE adding or removing margin to position
-                amount (number): amount of margin to be adjusted
-                parentAddress (str): optional, if provided, the margin of parent is 
+                symbol: market for which to adjust user leverage
+                operation: ADD/REMOVE adding or removing margin to position
+                amount: amount of margin to be adjusted
+                parentAddress (optional): if provided, the margin of parent is 
                                     being adjusted (for sub accounts only)
             Returns:
                 Boolean: true if the margin is adjusted
@@ -470,13 +481,14 @@ class FireflyClient:
         
         return True
     
-    async def update_sub_account(self, symbol, sub_account_address, status):
+    async def update_sub_account(self, symbol: MARKET_SYMBOLS, sub_account_address:str, status: bool) -> bool:
         """
             Used to whitelist and account as a sub account or revoke sub account status from an account.
+
             Inputs:
-                symbol (MARKET_SYMBOLS): market on which sub account status is to be updated
-                sub_account_address (str): address of the sub account
-                status (bool): new status of the sub account
+                symbol : market on which sub account status is to be updated
+                sub_account_address: address of the sub account
+                status: new status of the sub account
 
             Returns:
                 Boolean: true if the sub account status is update
@@ -494,7 +506,7 @@ class FireflyClient:
 
         return True
 
-    async def get_native_chain_token_balance(self):
+    async def get_native_chain_token_balance(self) -> Union[int, Decimal]:
         """
             Returns user's native chain token (ETH/BOBA) balance
         """
@@ -503,7 +515,7 @@ class FireflyClient:
         except Exception as e:
             raise(Exception("Failed to get balance, Exception: {}".format(e)))
 
-    async def get_usdc_balance(self):
+    async def get_usdc_balance(self) -> Union[int, Decimal]:
         """
             Returns user's USDC token balance on Firefly.
         """
@@ -514,7 +526,7 @@ class FireflyClient:
         except Exception as e:
             raise(Exception("Failed to get balance, Exception: {}".format(e)))
 
-    async def get_margin_bank_balance(self):
+    async def get_margin_bank_balance(self) -> Union[int, Decimal]:
         """
             Returns user's Margin Bank balance.
         """
@@ -526,11 +538,11 @@ class FireflyClient:
 
     ## Market endpoints
     
-    async def get_orderbook(self, params:GetOrderbookRequest):
+    async def get_orderbook(self, params:GetOrderbookRequest) -> dict:
         """
             Returns a dictionary containing the orderbook snapshot.
             Inputs:
-                - params(GetOrderbookRequest): the order symbol and limit(orderbook depth) 
+                - params: the order symbol and limit(orderbook depth) 
             Returns:
                 - dict: Orderbook snapshot
         """
@@ -541,7 +553,7 @@ class FireflyClient:
             params
             )
 
-    async def get_exchange_status(self):
+    async def get_exchange_status(self) -> dict:
         """
             Returns a dictionary containing the exchange status.
             Returns:
@@ -549,7 +561,7 @@ class FireflyClient:
         """
         return await self.apis.get(SERVICE_URLS["MARKET"]["STATUS"], {})
 
-    async def get_market_symbols(self):
+    async def get_market_symbols(self) -> dict:
         """
             Returns a list of active market symbols.
             Returns:
@@ -560,11 +572,11 @@ class FireflyClient:
             {} 
             )
 
-    async def get_funding_rate(self,symbol:MARKET_SYMBOLS):
+    async def get_funding_rate(self, symbol:MARKET_SYMBOLS) -> dict:
         """
             Returns a dictionary containing the current funding rate on market.
             Inputs:
-                - symbol(MARKET_SYMBOLS): symbol of market
+                - symbol: symbol of market
             Returns:
                 - dict: Funding rate into
         """
@@ -573,12 +585,14 @@ class FireflyClient:
             {"symbol": symbol.value}
         )
 
-    async def get_funding_history(self,params:GetFundingHistoryRequest):
+    async def get_funding_history(self, params:GetFundingHistoryRequest) -> GetFundingHistoryResponse:
         """
             Returns a list of the user's funding payments, a boolean indicating if there is/are more page(s),
                 and the next page number
+
             Inputs:
-                - params(GetFundingHistoryRequest): params required to fetch funding history  
+                - params: params required to fetch funding history  
+            
             Returns:
                 - GetFundingHistoryResponse: 
                     - isMoreDataAvailable: boolean indicating if there is/are more page(s)
@@ -594,7 +608,7 @@ class FireflyClient:
             auth_required=True
         )
 
-    async def get_market_meta_info(self,symbol:MARKET_SYMBOLS=None):
+    async def get_market_meta_info(self, symbol:MARKET_SYMBOLS=None) -> dict:
         """
             Returns a dictionary containing market meta info.
             Inputs:
@@ -609,11 +623,13 @@ class FireflyClient:
             query
             )
 
-    async def get_market_data(self,symbol:MARKET_SYMBOLS=None):
+    async def get_market_data(self, symbol:MARKET_SYMBOLS=None) -> dict:
         """
             Returns a dictionary containing market's current data about best ask/bid, 24 hour volume, market price etc..
+
             Inputs:
                 - symbol(MARKET_SYMBOLS): the market symbol  
+            
             Returns:
                 - dict: meta info
         """
@@ -624,12 +640,14 @@ class FireflyClient:
             query
             )
     
-    async def get_exchange_info(self,symbol:MARKET_SYMBOLS=None):
+    async def get_exchange_info(self, symbol:MARKET_SYMBOLS=None) -> dict:
         """
             Returns a dictionary containing exchange info for market(s). The min/max trade size, max allowed oi open
             min/max trade price, step size, tick size etc...
+
             Inputs:
-                - symbol(MARKET_SYMBOLS): the market symbol  
+                - symbol: the market symbol  
+            
             Returns:
                 - dict: exchange info
         """
@@ -639,11 +657,11 @@ class FireflyClient:
             query
             )
 
-    async def get_market_candle_stick_data(self,params:GetCandleStickRequest):
+    async def get_market_candle_stick_data(self,params:GetCandleStickRequest) -> dict:
         """
             Returns a list containing the candle stick data.
             Inputs:
-                - params(GetCandleStickRequest): params required to fetch candle stick data  
+                - params: params required to fetch candle stick data  
             Returns:
                 - list: the candle stick data
         """
@@ -654,11 +672,13 @@ class FireflyClient:
             params
             )
     
-    async def get_market_recent_trades(self,params:GetMarketRecentTradesRequest):
+    async def get_market_recent_trades(self,params:GetMarketRecentTradesRequest) -> dict:
         """
             Returns a list containing the recent trades data.
+            
             Inputs:
-                - params(GetCandleStickRequest): params required to fetch candle stick data  
+                - params: params required to fetch candle stick data  
+
             Returns:
                 - ist: the recent trades 
         """
@@ -669,11 +689,13 @@ class FireflyClient:
             params
             ) 
 
-    async def get_contract_addresses(self, symbol:MARKET_SYMBOLS=None):
+    async def get_contract_addresses(self, symbol:MARKET_SYMBOLS=None) -> dict:
         """
             Returns all contract addresses for the provided market.
+
             Inputs:
                 - symbol(MARKET_SYMBOLS): the market symbol
+            
             Returns:
                 - dict: all the contract addresses
         """
@@ -692,17 +714,19 @@ class FireflyClient:
         """
         return self.account
 
-    def get_public_address(self):
+    def get_public_address(self) -> str:
         """
             Returns the user account public address
         """
         return self.account.address
 
-    async def get_orders(self,params:GetOrderRequest):
+    async def get_orders(self, params:GetOrderRequest):
         """
             Returns a list of orders.
+
             Inputs:
-                - params(GetOrderRequest): params required to query orders (e.g. symbol,statuses) 
+                - params: params required to query orders (e.g. symbol,statuses) 
+            
             Returns:
                 - list: a list of orders 
         """
@@ -719,6 +743,7 @@ class FireflyClient:
             Returns a list of transaction.
             Inputs:
                 - params(GetTransactionHistoryRequest): params to query transactions (e.g. symbol) 
+            
             Returns:
                 - list: a list of transactions
         """
@@ -764,6 +789,9 @@ class FireflyClient:
             Returns user account data.
             Inputs:
                 - parentAddress: an optional field, used by sub accounts to fetch parent account state 
+            Returns:
+                - dict of user account information
+
         """
         return await self.apis.get(
             service_url = SERVICE_URLS["USER"]["ACCOUNT"],
@@ -771,13 +799,13 @@ class FireflyClient:
             auth_required = True
         )
         
-    async def get_user_leverage(self, symbol:MARKET_SYMBOLS, parentAddress:str=""):
+    async def get_user_leverage(self, symbol:MARKET_SYMBOLS, parentAddress:str="") -> int:
         """
             Returns user market default leverage.
             Inputs:
-                - symbol(MARKET_SYMBOLS): market symbol to get user market default leverage for. 
+                - symbol: market symbol to get user market default leverage for. 
             Returns:
-                - str: user default leverage 
+                - str: user leverage on exchange
         """
         account_data_by_market = (await self.get_user_account_data(parentAddress))["accountDataByMarket"]
         
@@ -791,7 +819,7 @@ class FireflyClient:
 
        
     ## Internal methods
-    def _get_order_signer(self,symbol:MARKET_SYMBOLS=None):
+    def _get_order_signer(self, symbol:MARKET_SYMBOLS=None):
         """
             Returns the order signer for the specified symbol, else returns a dictionary of symbol -> order signer
             Inputs:
