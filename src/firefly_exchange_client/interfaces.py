@@ -134,7 +134,10 @@ class GetUserTradesRequest(TypedDict):
   parentAddress: str # (optional) should be provided by sub account
 
 class GetOrderRequest(GetTransactionHistoryRequest):
-  statuses:List[ORDER_STATUS] # status of orders to be fetched
+  statuses:List[ORDER_STATUS] # (optional) status of orders to be fetched
+  orderId: int #(optional) the id of order to be fetched
+  orderType: List[ORDER_TYPE]; # (optional) type of order Limit/Market
+  orderHashes: List[str] # (optional) hashes of order to be fetched
   parentAddress : str # (optional) should be provided by sub accounts
 
 class GetFundingHistoryRequest(TypedDict):
