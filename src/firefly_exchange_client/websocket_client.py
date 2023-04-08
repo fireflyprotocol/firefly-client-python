@@ -1,17 +1,18 @@
 import json
-import logging
+from logging import Logger, getLogger
 from .socket_manager import SocketManager
 from .enumerations import MARKET_SYMBOLS, SOCKET_EVENTS
 
 class WebsocketClient:
     def __init__(
         self,
-        stream_url,
-        token=None,
-        logger=None,
-    ):
+        stream_url:str,
+        token:str=None,
+        logger:Logger=None,
+    ) -> None:
         if not logger:
-            logger = logging.getLogger(__name__)
+            logger = getLogger(__name__)
+        
         self.logger = logger
         self.token = token
         self.stream_url = stream_url
@@ -24,8 +25,8 @@ class WebsocketClient:
         on_error=None,
         on_ping=None,
         on_pong=None,
-        logger=None,
-    ):
+        logger:Logger=None,
+    ) -> None:
         self.socket_manager =  SocketManager(
             self.stream_url,
             on_message=self.listener,
@@ -43,7 +44,7 @@ class WebsocketClient:
         self.socket_manager.start()
 
 
-    def set_token(self, token):
+    def set_token(self, token:str) -> None:
         """
             Sets default user token
             Inputs:
@@ -51,17 +52,17 @@ class WebsocketClient:
         """
         self.token = token
     
-    def listen(self,event,callback):
+    def listen(self, event:str, callback) -> None:
         """
             Assigns callbacks to desired events
         """
         self.callbacks[event] = callback
         return 
 
-    def send(self, message: dict):
+    def send(self, message: dict) -> None:
         self.socket_manager.send_message(json.dumps(message))
 
-    def subscribe_global_updates_by_symbol(self,symbol: MARKET_SYMBOLS):
+    def subscribe_global_updates_by_symbol(self,symbol: MARKET_SYMBOLS) -> bool:
         """
             Allows user to subscribe to global updates for the desired symbol.
             Inputs:
@@ -81,7 +82,7 @@ class WebsocketClient:
         except Exception:
             return False
 
-    def unsubscribe_global_updates_by_symbol(self,symbol: MARKET_SYMBOLS):
+    def unsubscribe_global_updates_by_symbol(self,symbol: MARKET_SYMBOLS) -> bool:
         """
             Allows user to unsubscribe to global updates for the desired symbol.
                 Inputs:
@@ -101,11 +102,11 @@ class WebsocketClient:
         except:
             return False
 
-    def subscribe_user_update_by_token(self, user_token: str=None):
+    def subscribe_user_update_by_token(self, user_token:str=None) -> bool:
         """
             Allows user to subscribe to their account updates.
             Inputs:
-                - token(str): auth token generated when onboarding on firefly
+                - user_token: auth token generated when onboarding on firefly
         """
         try:
             if not self.socket_manager.ws.connected:
@@ -121,11 +122,11 @@ class WebsocketClient:
         except:
             return False
 
-    def unsubscribe_user_update_by_token(self, user_token:str=None): 
+    def unsubscribe_user_update_by_token(self, user_token:str=None) -> bool: 
         """
             Allows user to unsubscribe to their account updates.
             Inputs:
-                - token: auth token generated when onboarding on firefly
+                - user_token: auth token generated when onboarding on firefly
         """
         try:
             if not self.socket_manager.ws.connected:
@@ -141,15 +142,14 @@ class WebsocketClient:
         except:
             return False
 
-    def ping(self):
+    def ping(self) -> None:
         self.logger.debug("Sending ping to WebSocket Server")
         self.socket_manager.ping()
 
-    def stop(self, id=None):
+    def stop(self, id=None) -> None:
         self.socket_manager.close()
-        # self.socket_manager.join()
 
-    def listener(self,_, message):
+    def listener(self,_, message) -> None:
         """
             Listens to all events emitted by the server
         """

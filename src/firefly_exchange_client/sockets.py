@@ -5,13 +5,13 @@ sio = socketio.Client()
       
 class Sockets:
     callbacks={}
-    def __init__(self, url, timeout=10, token=None) -> None:
+    def __init__(self, url:str, timeout:int=10, token:str=None) -> None:
         self.url = url  
         self.timeout = timeout
         self.token = token
         return 
 
-    def _establish_connection(self):
+    def _establish_connection(self) -> bool:
         """
             Connects to the desired url
         """
@@ -21,7 +21,7 @@ class Sockets:
         except:
             return False
 
-    def set_token(self, token):
+    def set_token(self, token) -> None:
         """
             Sets default user token
             Inputs:
@@ -29,7 +29,7 @@ class Sockets:
         """
         self.token = token
 
-    async def open(self):
+    async def open(self) -> None:
         """
             opens socket instance connection
         """
@@ -40,7 +40,7 @@ class Sockets:
         return
         
 
-    async def close(self):
+    async def close(self) -> None:
         """
             closes the socket instance connection
         """
@@ -48,7 +48,7 @@ class Sockets:
         return 
 
     @sio.on("*")
-    def listener(event,data):
+    def listener(event,data) -> None:
         """
             Listens to all events emitted by the server
         """
@@ -63,14 +63,14 @@ class Sockets:
             pass
         return 
 
-    async def listen(self,event,callback):
+    async def listen(self, event:str, callback) -> None:
         """
             Assigns callbacks to desired events
         """
         Sockets.callbacks[event] = callback
         return 
 
-    async def subscribe_global_updates_by_symbol(self,symbol: MARKET_SYMBOLS):
+    async def subscribe_global_updates_by_symbol(self, symbol: MARKET_SYMBOLS) -> bool:
         """
             Allows user to subscribe to global updates for the desired symbol.
             Inputs:
@@ -91,7 +91,7 @@ class Sockets:
             print("Error: ", e)
             return False
 
-    async def unsubscribe_global_updates_by_symbol(self,symbol: MARKET_SYMBOLS):
+    async def unsubscribe_global_updates_by_symbol(self,symbol: MARKET_SYMBOLS) -> bool:
         """
             Allows user to unsubscribe to global updates for the desired symbol.
                 Inputs:
@@ -111,13 +111,13 @@ class Sockets:
         except:
             return False
 
-    async def subscribe_user_update_by_token(self, parent_account: str=None, user_token: str=None):
+    async def subscribe_user_update_by_token(self, parent_account:str=None, user_token: str=None) -> bool:
         """
             Allows user to subscribe to their account updates.
             Inputs:
                 - parent_account(str): address of parent account. Only whitelisted 
                   sub-account can listen to its parent account position updates
-                - token(str): auth token generated when onboarding on firefly
+                - user_token(str): auth token generated when onboarding on firefly
         """
         try:
             if not self.connection_established:
@@ -127,7 +127,7 @@ class Sockets:
             {
                 "e": SOCKET_EVENTS.USER_UPDATES_ROOM.value,
                 'pa': parent_account,
-                "t": self.token if user_token == None else user_token,
+                "t": user_token or self.token,
             },
             ])
             return True
@@ -135,12 +135,12 @@ class Sockets:
             print(e);
             return False
 
-    async def unsubscribe_user_update_by_token(self, parent_account: str=None, user_token:str=None): 
+    async def unsubscribe_user_update_by_token(self, parent_account:str=None, user_token:str=None) -> bool: 
         """
             Allows user to unsubscribe to their account updates.
             Inputs:
-                - parent_account(str): address of parent account. Only for sub-accounts
-                - token: auth token generated when onboarding on firefly
+                - parent_account: address of parent account. Only for sub-accounts
+                - user_token: auth token generated when onboarding on firefly
         """
         try:
             if not self.connection_established:
@@ -150,7 +150,7 @@ class Sockets:
             {
                 "e": SOCKET_EVENTS.USER_UPDATES_ROOM.value,
                 'pa': parent_account,
-                "t": self.token if user_token == None else user_token,
+                "t": user_token or self.token,
             },
             ])
             return True

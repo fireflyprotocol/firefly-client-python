@@ -3,10 +3,10 @@ from .interfaces import *
 from .signer import Signer
 
 class OnboardingSigner(Signer):
-    def __init__(self):
+    def __init__(self) ->None:
         super().__init__()
 
-    def create_signature(self, msg, private_key):
+    def create_signature(self, msg:str , private_key:str) -> str:
         """
             Signs the message.
             Inputs:

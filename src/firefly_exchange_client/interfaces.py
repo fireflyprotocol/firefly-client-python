@@ -166,3 +166,11 @@ class GetFundingHistoryResponse(TypedDict):
   isMoreDataAvailable: bool # boolean indicating if there is more data available
   nextCursor: int # next page number
   data: List[FundingHistoryResponse]
+
+
+class Network(TypedDict):
+  url: str 
+  chainId: int
+  apiGateway: str
+  socketURL: str
+  onboardingUrl: str

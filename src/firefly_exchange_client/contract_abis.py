@@ -1,4 +1,6 @@
-## ABIs of contracts to be used by client
+'''
+  ABIs of Bluefin protocol contracts and USDC Token used by the client
+'''
 
 MarginBank = {
   "_format": "hh-sol-artifact-1",

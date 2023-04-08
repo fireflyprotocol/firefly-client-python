@@ -1,11 +1,11 @@
 from .contract_abis import MarginBank, Perpetual, USDC
 
 class Contracts:
-    def __init__(self):
+    def __init__(self) -> None:
         self.contracts = {}
         self.contract_addresses = {}
         
-    def set_contract_addresses(self,contract_address,market=None,name=None):
+    def set_contract_addresses(self,contract_address:dict, market:str=None, name:str=None) -> None:
         if market and name:
             if name:
                 self.contract_addresses[market][name] = contract_address
@@ -17,7 +17,7 @@ class Contracts:
             self.contract_addresses = contract_address
         return 
     
-    def set_contracts(self,contract,name,market=None):        
+    def set_contracts(self, contract, name:str, market:str=None) -> None:        
         if market:
             if market not in self.contracts:
                 self.contracts[market] = {}
@@ -34,11 +34,11 @@ class Contracts:
     
 
     ## GETTERS
-    def get_contract_abi(self,name):
+    def get_contract_abi(self, name:str):
         """
             Returns contract abi.
             Inputs:
-                - name(str): The contract name.
+                - name: The contract name.
         """
 
         if name == "MarginBank":
@@ -50,7 +50,7 @@ class Contracts:
         else:
             raise Exception("Unknown contract name: {}".format(name))
             
-    def get_contract(self,name,market=""):
+    def get_contract(self, name:str, market:str=None):
         """
             Returns the contract object.
             Inputs:
@@ -67,12 +67,12 @@ class Contracts:
         except Exception as e:
             raise(Exception("Failed to get contract, Exception: {}".format(e)))
 
-    def get_contract_address(self,name=None,market=None):
+    def get_contract_address(self, name:str=None, market:str=None) -> str:
         """
             Returns the contract address. If neither of the inputs provided, will return a dict with all contract addresses.  
             Inputs:
-                - name(str): The contract name.
-                - market(str): The market the contract belongs to (if only market provided will return all address of market as dict).
+                - name: The contract name.
+                - market: The market the contract belongs to (if only market provided will return all address of market as dict).
         """
         try:
             if market and name:
