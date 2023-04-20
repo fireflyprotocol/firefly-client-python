@@ -18,9 +18,9 @@ async def main():
   clientParent.add_market(MARKET_SYMBOLS.ETH)
 
   
+  response = await clientParent.get_user_leverage(MARKET_SYMBOLS.ETH,clientParent.get_public_address())
+  response = await clientParent.get_cancel_on_disconnect_timer(MARKET_SYMBOLS.ETH,clientParent.get_public_address())
 
-  # order is signed using sub account's private key
-  response = clientParent.get_cancel_on_disconnect_timer(MARKET_SYMBOLS.ETH,clientChild.get_public_address())
 
   print(response)
 
