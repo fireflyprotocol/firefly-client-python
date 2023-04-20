@@ -789,6 +789,60 @@ class FireflyClient:
         # todo fetch from exchange info route
         return 3
 
+    async def get_cancel_on_disconnect_timer(self,symbol:MARKET_SYMBOLS, parentAddress:str=""):
+        """
+            Returns a list of the user's funding payments, a boolean indicating if there is/are more page(s),
+                and the next page number
+            Inputs:
+                - symbol(MARKET_SYMBOLS): market symbol to get user market default leverage for.  
+            Returns:
+                - GetFundingHistoryResponse: 
+                    - isMoreDataAvailable: boolean indicating if there is/are more page(s)
+                    - nextCursor: the next page number
+                    - data: a list of the user's funding payments
+        """
+        
+        response = await self.apis.get(
+            SERVICE_URLS["USER"]["CANCEL_ON_DISCONNECT"],
+            {
+                symbol,
+                parentAddress
+            },
+            auth_required=True,
+            self.network["dmsURL"]
+        )
+        
+        if response.status == 503:
+            raise SystemError("Cancel on Disconnect (dead-mans-switch) feature is currently unavailable")
+
+        return response
+    
+    async def reset_cancel_on_disconnect_timer(self,params:PostTimerAttributes):
+        """
+            Returns a list of the user's funding payments, a boolean indicating if there is/are more page(s),
+                and the next page number
+            Inputs:
+                - params(PostTimerAttributes): params required to fetch funding history  
+            Returns:
+                - PostTimerResponse: 
+                    - isMoreDataAvailable: boolean indicating if there is/are more page(s)
+                    - nextCursor: the next page number
+                    - data: a list of the user's funding payments
+        """
+
+        params = extract_enums(params,["symbol"])
+        print(params)
+        response = await self.apis.post(
+            SERVICE_URLS["USER"]["CANCEL_ON_DISCONNECT"],
+            params,
+            auth_required=True,
+            self.network["dmsURL"]
+        )
+         
+        if response.status == 503:
+            raise SystemError("Cancel on Disconnect (dead-mans-switch) feature is currently unavailable")
+
+        return response
        
     ## Internal methods
     def _get_order_signer(self,symbol:MARKET_SYMBOLS=None):
