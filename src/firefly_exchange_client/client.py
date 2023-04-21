@@ -794,15 +794,14 @@ class FireflyClient:
 
     async def get_cancel_on_disconnect_timer(self,symbol:MARKET_SYMBOLS, parentAddress:str=""):
         """
-            Returns a list of the user's funding payments, a boolean indicating if there is/are more page(s),
-                and the next page number
+            Returns a list of the user's countDowns for each market,
             Inputs:
-                - symbol(MARKET_SYMBOLS): market symbol to get user market default leverage for.  
+                - symbol(MARKET_SYMBOLS): market symbol to get user market cancel_on_disconnect timer for.  
+                - parentAddress (str): Only provided by a sub account
             Returns:
-                - GetFundingHistoryResponse: 
-                    - isMoreDataAvailable: boolean indicating if there is/are more page(s)
-                    - nextCursor: the next page number
-                    - data: a list of the user's funding payments
+                - GetCountDownsResponse:
+                    - countDowns: array with market symbols and countDown timer
+                    - timestamp
         """
        
         response = await self.dmsApi.get(
@@ -812,24 +811,22 @@ class FireflyClient:
                 "address": parentAddress
             },
             auth_required=True
-
         )
-        if response.statusCode == 503:
+        if hasattr(response, 'status') and response.status == 503:
             raise SystemError("Cancel on Disconnect (dead-mans-switch) feature is currently unavailable")
-
+        print(response)
         return response
     
     async def reset_cancel_on_disconnect_timer(self,params:PostTimerAttributes):
         """
-            Returns a list of the user's funding payments, a boolean indicating if there is/are more page(s),
+            Returns PostTimerResponse containing accepted and failed countdowns.,
                 and the next page number
             Inputs:
                 - params(PostTimerAttributes): params required to fetch funding history  
             Returns:
                 - PostTimerResponse: 
-                    - isMoreDataAvailable: boolean indicating if there is/are more page(s)
-                    - nextCursor: the next page number
-                    - data: a list of the user's funding payments
+                    - acceptedToReset: array with symbols for which timer was reset successfully
+                    - failedReset: aray with symbols for whcih timer failed to reset 
         """
         response = await self.dmsApi.post(
             SERVICE_URLS["USER"]["CANCEL_ON_DISCONNECT"],
@@ -837,10 +834,9 @@ class FireflyClient:
             ,
             auth_required=True   
         )
-         
-        if response.statusCode == 503:
+        if hasattr(response, 'status') and response.status == 503:
              raise SystemError("Cancel on Disconnect (dead-mans-switch) feature is currently unavailable")
-
+        print(response)
         return response
        
     ## Internal methods

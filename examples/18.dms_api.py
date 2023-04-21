@@ -7,30 +7,29 @@ import asyncio
 
 async def main():
 
-  clientParent = FireflyClient(True, Networks[TEST_NETWORK], TEST_ACCT_KEY)
-  await clientParent.init(True)
+  client = FireflyClient(True, Networks[TEST_NETWORK], TEST_ACCT_KEY)
+  await client.init(True)
 
-  print("Parent: ", clientParent.get_public_address())
-  clientParent.add_market(MARKET_SYMBOLS.ETH)
+  print("Parent: ", client.get_public_address())
+  client.add_market(MARKET_SYMBOLS.ETH)
 
-  response = await clientParent.get_cancel_on_disconnect_timer(MARKET_SYMBOLS.ETH)
   countDowns = []
   countDowns.append({
             'symbol': MARKET_SYMBOLS.ETH.value,
-            'countDown': 60 * 1000
+            'countDown': 3 * 1000
           }
          )
 
-
-  response = await clientParent.reset_cancel_on_disconnect_timer({
-        "countDowns": countDowns,
-        "address":""
+  # sending post request to reset user's count down timer for MARKET_SYMBOL
+  postResponse = await client.reset_cancel_on_disconnect_timer({
+        "countDowns": countDowns
         })
+  # get request to get user's count down timer for MARKET_SYMBOL
+  getResponse = await client.get_cancel_on_disconnect_timer(MARKET_SYMBOLS.ETH)
 
-  print(response)
 
   # await clientChild.apis.close_session();
-  await clientParent.apis.close_session()
+  await client.apis.close_session()
 
 
 if __name__ == "__main__":

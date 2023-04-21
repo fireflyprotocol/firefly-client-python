@@ -31,7 +31,10 @@ class APIService():
             response = await self.client.get(url, params=query)
 
         try:
-            return await response.json()
+            if response.status != 503: #checking for service unavailitbility 
+                return await response.json()
+            else:
+               return response
         except:
             raise Exception("Error while getting {}: {}".format(url, response))
         
@@ -55,7 +58,10 @@ class APIService():
             response = await self.client.post(url=url, data=data)
 
         try:
-            return await response.json()
+            if response.status != 503: #checking for service unavailitbility 
+                return await response.json()
+            else:
+               return response
         except:
             raise Exception("Error while posting to {}: {}".format(url, response))
         
