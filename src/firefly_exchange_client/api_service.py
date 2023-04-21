@@ -50,7 +50,7 @@ class APIService():
             response = await self.client.post(
                 url=url, 
                 data=data, 
-                headers={'Authorization': 'Bearer {}'.format(self.auth_token)})
+                headers={'Authorization': 'Bearer {}'.format(self.auth_token),'Content-type': 'application/json'})
         else:
             response = await self.client.post(url=url, data=data)
 

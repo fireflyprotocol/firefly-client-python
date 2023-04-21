@@ -167,30 +167,25 @@ class GetFundingHistoryResponse(TypedDict):
   nextCursor: int # next page number
   data: List[FundingHistoryResponse]
 
-
+class CountDown(TypedDict):
+  symbol: str
+  count: int
 class GetCancelOnDisconnectTimerRequest(TypedDict):
   symbol: MARKET_SYMBOLS  # will fetch Cancel On Disconnect Timer of provided market
   parentAddress: str # (optional) should be provided by a sub account 
 
-class CountDown(TypedDict):
-  symbol: str
-  countDown: int
-
-class GetCountDownsResponse(TypedDict):
-  countDowns: CountDown[]
-  timestamp: int
-
 class PostTimerAttributes(TypedDict):
-  countDowns: countDown[]
-  parentAddress: str
+  countDowns: List[CountDown]
+  parentAddress: str 
 
-class PostTimerResponse(TypedDict):
-  acceptedToReset: str[]
-  failedReset: FailedCountDownResetResponse[]
-
-class FailedCountDownResetResponse(TypedDict)
+class FailedCountDownResetResponse(TypedDict):
   symbol: str
   reason: str
+
+class PostTimerResponse(TypedDict):
+  acceptedToReset: List[str]
+  failedReset: List[FailedCountDownResetResponse]
+
 
 
 

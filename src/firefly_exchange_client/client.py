@@ -1,3 +1,4 @@
+import json
 from .api_service import APIService
 from .contracts import Contracts
 from .order_signer import OrderSigner
@@ -19,6 +20,7 @@ class FireflyClient:
         self.w3 = self._connect_w3(self.network["url"])
         self.account = Account.from_key(private_key)
         self.apis = APIService(self.network["apiGateway"])
+        self.dmsApi = APIService(self.network["dmsURL"])
         self.socket = Sockets(self.network["socketURL"])
         self.webSocketClient = WebsocketClient(self.network["webSocketURL"])
         self.contracts = Contracts()
@@ -43,6 +45,7 @@ class FireflyClient:
 
         if user_onboarding:
             self.apis.auth_token = await self.onboard_user()
+            self.dmsApi.auth_token = await self.onboard_user()
             self.socket.set_token(self.apis.auth_token)
             self.webSocketClient.set_token(self.apis.auth_token)
 
@@ -801,18 +804,17 @@ class FireflyClient:
                     - nextCursor: the next page number
                     - data: a list of the user's funding payments
         """
-        
-        response = await self.apis.get(
+       
+        response = await self.dmsApi.get(
             SERVICE_URLS["USER"]["CANCEL_ON_DISCONNECT"],
             {
-                symbol,
-                parentAddress
+                "symbol": symbol.value,
+                "address": parentAddress
             },
-            auth_required=True,
-            self.network["dmsURL"]
+            auth_required=True
+
         )
-        
-        if response.status == 503:
+        if response.statusCode == 503:
             raise SystemError("Cancel on Disconnect (dead-mans-switch) feature is currently unavailable")
 
         return response
@@ -829,18 +831,15 @@ class FireflyClient:
                     - nextCursor: the next page number
                     - data: a list of the user's funding payments
         """
-
-        params = extract_enums(params,["symbol"])
-        print(params)
-        response = await self.apis.post(
+        response = await self.dmsApi.post(
             SERVICE_URLS["USER"]["CANCEL_ON_DISCONNECT"],
-            params,
-            auth_required=True,
-            self.network["dmsURL"]
+            json.dumps(params)
+            ,
+            auth_required=True   
         )
          
-        if response.status == 503:
-            raise SystemError("Cancel on Disconnect (dead-mans-switch) feature is currently unavailable")
+        if response.statusCode == 503:
+             raise SystemError("Cancel on Disconnect (dead-mans-switch) feature is currently unavailable")
 
         return response
        
