@@ -20,12 +20,21 @@ async def main():
           }
          )
 
-  # sending post request to reset user's count down timer with MARKET_SYMBOL for auto cancellation of order
-  postResponse = await client.reset_cancel_on_disconnect_timer({
+  
+  
+  try:
+     # sending post request to reset user's count down timer with MARKET_SYMBOL for auto cancellation of order
+    postResponse = await client.reset_cancel_on_disconnect_timer({
         "countDowns": countDowns
         })
-  # get request to get user's count down timer for MARKET_SYMBOL
-  getResponse = await client.get_cancel_on_disconnect_timer(MARKET_SYMBOLS.ETH)
+    print(postResponse)   
+    # get request to get user's count down timer for MARKET_SYMBOL
+    getResponse = await client.get_cancel_on_disconnect_timer(MARKET_SYMBOLS.ETH)
+    print(getResponse)
+ 
+  except Exception as e:
+    print(e)
+ 
 
 
   # await clientChild.apis.close_session();
