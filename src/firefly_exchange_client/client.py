@@ -812,9 +812,10 @@ class FireflyClient:
             },
             auth_required=True
         )
+        # check for service unavailibility
         if hasattr(response, 'status') and response.status == 503:
             raise SystemError("Cancel on Disconnect (dead-mans-switch) feature is currently unavailable")
-        print(response)
+            
         return response
     
     async def reset_cancel_on_disconnect_timer(self,params:PostTimerAttributes):
