@@ -20,7 +20,7 @@ async def main():
           }
          )
 
-  # sending post request to reset user's count down timer for MARKET_SYMBOL
+  # sending post request to reset user's count down timer with MARKET_SYMBOL for auto cancellation of order
   postResponse = await client.reset_cancel_on_disconnect_timer({
         "countDowns": countDowns
         })
