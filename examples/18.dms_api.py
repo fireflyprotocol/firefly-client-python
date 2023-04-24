@@ -10,7 +10,7 @@ async def main():
   client = FireflyClient(True, Networks[TEST_NETWORK], TEST_ACCT_KEY)
   await client.init(True)
 
-  print("Parent: ", client.get_public_address())
+  print("User: ", client.get_public_address())
   client.add_market(MARKET_SYMBOLS.ETH)
 
   countDowns = []
