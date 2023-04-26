@@ -45,7 +45,7 @@ class FireflyClient:
 
         if user_onboarding:
             self.apis.auth_token = await self.onboard_user()
-            self.dmsApi.auth_token = await self.onboard_user()
+            self.dmsApi.auth_token = self.apis.auth_token
             self.socket.set_token(self.apis.auth_token)
             self.webSocketClient.set_token(self.apis.auth_token)
 
@@ -794,13 +794,13 @@ class FireflyClient:
 
     async def get_cancel_on_disconnect_timer(self,symbol:MARKET_SYMBOLS, parentAddress:str=""):
         """
-            Returns a list of the user's countDowns for each market,
+            Returns a list of the user's countDowns for provided market symbol,
             Inputs:
                 - symbol(MARKET_SYMBOLS): market symbol to get user market cancel_on_disconnect timer for.  
                 - parentAddress (str): Only provided by a sub account
             Returns:
                 - GetCountDownsResponse:
-                    - countDowns: array with market symbols and countDown timer
+                    - countDowns: object with provided market symbol and respective countDown timer
                     - timestamp
         """
        
@@ -814,14 +814,13 @@ class FireflyClient:
         )
         # check for service unavailibility
         if hasattr(response, 'status') and response.status == 503:
-            raise SystemError("Cancel on Disconnect (dead-mans-switch) feature is currently unavailable")
+            raise Exception("Cancel on Disconnect (dead-mans-switch) feature is currently unavailable")
             
         return response
     
     async def reset_cancel_on_disconnect_timer(self,params:PostTimerAttributes):
         """
-            Returns PostTimerResponse containing accepted and failed countdowns.,
-                and the next page number
+            Returns PostTimerResponse containing accepted and failed countdowns, and the next page number
             Inputs:
                 - params(PostTimerAttributes): params required to fetch funding history  
             Returns:
@@ -837,7 +836,7 @@ class FireflyClient:
         )
         # check for service unavailibility
         if hasattr(response, 'status') and response.status == 503:
-             raise SystemError("Cancel on Disconnect (dead-mans-switch) feature is currently unavailable")
+             raise Exception("Cancel on Disconnect (dead-mans-switch) feature is currently unavailable")
         return response
        
     ## Internal methods
