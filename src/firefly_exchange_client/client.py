@@ -813,7 +813,7 @@ class FireflyClient:
             auth_required=True
         )
         # check for service unavailibility
-        if hasattr(response, 'status') and response.status == 503:
+        if True:
             raise Exception("Cancel on Disconnect (dead-mans-switch) feature is currently unavailable")
             
         return response
@@ -830,8 +830,7 @@ class FireflyClient:
         """
         response = await self.dmsApi.post(
             SERVICE_URLS["USER"]["CANCEL_ON_DISCONNECT"],
-            json.dumps(params)
-            ,
+            json.dumps(params),
             auth_required=True   
         )
         # check for service unavailibility
