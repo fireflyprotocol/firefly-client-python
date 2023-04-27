@@ -792,7 +792,7 @@ class FireflyClient:
         # todo fetch from exchange info route
         return 3
 
-    async def get_cancel_on_disconnect_timer(self,params:GetCancelOnDisconnectTimerRequest=None):
+    async def get_cancel_on_disconnect_timer(self, params:GetCancelOnDisconnectTimerRequest=None):
         """
             Returns a list of the user's countDowns for provided market symbol,
             Inputs:
@@ -816,7 +816,7 @@ class FireflyClient:
             
         return response
     
-    async def reset_cancel_on_disconnect_timer(self,params:PostTimerAttributes):
+    async def reset_cancel_on_disconnect_timer(self, params:PostTimerAttributes):
         """
             Returns PostTimerResponse containing accepted and failed countdowns, and the next page number
             Inputs:
