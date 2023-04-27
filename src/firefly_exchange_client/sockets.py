@@ -80,13 +80,13 @@ class Sockets:
             if not self.connection_established:
                 raise Exception("Socket connection is established, invoke socket.open()")
 
-            sio.emit('SUBSCRIBE',[
+            resp = sio.call('SUBSCRIBE',[
             {
                 "e": SOCKET_EVENTS.GLOBAL_UPDATES_ROOM.value,
                 "p": symbol.value,
             },
             ])
-            return True
+            return resp["success"]
         except Exception as e:
             print("Error: ", e)
             return False
@@ -101,14 +101,16 @@ class Sockets:
             if not self.connection_established:
                 return False 
             
-            sio.emit('UNSUBSCRIBE', [
+            resp = sio.call('UNSUBSCRIBE', [
             {
                 "e": SOCKET_EVENTS.GLOBAL_UPDATES_ROOM.value,
                 "p": symbol.value,
             },
             ])
-            return True
-        except:
+
+            return resp["success"]
+        except Exception as e:
+            print(e);
             return False
 
     async def subscribe_user_update_by_token(self, parent_account: str=None, user_token: str=None):
@@ -123,14 +125,15 @@ class Sockets:
             if not self.connection_established:
                 return False
               
-            sio.emit("SUBSCRIBE", [
+            resp = sio.call("SUBSCRIBE", [
             {
                 "e": SOCKET_EVENTS.USER_UPDATES_ROOM.value,
                 'pa': parent_account,
                 "t": self.token if user_token == None else user_token,
             },
             ])
-            return True
+
+            return resp["success"]
         except Exception as e:
             print(e);
             return False
@@ -146,14 +149,14 @@ class Sockets:
             if not self.connection_established:
                 return False
               
-            sio.emit("UNSUBSCRIBE", [
+            resp = sio.call("UNSUBSCRIBE", [
             {
                 "e": SOCKET_EVENTS.USER_UPDATES_ROOM.value,
                 'pa': parent_account,
                 "t": self.token if user_token == None else user_token,
             },
             ])
-            return True
+            return resp["success"]
         except:
             return False
 
