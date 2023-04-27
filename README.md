@@ -21,6 +21,12 @@ The package can be installed from [PyPi](https://pypi.org/project/firefly-exchan
 pip install firefly-exchange-client
 ```
 
+Alternatively, you could run:
+
+```
+pip install .
+```
+
 The package currently supports python `>=3.8`. Find complete documentation on the library at https://docs.firefly.exchange/.
 
 ### Getting Started
@@ -45,8 +51,8 @@ from firefly_exchange_client import Networks
 ```
 
 For testing purposes use `Networks[TESTNET_ARBITRUM]` and for production please use `Networks[MAINNET_ARBITRUM]`
-​
-​
+
+## Initialization example​
 
 ```python
 from config import TEST_ACCT_KEY, TEST_NETWORK
@@ -77,77 +83,101 @@ async def main():
   pprint(data)
 
 if __name__ == "__main__":
-    event_loop = asyncio.get_event_loop()
-    event_loop.run_until_complete(main())
+  loop = asyncio.new_event_loop()
+  loop.run_until_complete(main())
+  loop.close()
 ```
 
 ​
 **Placing Orders:**
 
 ```python
+from config import TEST_ACCT_KEY, TEST_NETWORK
 from firefly_exchange_client import FireflyClient, Networks, MARKET_SYMBOLS, ORDER_SIDE, ORDER_TYPE, OrderSignatureRequest
-​import asyncio
+import asyncio
 
-# initialize
-client = FireflyClient(....)
-​client.init(True)
+async def main():
+    # initialize client
+    client = FireflyClient(
+        True, # agree to terms and conditions
+        Networks[TEST_NETWORK], # network to connect with
+        TEST_ACCT_KEY, # private key of wallet
+        )
 
-# creates a LIMIT order to be signed
-signature_request = OrderSignatureRequest(
-    symbol=MARKET_SYMBOLS.ETH,  # market symbol
-    price=0,  # price at which you want to place order
-    quantity=0.01, # quantity
-    side=ORDER_SIDE.BUY,
-    orderType=ORDER_TYPE.MARKET,
-    leverage=user_leverage
-)
-​
-# create signed order
-signed_order = client.create_signed_order(signature_request)
-​
-print("Placing a market order")
-# place signed order on orderbook
-resp = await client.post_signed_order(signed_order)
-​
-# returned order with PENDING state
-print(resp)
+    await client.init(True)
+
+    # add market that you wish to trade on ETH/BTC are supported currently
+    client.add_market(MARKET_SYMBOLS.ETH)
+
+    user_leverage = await client.get_user_leverage(MARKET_SYMBOLS.ETH)
+
+    # creates a LIMIT order to be signed
+    signature_request = OrderSignatureRequest(
+        symbol=MARKET_SYMBOLS.ETH,  # market symbol
+        price=1900,  # price at which you want to place order
+        quantity=0.01, # quantity
+        side=ORDER_SIDE.SELL,
+        orderType=ORDER_TYPE.LIMIT,
+        leverage=user_leverage
+    )
+
+    # create signed order
+    signed_order = client.create_signed_order(signature_request)
+
+    print("Placing a limit order")
+    # place signed order on orderbook
+    resp = await client.post_signed_order(signed_order)
+
+    # returned order with PENDING state
+    print(resp)
+
+    await client.apis.close_session()
+
+
+if __name__ == "__main__":
+  loop = asyncio.new_event_loop()
+  loop.run_until_complete(main())
+  loop.close()
 ```
 
 ​
 **Listening To Events Using Socket.io:**
 
 ```python
-from firefly_exchange_client import FireflyClient, Networks, MARKET_SYMBOLS, ORDER_SIDE, ORDER_TYPE, OrderSignatureRequest
-​
+from config import TEST_ACCT_KEY, TEST_NETWORK
+from firefly_exchange_client import FireflyClient, Networks, SOCKET_EVENTS
+import asyncio
+import time
+
 def callback(event):
     print("Event data:", event)
-​
-# initialize
-client = FireflyClient(....)
-​client.init(True)
 
-# make connection with firefly exchange
-await client.socket.open()
-​
-# subscribe to local user events
-await client.socket.subscribe_user_update_by_token()
-​
-# listen to user order updates and trigger callback
-await client.socket.listen(SOCKET_EVENTS.ORDER_UPDATE.value, callback)
-​
-#
-# place some orders to exchange, that will trigger callback
-# resp = client.post_signed_order(signed_order)
-#
-​
-time.sleep(10)
-​
-# unsubscribe from user events
-await client.socket.unsubscribe_user_update_by_token()
-​
-# close socket connection
-await client.socket.close()
-​
+async def main():
+    # initialize
+    client = FireflyClient(
+        True, # agree to terms and conditions
+        Networks[TEST_NETWORK], # network to connect with
+        TEST_ACCT_KEY, # private key of wallet
+        )
+    await client.init(True)
+    # make connection with firefly exchange
+    await client.socket.open()
+
+    # subscribe to local user events
+    await client.socket.subscribe_user_update_by_token()
+
+    # listen to exchange health updates and trigger callback
+    await client.socket.listen(SOCKET_EVENTS.EXCHANGE_HEALTH.value, callback)
+    time.sleep(10)
+    # unsubscribe from user events
+    await client.socket.unsubscribe_user_update_by_token()
+    # close socket connection
+    await client.socket.close()
+
+if __name__ == "__main__":
+  loop = asyncio.new_event_loop()
+  loop.run_until_complete(main())
+  loop.close()​
 ```
 
 Look at the [example](https://github.com/fireflyprotocol/firefly_exchange_client/tree/main/examples) directory to see more examples on how to use this library.

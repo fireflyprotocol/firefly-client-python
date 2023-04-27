@@ -74,12 +74,13 @@ async def main():
     # add market that you wish to trade on ETH/BTC are supported currently
     client.add_market(MARKET_SYMBOLS.ETH)
 
-    await place_limit_order(client)
+    # await place_limit_order(client)
     await place_market_order(client)
     
     await client.apis.close_session() 
 
 
 if __name__ == "__main__":
-    event_loop = asyncio.get_event_loop()
-    event_loop.run_until_complete(main())
+  loop = asyncio.new_event_loop()
+  loop.run_until_complete(main())
+  loop.close()
