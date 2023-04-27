@@ -11,6 +11,7 @@ Networks = {
     "url": "https://goerli-rollup.arbitrum.io/rpc",
     "chainId": 421613,
     "apiGateway": "https://dapi.api.arbitrum-staging.firefly.exchange",
+    "dmsURL": "https://api.arbitrum-staging.firefly.exchange/dead-man-switch",
     "socketURL": "wss://dapi.api.arbitrum-staging.firefly.exchange",
     "webSocketURL": "wss://notifications.api.arbitrum-staging.firefly.exchange",
     "onboardingUrl": "https://testnet.firefly.exchange",
@@ -27,6 +28,7 @@ Networks = {
     "url": "https://arb1.arbitrum.io/rpc/",
     "chainId": 42161,
     "apiGateway": "https://dapi.api.arbitrum-prod.firefly.exchange",
+    "dmsURL": "https://api.arbitrum-prod.firefly.exchange/dead-man-switch",
     "socketURL": "wss://dapi.api.arbitrum-prod.firefly.exchange",
     "webSocketURL": "wss://notifications.api.arbitrum-prod.firefly.exchange",
     "onboardingUrl": "https://trade-arb.firefly.exchange",
@@ -89,6 +91,7 @@ SERVICE_URLS = {
     "ADJUST_LEVERAGE": "/account/adjustLeverage",
     "FUND_GAS": "/account/fundGas",
     "FUNDING_HISTORY": "/userFundingHistory",
+    "CANCEL_ON_DISCONNECT": "/dms-countdown"
   },
   "ORDERS": {
     "ORDERS": "/orders",

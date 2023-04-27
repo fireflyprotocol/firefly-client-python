@@ -1,3 +1,4 @@
+import json
 from .api_service import APIService
 from .contracts import Contracts
 from .order_signer import OrderSigner
@@ -19,6 +20,7 @@ class FireflyClient:
         self.w3 = self._connect_w3(self.network["url"])
         self.account = Account.from_key(private_key)
         self.apis = APIService(self.network["apiGateway"])
+        self.dmsApi = APIService(self.network["dmsURL"])
         self.socket = Sockets(self.network["socketURL"])
         self.webSocketClient = WebsocketClient(self.network["webSocketURL"])
         self.contracts = Contracts()
@@ -43,6 +45,7 @@ class FireflyClient:
 
         if user_onboarding:
             self.apis.auth_token = await self.onboard_user()
+            self.dmsApi.auth_token = self.apis.auth_token
             self.socket.set_token(self.apis.auth_token)
             self.webSocketClient.set_token(self.apis.auth_token)
 
@@ -789,6 +792,49 @@ class FireflyClient:
         # todo fetch from exchange info route
         return 3
 
+    async def get_cancel_on_disconnect_timer(self, params:GetCancelOnDisconnectTimerRequest=None):
+        """
+            Returns a list of the user's countDowns for provided market symbol,
+            Inputs:
+                - symbol(MARKET_SYMBOLS): (Optional) market symbol to get user market cancel_on_disconnect timer for, not providing it would return all the active countDown timers for each market.  
+                - parentAddress (str):(Optional) Only provided by a sub account
+            Returns:
+                - GetCountDownsResponse:
+                    - countDowns: object with provided market symbol and respective countDown timer
+                    - timestamp
+        """
+        
+        params = extract_enums(params, ["symbol"])
+        response = await self.dmsApi.get(
+            SERVICE_URLS["USER"]["CANCEL_ON_DISCONNECT"],
+            params,
+            auth_required=True
+        )
+        # check for service unavailibility
+        if hasattr(response, 'status') and response.status == 503:
+            raise Exception("Cancel on Disconnect (dead-mans-switch) feature is currently unavailable")
+            
+        return response
+    
+    async def reset_cancel_on_disconnect_timer(self, params:PostTimerAttributes):
+        """
+            Returns PostTimerResponse containing accepted and failed countdowns, and the next page number
+            Inputs:
+                - params(PostTimerAttributes): params required to fetch funding history  
+            Returns:
+                - PostTimerResponse: 
+                    - acceptedToReset: array with symbols for which timer was reset successfully
+                    - failedReset: aray with symbols for whcih timer failed to reset 
+        """
+        response = await self.dmsApi.post(
+            SERVICE_URLS["USER"]["CANCEL_ON_DISCONNECT"],
+            json.dumps(params),
+            auth_required=True   
+        )
+        # check for service unavailibility
+        if hasattr(response, 'status') and response.status == 503:
+             raise Exception("Cancel on Disconnect (dead-mans-switch) feature is currently unavailable")
+        return response
        
     ## Internal methods
     def _get_order_signer(self,symbol:MARKET_SYMBOLS=None):

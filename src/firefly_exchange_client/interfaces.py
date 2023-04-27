@@ -166,3 +166,26 @@ class GetFundingHistoryResponse(TypedDict):
   isMoreDataAvailable: bool # boolean indicating if there is more data available
   nextCursor: int # next page number
   data: List[FundingHistoryResponse]
+
+class CountDown(TypedDict):
+  symbol: str
+  count: int
+class GetCancelOnDisconnectTimerRequest(TypedDict):
+  symbol: MARKET_SYMBOLS  # will fetch Cancel On Disconnect Timer of provided market
+  parentAddress: str # (optional) should be provided by a sub account 
+
+class PostTimerAttributes(TypedDict):
+  countDowns: List[CountDown]
+  parentAddress: str 
+
+class FailedCountDownResetResponse(TypedDict):
+  symbol: str
+  reason: str
+
+class PostTimerResponse(TypedDict):
+  acceptedToReset: List[str]
+  failedReset: List[FailedCountDownResetResponse]
+
+
+
+
