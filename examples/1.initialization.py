@@ -17,7 +17,7 @@ async def main():
   # on boards user on firefly. Must be set to true for first time use
   await client.init(True) 
   
-  print('Account Address:', client.get_public_address());
+  print('Account Address:', client.get_public_address()) 
 
   # # gets user account data on-chain
   data = await client.get_user_account_data()

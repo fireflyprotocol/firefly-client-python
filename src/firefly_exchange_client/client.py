@@ -68,7 +68,7 @@ class FireflyClient:
                 self.network["onboardingUrl"], 
                 self.account.key)
 
-            response = await self.authorize_signed_hash(onboarding_signature);
+            response = await self.authorize_signed_hash(onboarding_signature) 
             
             if 'error' in response:
                 raise SystemError("Authorization error: {}".format(response['error']['message']))
@@ -343,10 +343,10 @@ class FireflyClient:
                 Boolean: true if amount is successfully deposited, false otherwise
         """
 
-        usdc_contract = self.contracts.get_contract(name="USDC");
-        mb_contract = self.contracts.get_contract(name="MarginBank");
+        usdc_contract = self.contracts.get_contract(name="USDC") 
+        mb_contract = self.contracts.get_contract(name="MarginBank") 
 
-        amount = to_wei(amount,"mwei");
+        amount = to_wei(amount,"mwei") 
 
         # approve funds on usdc
         
@@ -417,7 +417,7 @@ class FireflyClient:
             
         # implies user has an open position on-chain, perform on-chain leverage update
         if(user_position != {}):
-            perp_contract = self.contracts.get_contract(name="Perpetual", market=symbol.value);
+            perp_contract = self.contracts.get_contract(name="Perpetual", market=symbol.value) 
             construct_txn = perp_contract.functions.adjustLeverage(
                 account_address, 
                 to_wei(leverage, "ether")).buildTransaction({
@@ -461,7 +461,7 @@ class FireflyClient:
         if(user_position == {}):
             raise(Exception("User has no open position on market: {}".format(symbol)))
         else:
-            perp_contract = self.contracts.get_contract(name="Perpetual", market=symbol.value);
+            perp_contract = self.contracts.get_contract(name="Perpetual", market=symbol.value) 
             on_chain_call = perp_contract.functions.addMargin if operation == ADJUST_MARGIN.ADD  else perp_contract.functions.removeMargin
 
             construct_txn = on_chain_call(
@@ -486,7 +486,7 @@ class FireflyClient:
             Returns:
                 Boolean: true if the sub account status is update
         """
-        perp_contract = self.contracts.get_contract(name="Perpetual", market=symbol.value);
+        perp_contract = self.contracts.get_contract(name="Perpetual", market=symbol.value) 
 
         construct_txn = perp_contract.functions.setSubAccount(
                 sub_account_address, 
@@ -514,7 +514,7 @@ class FireflyClient:
         """
         try:
             contract = self.contracts.get_contract(name="USDC")
-            raw_bal = contract.functions.balanceOf(self.account.address).call();
+            raw_bal = contract.functions.balanceOf(self.account.address).call() 
             return from_wei(int(raw_bal), "mwei")
         except Exception as e:
             raise(Exception("Failed to get balance, Exception: {}".format(e)))

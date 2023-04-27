@@ -52,7 +52,7 @@ async def main():
     contract_address = await client.get_contract_addresses()
     pprint(contract_address)
 
-    await client.apis.close_session();
+    await client.apis.close_session() 
 
 
 if __name__ == "__main__":

@@ -110,7 +110,7 @@ class Sockets:
 
             return resp["success"]
         except Exception as e:
-            print(e);
+            print(e) 
             return False
 
     async def subscribe_user_update_by_token(self, parent_account: str=None, user_token: str=None):
@@ -135,7 +135,7 @@ class Sockets:
 
             return resp["success"]
         except Exception as e:
-            print(e);
+            print(e) 
             return False
 
     async def unsubscribe_user_update_by_token(self, parent_account: str=None, user_token:str=None): 

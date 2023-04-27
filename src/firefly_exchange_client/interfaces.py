@@ -136,7 +136,7 @@ class GetUserTradesRequest(TypedDict):
 class GetOrderRequest(GetTransactionHistoryRequest):
   statuses:List[ORDER_STATUS] # (optional) status of orders to be fetched
   orderId: int #(optional) the id of order to be fetched
-  orderType: List[ORDER_TYPE]; # (optional) type of order Limit/Market
+  orderType: List[ORDER_TYPE]  # (optional) type of order Limit/Market
   orderHashes: List[str] # (optional) hashes of order to be fetched
   parentAddress : str # (optional) should be provided by sub accounts
 

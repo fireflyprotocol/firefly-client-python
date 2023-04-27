@@ -50,7 +50,7 @@ async def main():
   print("Closing sockets!")
   await client.socket.close()
 
-  await client.apis.close_session();
+  await client.apis.close_session() 
 
 
 

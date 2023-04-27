@@ -23,7 +23,7 @@ async def place_limit_order(client:FireflyClient):
         leverage= user_leverage
     )  
     # create signed order
-    signed_order = client.create_signed_order(signature_request);
+    signed_order = client.create_signed_order(signature_request) 
 
     print("Placing a limit order")
     # place signed order on orderbook
@@ -62,9 +62,9 @@ async def main():
     print("Listening to ETH Orderbook update event")
     await client.socket.listen(SOCKET_EVENTS.ORDERBOOK_UPDATE.value, callback)
 
-    await place_limit_order(client);
+    await place_limit_order(client) 
 
-    await client.apis.close_session();
+    await client.apis.close_session() 
 
 
 if __name__ == "__main__":

@@ -59,7 +59,7 @@ async def main():
    print("Making socket connection to firefly exchange")
    client.webSocketClient.initialize_socket(on_open=on_open, on_error=on_error,on_close=on_close)
    
-   await client.apis.close_session();
+   await client.apis.close_session() 
 
 if __name__ == "__main__":
     event_loop = asyncio.get_event_loop()

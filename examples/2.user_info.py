@@ -31,7 +31,7 @@ async def main():
     # returns user position if exists
     pprint(position)
 
-    await client.apis.close_session();
+    await client.apis.close_session() 
     
 
 

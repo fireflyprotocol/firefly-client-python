@@ -27,7 +27,7 @@ async def main():
     }
 
 
-    signed_order = client.create_signed_order(order);
+    signed_order = client.create_signed_order(order) 
     resp = await client.post_signed_order(signed_order)
     
     
@@ -53,7 +53,7 @@ async def main():
     else:
         pprint(resp)
 
-    await client.apis.close_session();
+    await client.apis.close_session() 
 
 
 if __name__ == "__main__":

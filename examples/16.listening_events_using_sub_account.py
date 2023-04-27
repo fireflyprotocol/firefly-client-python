@@ -57,7 +57,7 @@ async def main():
     )  
 
   # order is signed using sub account's private key
-  signed_order = clientChild.create_signed_order(signature_request);
+  signed_order = clientChild.create_signed_order(signature_request) 
 
   resp = await clientChild.post_signed_order(signed_order)
 

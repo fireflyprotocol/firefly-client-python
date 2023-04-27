@@ -56,7 +56,7 @@ async def main():
     user_leverage = await client.get_user_leverage(MARKET_SYMBOLS.BTC)
     print("Account leverage:", user_leverage)    
 
-    await client.apis.close_session();
+    await client.apis.close_session() 
 
 
 if __name__ == "__main__":

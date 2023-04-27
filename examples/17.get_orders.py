@@ -50,7 +50,7 @@ async def main():
     })
     print('Received orders: ', len(orders))
 
-    await client.apis.close_session();
+    await client.apis.close_session() 
 
 
 if __name__ == "__main__":
