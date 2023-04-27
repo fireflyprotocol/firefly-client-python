@@ -11,25 +11,32 @@ async def main():
   await client.init(True)
 
   print("User: ", client.get_public_address())
-  client.add_market(MARKET_SYMBOLS.ETH)
+  client.add_market(MARKET_SYMBOLS.BTC)
 
   countDowns = []
+  countDowns.append({
+            'symbol': MARKET_SYMBOLS.BTC.value,
+            'countDown': 3 * 1000
+          }
+         )
+  
   countDowns.append({
             'symbol': MARKET_SYMBOLS.ETH.value,
             'countDown': 3 * 1000
           }
          )
-
-  
   
   try:
-     # sending post request to reset user's count down timer with MARKET_SYMBOL for auto cancellation of order
+    # sending post request to reset user's count down timer with MARKET_SYMBOL for auto cancellation of order
     postResponse = await client.reset_cancel_on_disconnect_timer({
         "countDowns": countDowns
         })
     print(postResponse)   
+    
     # get request to get user's count down timer for MARKET_SYMBOL
-    getResponse = await client.get_cancel_on_disconnect_timer(MARKET_SYMBOLS.ETH)
+    getResponse = await client.get_cancel_on_disconnect_timer({
+            'symbol': MARKET_SYMBOLS.ETH
+          })
     print(getResponse)
  
   except Exception as e:

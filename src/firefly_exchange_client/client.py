@@ -792,28 +792,26 @@ class FireflyClient:
         # todo fetch from exchange info route
         return 3
 
-    async def get_cancel_on_disconnect_timer(self,symbol:MARKET_SYMBOLS, parentAddress:str=""):
+    async def get_cancel_on_disconnect_timer(self,params:GetCancelOnDisconnectTimerRequest=None):
         """
             Returns a list of the user's countDowns for provided market symbol,
             Inputs:
-                - symbol(MARKET_SYMBOLS): market symbol to get user market cancel_on_disconnect timer for.  
-                - parentAddress (str): Only provided by a sub account
+                - symbol(MARKET_SYMBOLS): (Optional) market symbol to get user market cancel_on_disconnect timer for, not providing it would return all the active countDown timers for each market.  
+                - parentAddress (str):(Optional) Only provided by a sub account
             Returns:
                 - GetCountDownsResponse:
                     - countDowns: object with provided market symbol and respective countDown timer
                     - timestamp
         """
-       
+        
+        params = extract_enums(params, ["symbol"])
         response = await self.dmsApi.get(
             SERVICE_URLS["USER"]["CANCEL_ON_DISCONNECT"],
-            {
-                "symbol": symbol.value,
-                "address": parentAddress
-            },
+            params,
             auth_required=True
         )
         # check for service unavailibility
-        if True:
+        if hasattr(response, 'status') and response.status == 503:
             raise Exception("Cancel on Disconnect (dead-mans-switch) feature is currently unavailable")
             
         return response
