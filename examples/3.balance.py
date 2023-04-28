@@ -32,10 +32,11 @@ async def main():
   print('USDC deposited:', await client.deposit_margin_to_bank(10)) 
 
   # check margin bank balance
-  print('Margin bank balance:', await client.get_margin_bank_balance()) 
+  resp = await client.get_margin_bank_balance()
+  print('Margin bank balance:', resp) 
 
-  # check margin bank balance
-  print('USDC Withdrawn:', await client.withdraw_margin_from_bank(5)) 
+  # withdraw margin bank balance
+  print('USDC Withdrawn:', await client.withdraw_margin_from_bank(resp)) 
 
   # check margin bank balance
   print('Margin bank balance:', await client.get_margin_bank_balance()) 

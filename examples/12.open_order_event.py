@@ -3,6 +3,7 @@ The code example opens socket connection and listens to user order update events
 It places a limit order and as soon as its OPENED on order book, we receive
 an event, log its data and terminate connection
 '''
+import time
 from config import TEST_ACCT_KEY, TEST_NETWORK
 from firefly_exchange_client import FireflyClient, Networks, MARKET_SYMBOLS, SOCKET_EVENTS, ORDER_SIDE, ORDER_TYPE, OrderSignatureRequest
 import asyncio
@@ -49,13 +50,6 @@ async def main():
     def callback(event):
         print("Event data:", event)
 
-        status = asyncio.run(client.socket.unsubscribe_user_update_by_token())
-        print("Unsubscribed from user events: {}".format(status))
-
-        # close socket connection
-        print("Closing sockets!")
-        asyncio.run(client.socket.close())
-
     # must open socket before subscribing
     print("Making socket connection to firefly exchange")
     await client.socket.open()
@@ -66,8 +60,16 @@ async def main():
 
     print("Listening to user order updates")
     await client.socket.listen(SOCKET_EVENTS.ORDER_UPDATE.value, callback)
+    
+    # place a limit order
+    await place_limit_order(client)
+    time.sleep(3)
+    status = await client.socket.unsubscribe_user_update_by_token()
+    print("Unsubscribed from user events: {}".format(status))
 
-    await place_limit_order(client) 
+    # close socket connection
+    print("Closing sockets!")
+    await client.socket.close()
 
     await client.apis.close_session() 
 
