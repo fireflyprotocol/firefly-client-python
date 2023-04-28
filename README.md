@@ -185,34 +185,47 @@ Look at the [example](https://github.com/fireflyprotocol/firefly_exchange_client
 **Listening To Events Using Web Sockets:**
 
 ```python
-from firefly_exchange_client import FireflyClient, Networks, MARKET_SYMBOLS, ORDER_SIDE, ORDER_TYPE, SOCKET_EVENTS, OrderSignatureRequest
+from config import TEST_ACCT_KEY, TEST_NETWORK
+from firefly_exchange_client import FireflyClient, Networks, SOCKET_EVENTS, MARKET_SYMBOLS
 import time
+import asyncio
+
 def callback(event):
     print("Event data:", event)
 
-# initialize
-client = FireflyClient(....)
-client.init()
+async def main():
+    # initialize
+    client = FireflyClient(
+        True, # agree to terms and conditions
+        Networks[TEST_NETWORK], # network to connect with
+        TEST_ACCT_KEY, # private key of wallet
+        )
 
-# make connection with firefly exchange
-client.webSocketClient.initialize_socket(on_open=on_open)
+    await client.init(True)
+
+    def on_open(ws):
+        # subscribe to global events
+        resp = client.webSocketClient.subscribe_global_updates_by_symbol(symbol=MARKET_SYMBOLS.ETH)
+        if resp:
+            print("Subscribed to global updates")
+        resp = client.webSocketClient.subscribe_user_update_by_token()
+        if resp:
+            print("Subscribed to user updates")
+
+    # make connection with firefly exchange
+    client.webSocketClient.initialize_socket(on_open=on_open)
+    # listen to user order updates and trigger callback
+    client.webSocketClient.listen(SOCKET_EVENTS.EXCHANGE_HEALTH.value, callback)
+
+    time.sleep(60)
+
+    # unsubscribe from global events
+    client.webSocketClient.unsubscribe_global_updates_by_symbol(symbol=MARKET_SYMBOLS.ETH)
+    client.webSocketClient.stop()
 
 
-def on_open(ws):
-  # subscribe to local user events
-  client.webSocketClient.subscribe_user_update_by_token()
-
-  # listen to user order updates and trigger callback
-  client.webSocketClient.listen(SOCKET_EVENTS.ORDER_UPDATE.value, callback)
-  #
-  # place some orders to exchange, that will trigger callback
-  # resp = client.post_signed_order(signed_order)
-  #
-  time.sleep(10)
-
-  # unsubscribe from user events
-  client.webSocketClient.unsubscribe_user_update_by_token()
-
-  # close socket connection
-  client.webSocketClient.stop()
+if __name__ == "__main__":
+  loop = asyncio.new_event_loop()
+  loop.run_until_complete(main())
+  loop.close()
 ```
