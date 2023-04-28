@@ -2,6 +2,7 @@
 When ever the state of orderbook changes, an event is emitted by exchange.
 In this code example we open a socket connection and listen to orderbook update event
 '''
+import time
 from config import TEST_ACCT_KEY, TEST_NETWORK
 from firefly_exchange_client import FireflyClient, Networks, MARKET_SYMBOLS, SOCKET_EVENTS, ORDER_SIDE, ORDER_TYPE, OrderSignatureRequest
 import asyncio
@@ -42,13 +43,6 @@ async def main():
 
     def callback(event):
         print("Event data:", event)
-    
-        status = asyncio.run(client.socket.unsubscribe_global_updates_by_symbol(MARKET_SYMBOLS.ETH))
-        print("Unsubscribed from orderbook update events for ETH Market: {}".format(status))
-
-        # close socket connection
-        print("Closing sockets!")
-        asyncio.run(client.socket.close())
 
 
     # must open socket before subscribing
@@ -63,6 +57,15 @@ async def main():
     await client.socket.listen(SOCKET_EVENTS.ORDERBOOK_UPDATE.value, callback)
 
     await place_limit_order(client) 
+    
+    time.sleep(5)  # wait for orderbook update event, increase time and try again if event is not received
+
+    status = await client.socket.unsubscribe_global_updates_by_symbol(MARKET_SYMBOLS.ETH)
+    print("Unsubscribed from orderbook update events for ETH Market: {}".format(status))
+
+    # close socket connection
+    print("Closing sockets!")
+    await client.socket.close()
 
     await client.apis.close_session() 
 

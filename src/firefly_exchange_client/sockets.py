@@ -35,7 +35,7 @@ class Sockets:
         """
         self.connection_established = self._establish_connection()
         if not self.connection_established:
-            self.close()
+            await self.close()
             raise(Exception("Failed to connect to Host: {}".format(self.url)))
         return
         
@@ -113,7 +113,7 @@ class Sockets:
             print(e) 
             return False
 
-    async def subscribe_user_update_by_token(self, parent_account: str=None, user_token: str=None):
+    async def subscribe_user_update_by_token(self, parent_account: str=None, user_token: str=None) -> bool:
         """
             Allows user to subscribe to their account updates.
             Inputs:

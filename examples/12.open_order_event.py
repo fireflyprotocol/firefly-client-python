@@ -63,7 +63,9 @@ async def main():
     
     # place a limit order
     await place_limit_order(client)
-    time.sleep(3)
+
+    time.sleep(3) # wait for order update event, increase time and try again if event is not received
+    
     status = await client.socket.unsubscribe_user_update_by_token()
     print("Unsubscribed from user events: {}".format(status))
 

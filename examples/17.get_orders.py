@@ -19,7 +19,7 @@ async def main():
         })    
     print('Received orders: ', len(orders))
 
-    print("Get orders based on status")
+    print("Get orders based on status (OPEN and PENDING)")
     orders = await client.get_orders({
         "symbol": MARKET_SYMBOLS.ETH,
         "statuses": [ORDER_STATUS.OPEN, ORDER_STATUS.PENDING]
@@ -27,14 +27,14 @@ async def main():
     print('Received orders: ', len(orders))
 
 
-    print("Get an order using id")
+    print("Get an order 180318 using id (possible this order is not available anymore)")
     orders = await client.get_orders({
         "symbol": MARKET_SYMBOLS.ETH,
         "orderId": 180318
         })
     print('Received orders: ', len(orders))
 
-    print("Get orders using hashes")
+    print("Get orders using hashes (possible these orders are not available anymore)")
     orders = await client.get_orders({
         "symbol": MARKET_SYMBOLS.ETH,
         "orderHashes": [
@@ -43,7 +43,7 @@ async def main():
         })
     print('Received orders: ', len(orders))
 
-    print("Get only MARKET orders")
+    print("Get only MARKET orders for ETH market")
     orders = await client.get_orders({
         "symbol": MARKET_SYMBOLS.ETH,
         "orderType": [ORDER_TYPE.MARKET]
