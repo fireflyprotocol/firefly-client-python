@@ -3,8 +3,13 @@ from config import TEST_ACCT_KEY, TEST_NETWORK
 from firefly_exchange_client import FireflyClient, Networks, MARKET_SYMBOLS, SOCKET_EVENTS
 import asyncio
 
+event_received = False
+
 def callback(event):
+    global event_received
     print("Event data:", event)
+    event_received = True
+
 
 async def main():
 
@@ -24,8 +29,8 @@ async def main():
   print("Subscribed to user events: {}".format(status))
 
   # triggered when order book updates
-  print("Listening to Orderbook updates")
-  await client.socket.listen(SOCKET_EVENTS.ORDERBOOK_UPDATE.value, callback)
+  print("Listening to exchange health updates")
+  await client.socket.listen(SOCKET_EVENTS.EXCHANGE_HEALTH.value, callback)
 
   # triggered when status of any user order updates
   print("Listening to user order updates")
@@ -36,8 +41,11 @@ async def main():
   # logs event name and data for all markets and users that are subscribed.
   # helpful for debugging
   # client.socket.listen("default",callback)
+  timeout = 30
+  end_time = time.time() + timeout
+  while not event_received and time.time() < end_time:
+    time.sleep(1)
 
-  time.sleep(60)
   # unsubscribe from global events
   status = await client.socket.unsubscribe_global_updates_by_symbol(MARKET_SYMBOLS.BTC)
   print("Unsubscribed from global BTC events: {}".format(status))

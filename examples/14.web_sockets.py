@@ -6,8 +6,12 @@ import logging
 
 config_logging(logging, logging.DEBUG)
 
+event_received = False
+
 def callback(event):
-    print("Event data:", event)
+     global event_received
+     print("Event data:", event)
+     event_received = True
 
 async def main():
    client = FireflyClient(True, Networks[TEST_NETWORK], TEST_ACCT_KEY)
@@ -40,7 +44,12 @@ async def main():
     
    print("Making socket connection to firefly exchange")
    client.webSocketClient.initialize_socket(on_open=on_open, on_error=on_error,on_close=on_close)
-   time.sleep(60)
+   
+   timeout = 30
+   end_time = time.time() + timeout
+   while not event_received and time.time() < end_time:
+     time.sleep(1)
+
    client.webSocketClient.stop()
    await client.apis.close_session() 
 

@@ -8,6 +8,7 @@ from config import TEST_ACCT_KEY, TEST_NETWORK
 from firefly_exchange_client import FireflyClient, Networks, MARKET_SYMBOLS, SOCKET_EVENTS, ORDER_SIDE, ORDER_TYPE, OrderSignatureRequest
 import asyncio
 
+event_received = False
 
 
 
@@ -48,7 +49,10 @@ async def main():
     client.add_market(MARKET_SYMBOLS.ETH)
 
     def callback(event):
+        global event_received
         print("Event data:", event)
+        event_received = True
+
 
     # must open socket before subscribing
     print("Making socket connection to firefly exchange")
@@ -64,8 +68,11 @@ async def main():
     # place a limit order
     await place_limit_order(client)
 
-    time.sleep(3) # wait for order update event, increase time and try again if event is not received
-    
+    timeout = 30
+    end_time = time.time() + timeout
+    while not event_received and time.time() < end_time:
+        time.sleep(1)
+
     status = await client.socket.unsubscribe_user_update_by_token()
     print("Unsubscribed from user events: {}".format(status))
 

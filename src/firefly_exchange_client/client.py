@@ -781,6 +781,7 @@ class FireflyClient:
             Returns user market default leverage.
             Inputs:
                 symbol(MARKET_SYMBOLS): market symbol to get user market default leverage for. 
+                parentAddress(str): an optional field, used by sub accounts to fetch parent account state
             Returns:
                 str: user default leverage 
         """

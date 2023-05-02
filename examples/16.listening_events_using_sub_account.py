@@ -34,8 +34,8 @@ async def main():
   await clientChild.socket.open()
 
   # subscribe to parent's events
-  await clientChild.socket.subscribe_user_update_by_token(clientParent.get_public_address())
-  print("Subscribed to parent's events")
+  resp = await clientChild.socket.subscribe_user_update_by_token(clientParent.get_public_address())
+  print("Subscribed to parent's events:",resp)
 
 
   # triggered when status of any user order updates
