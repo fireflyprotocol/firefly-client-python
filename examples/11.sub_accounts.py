@@ -35,16 +35,17 @@ async def main():
     )  
 
   # order is signed using sub account's private key
-  signed_order = clientChild.create_signed_order(signature_request);
+  signed_order = clientChild.create_signed_order(signature_request) 
 
   resp = await clientChild.post_signed_order(signed_order)
 
   print(resp)
 
-  await clientChild.apis.close_session();
-  await clientParent.apis.close_session();
+  await clientChild.apis.close_session() 
+  await clientParent.apis.close_session() 
 
 
 if __name__ == "__main__":
-    event_loop = asyncio.get_event_loop()
-    event_loop.run_until_complete(main())
+  loop = asyncio.new_event_loop()
+  loop.run_until_complete(main())
+  loop.close()

@@ -56,9 +56,10 @@ async def main():
     user_leverage = await client.get_user_leverage(MARKET_SYMBOLS.BTC)
     print("Account leverage:", user_leverage)    
 
-    await client.apis.close_session();
+    await client.apis.close_session() 
 
 
 if __name__ == "__main__":
-    event_loop = asyncio.get_event_loop()
-    event_loop.run_until_complete(main())
+  loop = asyncio.new_event_loop()
+  loop.run_until_complete(main())
+  loop.close()

@@ -27,7 +27,7 @@ async def main():
     }
 
 
-    signed_order = client.create_signed_order(order);
+    signed_order = client.create_signed_order(order) 
     resp = await client.post_signed_order(signed_order)
     
     
@@ -53,9 +53,10 @@ async def main():
     else:
         pprint(resp)
 
-    await client.apis.close_session();
+    await client.apis.close_session() 
 
 
 if __name__ == "__main__":
-    event_loop = asyncio.get_event_loop()
-    event_loop.run_until_complete(main())
+  loop = asyncio.new_event_loop()
+  loop.run_until_complete(main())
+  loop.close()

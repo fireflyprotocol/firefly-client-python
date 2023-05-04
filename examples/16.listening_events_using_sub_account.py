@@ -34,8 +34,8 @@ async def main():
   await clientChild.socket.open()
 
   # subscribe to parent's events
-  await clientChild.socket.subscribe_user_update_by_token(clientParent.get_public_address())
-  print("Subscribed to parent's events")
+  resp = await clientChild.socket.subscribe_user_update_by_token(clientParent.get_public_address())
+  print("Subscribed to parent's events:",resp)
 
 
   # triggered when status of any user order updates
@@ -57,7 +57,7 @@ async def main():
     )  
 
   # order is signed using sub account's private key
-  signed_order = clientChild.create_signed_order(signature_request);
+  signed_order = clientChild.create_signed_order(signature_request) 
 
   resp = await clientChild.post_signed_order(signed_order)
 
@@ -78,5 +78,6 @@ async def main():
 
 
 if __name__ == "__main__":
-    event_loop = asyncio.get_event_loop()
-    event_loop.run_until_complete(main())
+  loop = asyncio.new_event_loop()
+  loop.run_until_complete(main())
+  loop.close()

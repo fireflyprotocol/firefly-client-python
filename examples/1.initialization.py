@@ -17,7 +17,7 @@ async def main():
   # on boards user on firefly. Must be set to true for first time use
   await client.init(True) 
   
-  print('Account Address:', client.get_public_address());
+  print('Account Address:', client.get_public_address()) 
 
   # # gets user account data on-chain
   data = await client.get_user_account_data()
@@ -28,5 +28,6 @@ async def main():
   pprint(data)
 
 if __name__ == "__main__":
-    event_loop = asyncio.get_event_loop()
-    event_loop.run_until_complete(main())
+  loop = asyncio.new_event_loop()
+  loop.run_until_complete(main())
+  loop.close()
