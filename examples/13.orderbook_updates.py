@@ -2,11 +2,12 @@
 When ever the state of orderbook changes, an event is emitted by exchange.
 In this code example we open a socket connection and listen to orderbook update event
 '''
+import time
 from config import TEST_ACCT_KEY, TEST_NETWORK
 from firefly_exchange_client import FireflyClient, Networks, MARKET_SYMBOLS, SOCKET_EVENTS, ORDER_SIDE, ORDER_TYPE, OrderSignatureRequest
 import asyncio
 
-
+event_received = False
 
 async def place_limit_order(client:FireflyClient):
        
@@ -23,7 +24,7 @@ async def place_limit_order(client:FireflyClient):
         leverage= user_leverage
     )  
     # create signed order
-    signed_order = client.create_signed_order(signature_request);
+    signed_order = client.create_signed_order(signature_request) 
 
     print("Placing a limit order")
     # place signed order on orderbook
@@ -41,14 +42,9 @@ async def main():
     client.add_market(MARKET_SYMBOLS.ETH)
 
     def callback(event):
+        global event_received
         print("Event data:", event)
-    
-        status = asyncio.run(client.socket.unsubscribe_global_updates_by_symbol(MARKET_SYMBOLS.ETH))
-        print("Unsubscribed from orderbook update events for ETH Market: {}".format(status))
-
-        # close socket connection
-        print("Closing sockets!")
-        asyncio.run(client.socket.close())
+        event_received = True
 
 
     # must open socket before subscribing
@@ -62,12 +58,24 @@ async def main():
     print("Listening to ETH Orderbook update event")
     await client.socket.listen(SOCKET_EVENTS.ORDERBOOK_UPDATE.value, callback)
 
-    await place_limit_order(client);
+    await place_limit_order(client) 
+    
+    timeout = 30
+    end_time = time.time() + timeout
+    while not event_received and time.time() < end_time:
+        time.sleep(1)
+    status = await client.socket.unsubscribe_global_updates_by_symbol(MARKET_SYMBOLS.ETH)
+    print("Unsubscribed from orderbook update events for ETH Market: {}".format(status))
 
-    await client.apis.close_session();
+    # close socket connection
+    print("Closing sockets!")
+    await client.socket.close()
+
+    await client.apis.close_session() 
 
 
 if __name__ == "__main__":
-    event_loop = asyncio.get_event_loop()
-    event_loop.run_until_complete(main())
+  loop = asyncio.new_event_loop()
+  loop.run_until_complete(main())
+  loop.close()
 

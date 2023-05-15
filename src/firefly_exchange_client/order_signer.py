@@ -9,7 +9,7 @@ class OrderSigner(Signer):
     def __init__(self, network_id, orders_contract_address, domain="IsolatedTrader", version="1.0"):
         super().__init__()
         self.network_id = network_id
-        self.contract_address = orders_contract_address;
+        self.contract_address = orders_contract_address 
         self.domain = domain
         self.version = version 
 
@@ -84,7 +84,7 @@ class OrderSigner(Signer):
             ]
         ).hex()
 
-        return self.get_eip712_hash(self.get_domain_hash(), struct_hash) if struct_hash else "";
+        return self.get_eip712_hash(self.get_domain_hash(), struct_hash) if struct_hash else "" 
 
     def sign_order(self, order:Order, private_key):
         """
