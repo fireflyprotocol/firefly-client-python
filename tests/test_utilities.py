@@ -59,7 +59,7 @@ def test_bn_to_bytes8():
     It checks if the input value is correctly converted to bytes8 format.
     """
     value = 123
-    expected_output = f"0x{'0'*16}{hex(value)[2:]}".encode('utf-8')
+    expected_output = f"0x{'0'*16}{hex(value)[2:]}".encode("utf-8")
     assert bn_to_bytes8(value) == expected_output
 
 
@@ -79,9 +79,11 @@ def test_default_enum_value():
     Test case to verify default_enum_value function.
     It checks if the function correctly returns the default enum value when the key is not present in the dictionary.
     """
+
     class MyEnum(Enum):
         VALUE1 = 1
         VALUE2 = 2
+
     data = {"key1": MyEnum.VALUE1, "key2": MyEnum.VALUE2}
     key = "key3"
     default_val = MyEnum.VALUE1
@@ -124,10 +126,20 @@ def test_extract_enums():
     Test case to verify extract_enums function.
     It checks if the function correctly extracts enum values from a dictionary based on the provided enum list.
     """
+
     class MyEnum(Enum):
         VALUE1 = 1
         VALUE2 = 2
-    params = {"param1": MyEnum.VALUE1.value, "param2": [MyEnum.VALUE2.value, MyEnum.VALUE1.value], "param3": "value3"}
+
+    params = {
+        "param1": MyEnum.VALUE1.value,
+        "param2": [MyEnum.VALUE2.value, MyEnum.VALUE1.value],
+        "param3": "value3",
+    }
     enums = [MyEnum.VALUE1, MyEnum.VALUE2]
-    expected_output = {"param1": MyEnum.VALUE1.value, "param2": [MyEnum.VALUE2.value, MyEnum.VALUE1.value], "param3": "value3"}
+    expected_output = {
+        "param1": MyEnum.VALUE1.value,
+        "param2": [MyEnum.VALUE2.value, MyEnum.VALUE1.value],
+        "param3": "value3",
+    }
     assert extract_enums(params, enums) == expected_output
