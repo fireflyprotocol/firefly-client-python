@@ -1,20 +1,15 @@
-import pytest
 from enum import Enum
-from datetime import datetime
+
+import pytest
 from web3 import Web3
-from firefly_exchange_client.utilities import (
-    strip_hex_prefix,
-    address_to_bytes32,
-    hash_string,
-    bn_to_bytes8,
-    default_value,
-    default_enum_value,
-    current_unix_timestamp,
-    random_number,
-    extract_query,
-    extract_enums,
-    config_logging,
-)
+
+from firefly_exchange_client.utilities import (address_to_bytes32,
+                                               bn_to_bytes8, config_logging,
+                                               current_unix_timestamp,
+                                               default_enum_value,
+                                               default_value, extract_enums,
+                                               extract_query, hash_string,
+                                               random_number, strip_hex_prefix)
 
 
 @pytest.mark.parametrize(
