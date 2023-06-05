@@ -167,6 +167,28 @@ class GetFundingHistoryResponse(TypedDict):
   nextCursor: int # next page number
   data: List[FundingHistoryResponse]
 
+class GetTransferHistoryRequest(TypedDict):
+  pageSize: int  # will get only provided number of orders must be <= 50
+  cursor: int  # will fetch particular page records. A single page contains 50 records.
+  action: str # (optional) Deposit / Withdraw
+
+class UserTransferHistoryResponse(TypedDict):
+  id: int # unique id
+  status: str # 
+  action: str
+  amount: str
+  userAddress: str
+  blockNumber: int # transaction block number
+  latestTxHash: str
+  time: int
+  createdAt: int
+  updatedAt: int
+
+class GetUserTransferHistoryResponse(TypedDict):
+  isMoreDataAvailable: bool # boolean indicating if there is more data available
+  nextCursor: int # next page number
+  data: List[UserTransferHistoryResponse]
+
 class CountDown(TypedDict):
   symbol: str
   count: int

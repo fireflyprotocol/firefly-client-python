@@ -580,6 +580,25 @@ class FireflyClient:
             SERVICE_URLS["MARKET"]["FUNDING_RATE"],
             {"symbol": symbol.value}
         )
+    
+    async def get_transfer_history(self,params:GetTransferHistoryRequest):
+        """
+            Returns a list of the user's transfer history records, a boolean indicating if there is/are more page(s),
+                and the next page number
+            Inputs:
+                params(GetTransferHistoryRequest): params required to fetch transfer history  
+            Returns:
+                GetUserTransferHistoryResponse: 
+                    isMoreDataAvailable: boolean indicating if there is/are more page(s)
+                    nextCursor: the next page number
+                    data: a list of the user's transfer history record
+        """
+        
+        return await self.apis.get(
+            SERVICE_URLS["USER"]["TRANSFER_HISTORY"],
+            params,
+            auth_required=True
+        )
 
     async def get_funding_history(self,params:GetFundingHistoryRequest):
         """
@@ -644,6 +663,35 @@ class FireflyClient:
         query = {"symbol": symbol.value } if symbol else {}
         return await self.apis.get(
             SERVICE_URLS["MARKET"]["EXCHANGE_INFO"], 
+            query
+            )
+    
+    async def get_master_info(self,symbol:MARKET_SYMBOLS=None):
+        """
+            Returns a dictionary containing master info for market(s).
+            It contains all market data, exchange info and meta data of market(s)
+            Inputs:
+                symbol(MARKET_SYMBOLS): the market symbol  
+            Returns:
+                dict: master info
+        """
+        query = {"symbol": symbol.value } if symbol else {}
+        return await self.apis.get(
+            SERVICE_URLS["MARKET"]["MASTER_INFO"], 
+            query
+            )
+    
+    async def get_ticker_data(self,symbol:MARKET_SYMBOLS=None):
+        """
+            Returns a dictionary containing ticker data for market(s).
+            Inputs:
+                symbol(MARKET_SYMBOLS): the market symbol  
+            Returns:
+                dict: ticker info
+        """
+        query = {"symbol": symbol.value } if symbol else {}
+        return await self.apis.get(
+            SERVICE_URLS["MARKET"]["TICKER"], 
             query
             )
 

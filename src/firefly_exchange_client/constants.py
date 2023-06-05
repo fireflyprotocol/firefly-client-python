@@ -79,6 +79,8 @@ SERVICE_URLS = {
     "STATUS": "/status",
     "SYMBOLS": "/marketData/symbols",
     "CONTRACT_ADDRESSES": "/marketData/contractAddresses",
+    "TICKER": "/ticker",
+    "MASTER_INFO": "/masterInfo",
     "FUNDING_RATE":"/fundingRate"
   },
   "USER": {
@@ -90,6 +92,7 @@ SERVICE_URLS = {
     "AUTHORIZE": "/authorize",
     "ADJUST_LEVERAGE": "/account/adjustLeverage",
     "FUND_GAS": "/account/fundGas",
+    "TRANSFER_HISTORY": "/userTransferHistory",
     "FUNDING_HISTORY": "/userFundingHistory",
     "CANCEL_ON_DISCONNECT": "/dms-countdown"
   },
