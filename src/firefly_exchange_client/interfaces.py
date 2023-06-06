@@ -174,13 +174,13 @@ class GetTransferHistoryRequest(TypedDict):
 
 class UserTransferHistoryResponse(TypedDict):
   id: int # unique id
-  status: str # 
-  action: str
-  amount: str
-  userAddress: str
+  status: str # status of transaction
+  action: str # Deposit / Withdraw
+  amount: str # amount withdrawn/deposited
+  userAddress: str # user public address
   blockNumber: int # transaction block number
-  latestTxHash: str
-  time: int
+  latestTxHash: str # transaction hash
+  time: int # created time
   createdAt: int
   updatedAt: int
 
