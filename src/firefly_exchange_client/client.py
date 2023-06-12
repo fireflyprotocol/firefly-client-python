@@ -763,11 +763,7 @@ class FireflyClient:
 
     async def generate_readonly_token(self):
         """
-            Returns a list of orders.
-            Inputs:
-                params(GetOrderRequest): params required to query orders (e.g. symbol,statuses) 
-            Returns:
-                list: a list of orders 
+            Returns a read-only token generated for authenticated user.
         """
         return await self.apis.post(
             SERVICE_URLS["USER"]["GENERATE_READONLY_TOKEN"],
