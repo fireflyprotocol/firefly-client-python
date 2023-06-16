@@ -883,7 +883,8 @@ class FireflyClient:
         response = await self.dmsApi.post(
             SERVICE_URLS["USER"]["CANCEL_ON_DISCONNECT"],
             json.dumps(params),
-            auth_required=True   
+            auth_required=True,
+            contentType = 'application/json'
         )
         # check for service unavailibility
         if hasattr(response, 'status') and response.status == 503:

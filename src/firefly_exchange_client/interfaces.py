@@ -191,7 +191,8 @@ class GetUserTransferHistoryResponse(TypedDict):
 
 class CountDown(TypedDict):
   symbol: str
-  count: int
+  countDown: int
+
 class GetCancelOnDisconnectTimerRequest(TypedDict):
   symbol: MARKET_SYMBOLS  # will fetch Cancel On Disconnect Timer of provided market
   parentAddress: str # (optional) should be provided by a sub account 
