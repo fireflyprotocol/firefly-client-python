@@ -1,11 +1,13 @@
+import json
 import aiohttp
 from .interfaces import *
+
 
 class APIService():
     def __init__(self, url):
         self.server_url = url
         self.auth_token = None
-        self.client = aiohttp.ClientSession() 
+        self.client = aiohttp.ClientSession()
 
     async def close_session(self):
         if self.client is not None:
@@ -17,28 +19,28 @@ class APIService():
             Inputs:
                 - service_url(str): the url to make the request to.
                 - query(dict): the get query.
-                - auth_required(bool): indicates whether authorization is required for the call or not.  
+                - auth_required(bool): indicates whether authorization is required for the call or not.
         """
         url = self._create_url(service_url)
 
         response = None
         if auth_required:
             response = await self.client.get(
-                url, 
-                params=query, 
+                url,
+                params=query,
                 headers={'Authorization': 'Bearer {}'.format(self.auth_token)})
         else:
             response = await self.client.get(url, params=query)
 
         try:
-            if response.status != 503: #checking for service unavailitbility 
+            if response.status != 503:  # checking for service unavailitbility
                 return await response.json()
             else:
-               return response
+                return response
         except:
             raise Exception("Error while getting {}: {}".format(url, response))
-        
-    async def post(self, service_url, data, auth_required=False):
+
+    async def post(self, service_url, data, auth_required=False, contentType = ""):
         """
             Makes a POST request and returns the results
             Inputs:
@@ -48,24 +50,26 @@ class APIService():
         """
         url = self._create_url(service_url)
         response = None
-
         if auth_required:
-            response = await self.client.post(
-                url=url, 
-                data=data, 
-                headers={'Authorization': 'Bearer {}'.format(self.auth_token),'Content-type': 'application/json'})
+            headers = {'Authorization': 'Bearer {}'.format(self.auth_token)}
+
+            if contentType is not "":
+               headers['Content-type'] = contentType
+
+            response = await self.client.post(url=url, data=data, headers=headers)
         else:
             response = await self.client.post(url=url, data=data)
 
         try:
-            if response.status != 503: #checking for service unavailitbility 
+            if response.status != 503:  # checking for service unavailitbility
                 return await response.json()
             else:
-               return response
+                return response
         except:
-            raise Exception("Error while posting to {}: {}".format(url, response))
-        
-    async def delete(self,service_url, data, auth_required=False):
+            raise Exception(
+                "Error while posting to {}: {}".format(url, response))
+
+    async def delete(self, service_url, data, auth_required=False):
         """
             Makes a DELETE request and returns the results
             Inputs:
@@ -78,20 +82,22 @@ class APIService():
         response = None
         if auth_required:
             response = await self.client.delete(
-                url=url, 
-                data=data, 
+                url=url,
+                data=data,
                 headers={'Authorization': 'Bearer {}'.format(self.auth_token)})
         else:
             response = await self.client.delete(url=url, data=data)
-        
+
         try:
             return await response.json()
         except:
-            raise Exception("Error while posting to {}: {}".format(url, response))
- 
+            raise Exception(
+                "Error while posting to {}: {}".format(url, response))
+
     '''
         Private methods
     '''
+
     def _create_url(self, path):
         """
             Appends namespace to server url
