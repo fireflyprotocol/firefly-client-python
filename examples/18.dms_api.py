@@ -3,6 +3,8 @@ from config import TEST_ACCT_KEY, TEST_SUB_ACCT_KEY, TEST_NETWORK
 from firefly_exchange_client import FireflyClient, MARKET_SYMBOLS, ORDER_SIDE, ORDER_TYPE, Networks, OrderSignatureRequest
 import asyncio
 
+from firefly_exchange_client.interfaces import PostTimerAttributes
+
 
 
 async def main():
@@ -12,8 +14,10 @@ async def main():
 
   print("User: ", client.get_public_address())
   client.add_market(MARKET_SYMBOLS.BTC)
+  client.add_market(MARKET_SYMBOLS.ETH)
 
-  countDowns = []
+  countDownsObject: PostTimerAttributes = dict()
+  countDowns = list()
   countDowns.append({
             'symbol': MARKET_SYMBOLS.BTC.value,
             'countDown': 3 * 1000
@@ -25,14 +29,12 @@ async def main():
             'countDown': 3 * 1000
           }
          )
-  
+
+  countDownsObject["countDowns"] = countDowns
   try:
     # sending post request to reset user's count down timer with MARKET_SYMBOL for auto cancellation of order
-    postResponse = await client.reset_cancel_on_disconnect_timer({
-        "countDowns": countDowns
-        })
-    print(postResponse)   
-    
+    postResponse = await client.reset_cancel_on_disconnect_timer(countDownsObject) 
+    print(postResponse)
     # get request to get user's count down timer for MARKET_SYMBOL
     getResponse = await client.get_cancel_on_disconnect_timer({
             'symbol': MARKET_SYMBOLS.ETH
