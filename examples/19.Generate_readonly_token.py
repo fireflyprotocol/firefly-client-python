@@ -24,8 +24,8 @@ async def main():
 
   # close aio http connection
   await client.apis.close_session()
-
-  pprint(data)
+  print("Read-only Token:",str(data))
+  print(data)
 
 if __name__ == "__main__":
   loop = asyncio.new_event_loop()
