@@ -13,9 +13,8 @@ async def main():
       TEST_ACCT_KEY, # private key of wallet
       )
 
-  # initialize the client
-  # on boards user on firefly. Must be set to true for first time use
-  await client.init(True,"") 
+  # Initializing client for the private key provided. The second argument apiToken is optional
+  await client.init(True) 
   
   print('Account Address:', client.get_public_address()) 
 
@@ -24,6 +23,7 @@ async def main():
 
   # close aio http connection
   await client.apis.close_session()
+  await client.dmsApi.close_session()
 
   pprint(data)
 

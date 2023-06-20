@@ -34,6 +34,7 @@ class FireflyClient:
             Initialize the client.
             Inputs:
                 user_onboarding (bool, optional): If set to true onboards the user address to exchange and gets authToken. Defaults to True.
+                apiToken(string, optional): API token to initialize client in read-only mode 
         """
         self.contracts.contract_addresses = await self.get_contract_addresses()
 
@@ -54,7 +55,7 @@ class FireflyClient:
             # for socket
             self.socket.set_api_token(apiToken)
             self.webSocketClient.set_api_token(apiToken)
-
+        # In case of apiToken received, user onboarding is not done
         elif user_onboarding:
             self.apis.auth_token = await self.onboard_user()
             self.dmsApi.auth_token = self.apis.auth_token

@@ -62,6 +62,7 @@ async def main():
   await readOnlyclient.socket.close()
 
   await readOnlyclient.apis.close_session() 
+  await readOnlyclient.dmsApi.close_session()
 
 
 

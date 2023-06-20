@@ -32,6 +32,7 @@ async def main():
     pprint(position)
 
     await client.apis.close_session() 
+    await client.dmsApi.close_session()
     
 
 

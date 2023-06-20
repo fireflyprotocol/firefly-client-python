@@ -43,6 +43,8 @@ async def main():
 
   await clientChild.apis.close_session() 
   await clientParent.apis.close_session() 
+  await clientParent.dmsApi.close_session()
+  await clientChild.dmsApi.close_session()
 
 
 if __name__ == "__main__":

@@ -58,6 +58,7 @@ async def main():
     print('Received orders: ', len(orders))
 
     await readOnlyclient.apis.close_session() 
+    await readOnlyclient.dmsApi.close_session() 
 
 
 if __name__ == "__main__":

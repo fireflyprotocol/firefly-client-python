@@ -52,6 +52,7 @@ async def main():
 
    client.webSocketClient.stop()
    await client.apis.close_session() 
+   await client.dmsApi.close_session() 
 
 if __name__ == "__main__":
   loop = asyncio.new_event_loop()

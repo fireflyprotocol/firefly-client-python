@@ -16,6 +16,7 @@ class WebsocketClient:
             logger = logging.getLogger(__name__)
         self.logger = logger
         self.token = token
+        self.api_token = api_token
         self.stream_url = stream_url
         self.callbacks = {}
 
