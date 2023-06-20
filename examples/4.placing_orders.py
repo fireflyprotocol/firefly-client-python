@@ -77,8 +77,7 @@ async def main():
     # await place_limit_order(client)
     await place_market_order(client)
     
-    await client.apis.close_session() 
-    await client.dmsApi.close_session()
+    await client.close_connections()
 
 
 if __name__ == "__main__":

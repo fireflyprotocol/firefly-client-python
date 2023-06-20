@@ -71,14 +71,9 @@ async def main():
   # close socket connection
   print("Closing sockets!")
   await clientChild.socket.close()
-
-  await clientChild.apis.close_session()
-
-  await clientParent.apis.close_session()
-
-  await clientChild.dmsApi.close_session()
-
-  await clientParent.dmsApi.close_session()
+  
+  await clientChild.close_connections()
+  await clientParent.close_connections()
 
 
 if __name__ == "__main__":

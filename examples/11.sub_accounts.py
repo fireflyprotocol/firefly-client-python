@@ -41,10 +41,8 @@ async def main():
 
   print(resp)
 
-  await clientChild.apis.close_session() 
-  await clientParent.apis.close_session() 
-  await clientParent.dmsApi.close_session()
-  await clientChild.dmsApi.close_session()
+  await clientChild.close_connections()
+  await clientParent.close_connections()
 
 
 if __name__ == "__main__":

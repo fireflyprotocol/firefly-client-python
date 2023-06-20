@@ -21,9 +21,7 @@ async def main():
   # # gets user account data on-chain
   data = await client.get_user_account_data()
 
-  # close aio http connection
-  await client.apis.close_session()
-  await client.dmsApi.close_session()
+  await client.close_connections()
 
   pprint(data)
 

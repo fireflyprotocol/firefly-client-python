@@ -61,9 +61,7 @@ async def main():
   print("Closing sockets!")
   await readOnlyclient.socket.close()
 
-  await readOnlyclient.apis.close_session() 
-  await readOnlyclient.dmsApi.close_session()
-
+  await client.close_connections()
 
 
 if __name__ == "__main__":
