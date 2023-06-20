@@ -29,12 +29,12 @@ class FireflyClient:
         self.onboarding_signer = OnboardingSigner()
         
             
-    async def init(self, user_onboarding=True, apiToken=""):
+    async def init(self, user_onboarding=True, api_token=""):
         """
             Initialize the client.
             Inputs:
                 user_onboarding (bool, optional): If set to true onboards the user address to exchange and gets authToken. Defaults to True.
-                apiToken(string, optional): API token to initialize client in read-only mode 
+                api_token(string, optional): API token to initialize client in read-only mode 
         """
         self.contracts.contract_addresses = await self.get_contract_addresses()
 
@@ -50,12 +50,12 @@ class FireflyClient:
             if 'PERP' in k:
                 self.add_contract(name="Perpetual",address=v["Perpetual"], market=k)
 
-        if apiToken:
-            self.apis.api_token = apiToken
+        if api_token:
+            self.apis.api_token = api_token
             # for socket
-            self.socket.set_api_token(apiToken)
-            self.webSocketClient.set_api_token(apiToken)
-        # In case of apiToken received, user onboarding is not done
+            self.socket.set_api_token(api_token)
+            self.webSocketClient.set_api_token(api_token)
+        # In case of api_token received, user onboarding is not done
         elif user_onboarding:
             self.apis.auth_token = await self.onboard_user()
             self.dmsApi.auth_token = self.apis.auth_token

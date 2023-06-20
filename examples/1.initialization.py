@@ -13,7 +13,7 @@ async def main():
       TEST_ACCT_KEY, # private key of wallet
       )
 
-  # Initializing client for the private key provided. The second argument apiToken is optional
+  # Initializing client for the private key provided. The second argument api_token is optional
   await client.init(True) 
   
   print('Account Address:', client.get_public_address()) 
