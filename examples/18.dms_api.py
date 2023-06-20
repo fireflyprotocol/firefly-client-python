@@ -44,11 +44,7 @@ async def main():
   except Exception as e:
     print(e)
  
-
-
-  # await clientChild.apis.close_session();
-  await client.apis.close_session()
-  await client.dmsApi.close_session()
+  await client.close_connections() 
 
 
 if __name__ == "__main__":

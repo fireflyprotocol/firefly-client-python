@@ -947,3 +947,10 @@ class FireflyClient:
         except:
             raise(Exception("Failed to connect to Host: {}".format(url)))
            
+
+
+    async def close_connections(self):
+         # close aio http connection
+        await self.apis.close_session()
+        await self.dmsApi.close_session()
+           

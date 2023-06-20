@@ -40,9 +40,8 @@ async def main():
 
   # check margin bank balance
   print('Margin bank balance:', await client.get_margin_bank_balance()) 
-
-  await client.apis.close_session() 
-  await client.dmsApi.close_session()
+  
+  await client.close_connections()
 
 
 if __name__ == "__main__":

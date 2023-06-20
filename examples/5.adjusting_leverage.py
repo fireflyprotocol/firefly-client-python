@@ -29,9 +29,8 @@ async def main():
     await client.adjust_leverage(MARKET_SYMBOLS.ETH, 4) 
 
     print('Leverage on ETH market:', await client.get_user_leverage(MARKET_SYMBOLS.ETH))
-
-    await client.apis.close_session() 
-    await client.dmsApi.close_session()
+    
+    await client.close_connections()
 
 if __name__ == "__main__":
   loop = asyncio.new_event_loop()
