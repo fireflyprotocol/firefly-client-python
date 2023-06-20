@@ -15,26 +15,29 @@ async def main():
 
   client = FireflyClient(True, Networks[TEST_NETWORK], TEST_ACCT_KEY)
   await client.init(True)
+  response = await client.generate_readonly_token()
+  readOnlyclient = FireflyClient(True, Networks[TEST_NETWORK])
+  await readOnlyclient.init(True,response)
 
   # must open socket before subscribing
   print("Making socket connection to firefly exchange")
-  await client.socket.open()
+  await readOnlyclient.socket.open()
 
   # subscribe to global event updates for BTC market 
-  status = await client.socket.subscribe_global_updates_by_symbol(MARKET_SYMBOLS.BTC)
+  status = await readOnlyclient.socket.subscribe_global_updates_by_symbol(MARKET_SYMBOLS.BTC)
   print("Subscribed to global BTC events: {}".format(status))
 
   # subscribe to local user events
-  status = await client.socket.subscribe_user_update_by_token()
+  status = await readOnlyclient.socket.subscribe_user_update_by_token()
   print("Subscribed to user events: {}".format(status))
 
   # triggered when order book updates
   print("Listening to exchange health updates")
-  await client.socket.listen(SOCKET_EVENTS.EXCHANGE_HEALTH.value, callback)
+  await readOnlyclient.socket.listen(SOCKET_EVENTS.EXCHANGE_HEALTH.value, callback)
 
   # triggered when status of any user order updates
   print("Listening to user order updates")
-  await client.socket.listen(SOCKET_EVENTS.ORDER_UPDATE.value, callback)
+  await readOnlyclient.socket.listen(SOCKET_EVENTS.ORDER_UPDATE.value, callback)
 
   # SOCKET_EVENTS contains all events that can be listened to
   
@@ -47,19 +50,19 @@ async def main():
     time.sleep(1)
 
   # unsubscribe from global events
-  status = await client.socket.unsubscribe_global_updates_by_symbol(MARKET_SYMBOLS.BTC)
+  status = await readOnlyclient.socket.unsubscribe_global_updates_by_symbol(MARKET_SYMBOLS.BTC)
   print("Unsubscribed from global BTC events: {}".format(status))
 
-  status = await client.socket.unsubscribe_user_update_by_token()
+  status = await readOnlyclient.socket.unsubscribe_user_update_by_token()
   print("Unsubscribed from user events: {}".format(status))
 
 
   # close socket connection
   print("Closing sockets!")
-  await client.socket.close()
+  await readOnlyclient.socket.close()
 
-  await client.apis.close_session() 
-  await client.dmsApi.close_session()
+  await readOnlyclient.apis.close_session() 
+  await readOnlyclient.dmsApi.close_session()
 
 
 

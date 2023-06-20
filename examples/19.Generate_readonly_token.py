@@ -13,19 +13,22 @@ async def main():
       TEST_ACCT_KEY, # private key of wallet
       )
 
-  # Initializing client for the private key provided. The second argument api_token is optional
+  # initialize the client
+  # on boards user on firefly. Must be set to true for first time use
+  # 
   await client.init(True) 
   
   print('Account Address:', client.get_public_address()) 
 
-  # # gets user account data on-chain
-  data = await client.get_user_account_data()
+  # # generates read-only token for user
+  data = await client.generate_readonly_token()
+
+  print("Read-only Token:",str(data))
 
   # close aio http connection
   await client.apis.close_session()
   await client.dmsApi.close_session()
 
-  pprint(data)
 
 if __name__ == "__main__":
   loop = asyncio.new_event_loop()

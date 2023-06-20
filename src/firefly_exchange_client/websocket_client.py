@@ -3,19 +3,22 @@ import logging
 from .socket_manager import SocketManager
 from .enumerations import MARKET_SYMBOLS, SOCKET_EVENTS
 
+
 class WebsocketClient:
     def __init__(
         self,
         stream_url,
         token=None,
+        api_token=None,
         logger=None,
     ):
         if not logger:
             logger = logging.getLogger(__name__)
         self.logger = logger
         self.token = token
+        self.api_token = api_token
         self.stream_url = stream_url
-        self.callbacks={}
+        self.callbacks = {}
 
     def initialize_socket(
         self,
@@ -26,7 +29,7 @@ class WebsocketClient:
         on_pong=None,
         logger=None,
     ):
-        self.socket_manager =  SocketManager(
+        self.socket_manager = SocketManager(
             self.stream_url,
             on_message=self.listener,
             on_open=on_open,
@@ -42,7 +45,6 @@ class WebsocketClient:
         self.logger.debug("WebSocket Client started.")
         self.socket_manager.start()
 
-
     def set_token(self, token):
         """
             Sets default user token
@@ -50,18 +52,26 @@ class WebsocketClient:
                 - token (user auth token): firefly onboarding token.
         """
         self.token = token
-    
-    def listen(self,event,callback):
+
+    def set_api_token(self, token):
+        """
+            Sets default user token
+            Inputs:
+                - token (user auth token): firefly onboarding token.
+        """
+        self.api_token = token
+
+    def listen(self, event, callback):
         """
             Assigns callbacks to desired events
         """
         self.callbacks[event] = callback
-        return 
+        return
 
     def send(self, message: dict):
         self.socket_manager.send_message(json.dumps(message))
 
-    def subscribe_global_updates_by_symbol(self,symbol: MARKET_SYMBOLS):
+    def subscribe_global_updates_by_symbol(self, symbol: MARKET_SYMBOLS):
         """
             Allows user to subscribe to global updates for the desired symbol.
             Inputs:
@@ -69,19 +79,20 @@ class WebsocketClient:
         """
         try:
             if not self.socket_manager.ws.connected:
-                raise Exception("Socket connection is established, invoke socket.open()")
+                raise Exception(
+                    "Socket connection is established, invoke socket.open()")
 
-            self.socket_manager.send_message(json.dumps(['SUBSCRIBE',[
+            self.socket_manager.send_message(json.dumps(['SUBSCRIBE', [
                 {
                     "e": SOCKET_EVENTS.GLOBAL_UPDATES_ROOM.value,
                     "p": symbol.value,
                 },
-                ]]))
+            ]]))
             return True
         except Exception:
             return False
 
-    def unsubscribe_global_updates_by_symbol(self,symbol: MARKET_SYMBOLS):
+    def unsubscribe_global_updates_by_symbol(self, symbol: MARKET_SYMBOLS):
         """
             Allows user to unsubscribe to global updates for the desired symbol.
                 Inputs:
@@ -89,19 +100,19 @@ class WebsocketClient:
         """
         try:
             if not self.socket_manager.ws.connected:
-                return False 
-            
+                return False
+
             self.socket_manager.send_message(json.dumps((['UNSUBSCRIBE', [
-            {
-                "e": SOCKET_EVENTS.GLOBAL_UPDATES_ROOM.value,
-                "p": symbol.value,
-            },
+                {
+                    "e": SOCKET_EVENTS.GLOBAL_UPDATES_ROOM.value,
+                    "p": symbol.value,
+                },
             ]])))
             return True
         except:
             return False
 
-    def subscribe_user_update_by_token(self, user_token: str=None):
+    def subscribe_user_update_by_token(self, user_token: str = None):
         """
             Allows user to subscribe to their account updates.
             Inputs:
@@ -110,18 +121,19 @@ class WebsocketClient:
         try:
             if not self.socket_manager.ws.connected:
                 return False
-              
+
             self.socket_manager.send_message(json.dumps((["SUBSCRIBE", [
-            {
-                "e": SOCKET_EVENTS.USER_UPDATES_ROOM.value,
-                "t": self.token if user_token == None else user_token,
-            },
+                {
+                    "e": SOCKET_EVENTS.USER_UPDATES_ROOM.value,
+                    "t": self.token if user_token == None else user_token,
+                    "rt": self.api_token
+                },
             ]])))
             return True
         except:
             return False
 
-    def unsubscribe_user_update_by_token(self, user_token:str=None): 
+    def unsubscribe_user_update_by_token(self, user_token: str = None):
         """
             Allows user to unsubscribe to their account updates.
             Inputs:
@@ -130,12 +142,13 @@ class WebsocketClient:
         try:
             if not self.socket_manager.ws.connected:
                 return False
-              
+
             self.socket_manager.send_message(json.dumps((["UNSUBSCRIBE", [
-            {
-                "e": SOCKET_EVENTS.USER_UPDATES_ROOM.value,
-                "t": self.token if user_token == None else user_token,
-            },
+                {
+                    "e": SOCKET_EVENTS.USER_UPDATES_ROOM.value,
+                    "t": self.token if user_token == None else user_token,
+                    "rt": self.api_token
+                },
             ]])))
             return True
         except:
@@ -149,7 +162,7 @@ class WebsocketClient:
         self.socket_manager.close()
         # self.socket_manager.join()
 
-    def listener(self,_, message):
+    def listener(self, _, message):
         """
             Listens to all events emitted by the server
         """
@@ -160,9 +173,10 @@ class WebsocketClient:
                 callback = self.callbacks[event_name]
                 callback(data["data"])
             elif "default" in self.callbacks.keys():
-                self.callbacks["default"]({"event":event_name,"data":data["data"]})
+                self.callbacks["default"](
+                    {"event": event_name, "data": data["data"]})
             else:
                 pass
         except:
             pass
-        return 
+        return

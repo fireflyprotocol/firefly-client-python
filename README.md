@@ -88,7 +88,37 @@ if __name__ == "__main__":
   loop.close()
 ```
 
-​
+**Read-only Initialization:**
+Firefly-client can also be initialized in `read-only` mode, below is the example:
+```python
+from config import TEST_ACCT_KEY, TEST_NETWORK
+from firefly_exchange_client import FireflyClient, Networks
+from pprint import pprint
+import asyncio
+
+async def main():
+  # initialize client without providing private_key
+  client = FireflyClient(
+      True, # agree to terms and conditions
+      Networks[TEST_NETWORK], # network to connect with
+      )
+
+  # Initializing client for the private key provided. The second argument api_token is optional
+  await client.init(True,"54b0bfafc9a48728f76e52848a716e96d490263392e3959c2d44f05dea960761") 
+
+  # close aio http connection
+  await client.apis.close_session()
+  await client.dmsApi.close_session()
+
+  pprint(data)
+
+if __name__ == "__main__":
+  loop = asyncio.new_event_loop()
+  loop.run_until_complete(main())
+  loop.close()
+```
+​Here is the [list](https://docs.bluefin.io/8/2.readonly-access-data) of APIs that can be accessed in `read-only` mode.
+
 **Placing Orders:**
 
 ```python

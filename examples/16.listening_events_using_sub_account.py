@@ -76,6 +76,10 @@ async def main():
 
   await clientParent.apis.close_session()
 
+  await clientChild.dmsApi.close_session()
+
+  await clientParent.dmsApi.close_session()
+
 
 if __name__ == "__main__":
   loop = asyncio.new_event_loop()

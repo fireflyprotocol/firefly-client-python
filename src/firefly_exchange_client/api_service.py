@@ -7,6 +7,7 @@ class APIService():
     def __init__(self, url):
         self.server_url = url
         self.auth_token = None
+        self.api_token = None
         self.client = aiohttp.ClientSession()
 
     async def close_session(self):
@@ -28,7 +29,11 @@ class APIService():
             response = await self.client.get(
                 url,
                 params=query,
-                headers={'Authorization': 'Bearer {}'.format(self.auth_token)})
+                headers={
+                    'Authorization': 'Bearer {}'.format(self.auth_token) if self.auth_token else '',
+                    'x-api-token': self.api_token or ''
+                }
+            )
         else:
             response = await self.client.get(url, params=query)
 

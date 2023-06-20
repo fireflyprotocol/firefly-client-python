@@ -78,6 +78,7 @@ async def main():
     await place_market_order(client)
     
     await client.apis.close_session() 
+    await client.dmsApi.close_session()
 
 
 if __name__ == "__main__":

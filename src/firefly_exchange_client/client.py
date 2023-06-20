@@ -14,11 +14,12 @@ from eth_account import Account
 from eth_utils import to_wei, from_wei
 
 class FireflyClient:
-    def __init__(self, are_terms_accepted, network, private_key):
+    def __init__(self, are_terms_accepted, network, private_key=""):
         self.are_terms_accepted = are_terms_accepted
         self.network = network
         self.w3 = self._connect_w3(self.network["url"])
-        self.account = Account.from_key(private_key)
+        if private_key != "":
+            self.account = Account.from_key(private_key)
         self.apis = APIService(self.network["apiGateway"])
         self.dmsApi = APIService(self.network["dmsURL"])
         self.socket = Sockets(self.network["socketURL"])
@@ -28,11 +29,12 @@ class FireflyClient:
         self.onboarding_signer = OnboardingSigner()
         
             
-    async def init(self, user_onboarding=True):
+    async def init(self, user_onboarding=True, api_token=""):
         """
             Initialize the client.
             Inputs:
                 user_onboarding (bool, optional): If set to true onboards the user address to exchange and gets authToken. Defaults to True.
+                api_token(string, optional): API token to initialize client in read-only mode 
         """
         self.contracts.contract_addresses = await self.get_contract_addresses()
 
@@ -48,7 +50,13 @@ class FireflyClient:
             if 'PERP' in k:
                 self.add_contract(name="Perpetual",address=v["Perpetual"], market=k)
 
-        if user_onboarding:
+        if api_token:
+            self.apis.api_token = api_token
+            # for socket
+            self.socket.set_api_token(api_token)
+            self.webSocketClient.set_api_token(api_token)
+        # In case of api_token received, user onboarding is not done
+        elif user_onboarding:
             self.apis.auth_token = await self.onboard_user()
             self.dmsApi.auth_token = self.apis.auth_token
             self.socket.set_token(self.apis.auth_token)
@@ -754,6 +762,15 @@ class FireflyClient:
         """
         return self.account.address
 
+    async def generate_readonly_token(self):
+        """
+            Returns a read-only token generated for authenticated user.
+        """
+        return await self.apis.post(
+            SERVICE_URLS["USER"]["GENERATE_READONLY_TOKEN"],
+            {},
+            True
+        )
     async def get_orders(self,params:GetOrderRequest):
         """
             Returns a list of orders.
