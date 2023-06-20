@@ -81,6 +81,8 @@ class SOCKET_EVENTS(Enum):
     MARKET_HEALTH = "MarketHealth"
     EXCHANGE_HEALTH = "ExchangeHealth"
     ORDER_UPDATE = "OrderUpdate"
+    ORDER_SENT_FOR_SETTLEMENT = "OrderSettlementUpdate"
+    ORDER_REQUEUE_UPDATE = "OrderRequeueUpdate"
     ORDER_CANCELLATION = "OrderCancelled"
     POSITION_UPDATE = "PositionUpdate"
     USER_TRADE = "UserTrade"
