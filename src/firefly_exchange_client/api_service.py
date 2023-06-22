@@ -32,7 +32,7 @@ class APIService():
                 params=query,
                 headers={
                     'Authorization': 'Bearer {}'.format(self.auth_token) if self.auth_token else '',
-                    'x-api-tokens': self.api_token or '',
+                    'x-api-token': self.api_token or '',
                     'x-mm-id': self.uuid or ''
 
                 }
