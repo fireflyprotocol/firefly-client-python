@@ -48,7 +48,7 @@ class APIService():
         except:
             raise Exception("Error while getting {}: {}".format(url, response))
 
-    async def post(self, service_url, data, auth_required=False, contentType=" "):
+    async def post(self, service_url, data, auth_required=False, contentType=""):
         """
             Makes a POST request and returns the results
             Inputs:
@@ -60,7 +60,7 @@ class APIService():
         response = None
         if auth_required:
             headers = {
-                'Authorization': 'Bearer {}'.format(self.auth_token) if self.auth_token else '',
+                'Authorization': 'Bearer {}'.format(self.auth_token),
                 'x-mm-id': self.uuid or ''
             }
 
