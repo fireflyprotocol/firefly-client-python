@@ -15,7 +15,7 @@ Networks = {
     "socketURL": "wss://dapi.api.arbitrum-staging.firefly.exchange",
     "webSocketURL": "wss://notifications.api.arbitrum-staging.firefly.exchange",
     "onboardingUrl": "https://testnet.firefly.exchange",
-    "UUID": "fc43ae3d-b88b-4db9-8af3-612b1796343a"
+    "UUID": "uuid-default"
   },
 
   "MAINNET_BOBA": {
@@ -33,7 +33,7 @@ Networks = {
     "socketURL": "wss://dapi.api.arbitrum-prod.firefly.exchange",
     "webSocketURL": "wss://notifications.api.arbitrum-prod.firefly.exchange",
     "onboardingUrl": "https://trade-arb.firefly.exchange",
-    "UUID": "fc43ae3d-b88b-4db9-8af3-612b1796343a"
+    "UUID": "uuid-default"
   },
 }
 
