@@ -20,7 +20,7 @@ class FireflyClient:
         self.w3 = self._connect_w3(self.network["url"])
         if private_key != "":
             self.account = Account.from_key(private_key)
-        self.apis = APIService(self.network["apiGateway"], self.network["UUID"] )
+        self.apis = APIService(self.network["apiGateway"], default_value(self.network, "UUID", "") )
         self.dmsApi = APIService(self.network["dmsURL"])
         self.socket = Sockets(self.network["socketURL"])
         self.webSocketClient = WebsocketClient(self.network["webSocketURL"])
