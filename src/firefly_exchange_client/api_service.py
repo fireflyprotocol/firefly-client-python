@@ -4,10 +4,11 @@ from .interfaces import *
 
 
 class APIService():
-    def __init__(self, url):
+    def __init__(self, url, UUID=""):
         self.server_url = url
         self.auth_token = None
         self.api_token = None
+        self.uuid = UUID
         self.client = aiohttp.ClientSession()
 
     async def close_session(self):
@@ -31,7 +32,9 @@ class APIService():
                 params=query,
                 headers={
                     'Authorization': 'Bearer {}'.format(self.auth_token) if self.auth_token else '',
-                    'x-api-token': self.api_token or ''
+                    'x-api-tokensss': self.api_token or '',
+                    'x-mm-id': self.uuid or ''
+
                 }
             )
         else:
@@ -45,7 +48,7 @@ class APIService():
         except:
             raise Exception("Error while getting {}: {}".format(url, response))
 
-    async def post(self, service_url, data, auth_required=False, contentType = ""):
+    async def post(self, service_url, data, auth_required=False, contentType=" "):
         """
             Makes a POST request and returns the results
             Inputs:
@@ -56,10 +59,13 @@ class APIService():
         url = self._create_url(service_url)
         response = None
         if auth_required:
-            headers = {'Authorization': 'Bearer {}'.format(self.auth_token)}
+            headers = {
+                'Authorization': 'Bearer {}'.format(self.auth_token) if self.auth_token else '',
+                'x-mm-id': self.uuid or ''
+            }
 
             if contentType is not "":
-               headers['Content-type'] = contentType
+                headers['Content-type'] = contentType
 
             response = await self.client.post(url=url, data=data, headers=headers)
         else:
@@ -89,7 +95,8 @@ class APIService():
             response = await self.client.delete(
                 url=url,
                 data=data,
-                headers={'Authorization': 'Bearer {}'.format(self.auth_token)})
+                headers={'Authorization': 'Bearer {}'.format(self.auth_token),
+                 'x-mm-id': self.uuid or ''})
         else:
             response = await self.client.delete(url=url, data=data)
 
