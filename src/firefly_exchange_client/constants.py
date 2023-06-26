@@ -15,6 +15,7 @@ Networks = {
     "socketURL": "wss://dapi.api.arbitrum-staging.firefly.exchange",
     "webSocketURL": "wss://notifications.api.arbitrum-staging.firefly.exchange",
     "onboardingUrl": "https://testnet.firefly.exchange",
+    "UUID": "uuid-default"
   },
 
   "MAINNET_BOBA": {
@@ -32,6 +33,7 @@ Networks = {
     "socketURL": "wss://dapi.api.arbitrum-prod.firefly.exchange",
     "webSocketURL": "wss://notifications.api.arbitrum-prod.firefly.exchange",
     "onboardingUrl": "https://trade-arb.firefly.exchange",
+    "UUID": "uuid-default"
   },
 }
 
