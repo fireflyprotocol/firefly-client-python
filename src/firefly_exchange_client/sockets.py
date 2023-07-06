@@ -75,7 +75,6 @@ class Sockets:
             pass
         return
         
-    # Define an event handler for the 'connect' event
     @sio.event
     def connect():
         print("Connected")
@@ -85,7 +84,6 @@ class Sockets:
             # Execute the callback using asyncio.run() if available
             asyncio.run(Sockets.callbacks['connect']())
         
-
 
     @sio.event
     def disconnect():
