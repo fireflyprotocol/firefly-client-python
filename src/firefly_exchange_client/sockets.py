@@ -65,7 +65,6 @@ class Sockets:
             Listens to all events emitted by the server
         """
         try:
-            print(event)
             if event in Sockets.callbacks.keys():
                 Sockets.callbacks[event](data)
             elif "default" in Sockets.callbacks.keys():
