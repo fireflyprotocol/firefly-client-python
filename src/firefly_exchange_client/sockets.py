@@ -93,7 +93,6 @@ class Sockets:
         """
             Assigns callbacks to desired events
         """
-        print(event)
         Sockets.callbacks[event] = callback
         return
 
