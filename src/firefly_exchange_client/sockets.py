@@ -77,7 +77,7 @@ class Sockets:
         
     @sio.event
     def connect():
-        print("Connected to Socket Server")
+        print("Connected To Socket Server")
         # add 10 seconds sleep to allow connection to be established before callbacks for connections are executed
         if 'connect' in Sockets.callbacks:
             # Execute the callback using asyncio.run() if available
@@ -87,7 +87,7 @@ class Sockets:
 
     @sio.event
     def disconnect():
-        print('disconnected From Socket Server')
+        print('Disconnected From Socket Server')
         if 'disconnect' in Sockets.callbacks:
             # Execute the callback using asyncio.run() if available
             asyncio.run(Sockets.callbacks['disconnect']())
