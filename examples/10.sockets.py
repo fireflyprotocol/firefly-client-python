@@ -18,7 +18,7 @@ async def main():
 
   
   async def my_callback():
-      print("Connected:")
+      print("Subscribing To Rooms")
        # subscribe to global event updates for BTC market 
       status =  await client.socket.subscribe_global_updates_by_symbol(MARKET_SYMBOLS.BTC)
       print("Subscribed to global BTC events: {}".format(status))

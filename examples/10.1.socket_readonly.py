@@ -21,7 +21,7 @@ async def main():
 
   
   async def my_callback():
-      print("Connected:")
+      print("Subscribing To Rooms")
        # subscribe to global event updates for BTC market 
       status =  await readOnlyclient.socket.subscribe_global_updates_by_symbol(MARKET_SYMBOLS.BTC)
       print("Subscribed to global BTC events: {}".format(status))
@@ -60,18 +60,18 @@ async def main():
     time.sleep(1)
 
   # # unsubscribe from global events
-  # status = await client.socket.unsubscribe_global_updates_by_symbol(MARKET_SYMBOLS.BTC)
-  # print("Unsubscribed from global BTC events: {}".format(status))
+  status = await client.socket.unsubscribe_global_updates_by_symbol(MARKET_SYMBOLS.BTC)
+  print("Unsubscribed from global BTC events: {}".format(status))
 
-  # status = await client.socket.unsubscribe_user_update_by_token()
-  # print("Unsubscribed from user events: {}".format(status))
+  status = await client.socket.unsubscribe_user_update_by_token()
+  print("Unsubscribed from user events: {}".format(status))
 
 
-  # close socket connection
-  # print("Closing sockets!")
-  # await client.socket.close()
+  # # close socket connection
+  print("Closing sockets!")
+  await client.socket.close()
 
-  # await client.apis.close_session() 
+  await client.apis.close_session() 
 
 
 
