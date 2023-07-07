@@ -88,6 +88,9 @@ class Sockets:
     @sio.event
     def disconnect():
         print('disconnected From Socket Server')
+        if 'disconnect' in Sockets.callbacks:
+            # Execute the callback using asyncio.run() if available
+            asyncio.run(Sockets.callbacks['disconnect']())
 
 
     async def listen(self, event, callback):
