@@ -1,6 +1,7 @@
 import socketio
+import time
 from .enumerations import MARKET_SYMBOLS, SOCKET_EVENTS
-
+import asyncio
 sio = socketio.Client()
 
 
@@ -73,6 +74,24 @@ class Sockets:
         except:
             pass
         return
+        
+    @sio.event
+    def connect():
+        print("Connected To Socket Server")
+        # add 10 seconds sleep to allow connection to be established before callbacks for connections are executed
+        if 'connect' in Sockets.callbacks:
+            # Execute the callback using asyncio.run() if available
+            time.sleep(10)
+            asyncio.run(Sockets.callbacks['connect']())
+        
+
+    @sio.event
+    def disconnect():
+        print('Disconnected From Socket Server')
+        if 'disconnect' in Sockets.callbacks:
+            # Execute the callback using asyncio.run() if available
+            asyncio.run(Sockets.callbacks['disconnect']())
+
 
     async def listen(self, event, callback):
         """

@@ -16,26 +16,36 @@ async def main():
   client = FireflyClient(True, Networks[TEST_NETWORK], TEST_ACCT_KEY)
   await client.init(True)
 
+  
+  async def my_callback():
+      print("Subscribing To Rooms")
+       # subscribe to global event updates for BTC market 
+      status =  await client.socket.subscribe_global_updates_by_symbol(MARKET_SYMBOLS.BTC)
+      print("Subscribed to global BTC events: {}".format(status))
+
+      # subscribe to local user events
+      status =  await client.socket.subscribe_user_update_by_token()
+      print("Subscribed to user events: {}".format(status))
+    
+      # triggered when order book updates
+      print("Listening to exchange health updates")
+      await client.socket.listen(SOCKET_EVENTS.EXCHANGE_HEALTH.value, callback)
+
+      # triggered when status of any user order updates
+      print("Listening to user order updates")
+      await client.socket.listen(SOCKET_EVENTS.ORDER_UPDATE.value, callback)
+
+
+ 
+  await client.socket.listen("connect",my_callback)
+  
+ 
+
   # must open socket before subscribing
   print("Making socket connection to firefly exchange")
   await client.socket.open()
 
-  # subscribe to global event updates for BTC market 
-  status = await client.socket.subscribe_global_updates_by_symbol(MARKET_SYMBOLS.BTC)
-  print("Subscribed to global BTC events: {}".format(status))
-
-  # subscribe to local user events
-  status = await client.socket.subscribe_user_update_by_token()
-  print("Subscribed to user events: {}".format(status))
-
-  # triggered when order book updates
-  print("Listening to exchange health updates")
-  await client.socket.listen(SOCKET_EVENTS.EXCHANGE_HEALTH.value, callback)
-
-  # triggered when status of any user order updates
-  print("Listening to user order updates")
-  await client.socket.listen(SOCKET_EVENTS.ORDER_UPDATE.value, callback)
-
+ 
   # SOCKET_EVENTS contains all events that can be listened to
   
   # logs event name and data for all markets and users that are subscribed.
@@ -46,7 +56,7 @@ async def main():
   while not event_received and time.time() < end_time:
     time.sleep(1)
 
-  # unsubscribe from global events
+  # # unsubscribe from global events
   status = await client.socket.unsubscribe_global_updates_by_symbol(MARKET_SYMBOLS.BTC)
   print("Unsubscribed from global BTC events: {}".format(status))
 
@@ -54,11 +64,11 @@ async def main():
   print("Unsubscribed from user events: {}".format(status))
 
 
-  # close socket connection
+  # # close socket connection
   print("Closing sockets!")
   await client.socket.close()
 
-  await client.close_connections()
+  await client.apis.close_session() 
 
 
 
