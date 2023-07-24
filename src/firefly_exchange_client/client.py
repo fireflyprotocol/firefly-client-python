@@ -308,6 +308,48 @@ class FireflyClient:
 
         return False
     
+    async def post_cancel_order_v2(self,params:OrderCancellationRequest):
+        """
+            POST cancel order request to Firefly
+            Inputs:
+                - params(dict): a dictionary with OrderCancellationRequest required params
+            Returns:
+                - dict: response from orders delete API Firefly
+        """
+
+        return self.apis.delete(
+            SERVICE_URLS["V2_ORDERS"]["ORDERS_HASH"],
+            {
+            "symbol": params["symbol"],
+            "orderHashes":params["hashes"],
+            "cancelSignature":params["signature"]
+            },
+            auth_required=True
+            )
+    
+    async def cancel_all_orders_v2(self,symbol:MARKET_SYMBOLS):
+        """
+            GETs all open orders for the specified symbol, creates a cancellation request 
+            for all orders and POSTs the cancel order request to Firefly
+            Inputs:
+                - symbol(MARKET_SYMBOLS) 
+            Returns:
+                - dict: response from orders delete API Firefly
+        """
+        orders = await self.get_orders({
+            "symbol":symbol,
+            "statuses":[ORDER_STATUS.OPEN, ORDER_STATUS.PARTIAL_FILLED]
+        })
+
+        hashes = []
+        for i in orders:
+            hashes.append(i["hash"])
+        
+        if len(hashes) > 0:
+            req = self.create_signed_cancel_orders(symbol,hashes)
+            return await self.post_cancel_order_v2(req)
+
+        return False
     async def post_signed_order(self, params:PlaceOrderRequest):
         """
             Creates an order from provided params and signs it using the private
@@ -338,6 +380,39 @@ class FireflyClient:
             "postOnly": default_value(params, "postOnly", False),
             "cancelOnRevert": default_value(params, "cancelOnRevert", False),
             "clientId": "firefly-client: {}".format(default_value(params, "clientId", "firefly-client"))
+            },
+            auth_required=True
+            )
+
+    async def post_signed_order_v2(self, params:PlaceOrderRequest):
+        """
+            Creates an order from provided params and signs it using the private
+            key of the account
+
+            Inputs:
+                params (OrderSignatureRequest): parameters to create order with
+
+            Returns:
+                OrderSignatureResponse: order raw info and generated signature
+        """
+
+        return self.apis.post(
+            SERVICE_URLS["V2_ORDERS"]["ORDERS"],
+            {
+            "symbol": params["symbol"],
+            "price": to_wei(params["price"], "ether"),
+            "quantity": to_wei(params["quantity"], "ether"),
+            "leverage": to_wei(params["leverage"], "ether"),
+            "userAddress": params["maker"],
+            "orderType": params["orderType"].value,
+            "side": params["side"].value,            
+            "reduceOnly": params["reduceOnly"],
+            "salt": params["salt"],
+            "expiration": params["expiration"],
+            "orderSignature": params["orderSignature"],
+            "timeInForce": default_enum_value(params, "timeInForce", TIME_IN_FORCE.GOOD_TILL_TIME),
+            "postOnly": default_value(params, "postOnly", False),
+            "clientId": "firefly-client: {}".format(params["clientId"]) if "clientId" in params else "firefly-client"
             },
             auth_required=True
             )
