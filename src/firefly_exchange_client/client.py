@@ -178,6 +178,7 @@ class FireflyClient:
             triggerPrice =  0,
             expiration =  default_value(params, "expiration", expiration),
             salt =  default_value(params, "salt", random_number(1000000)),
+            postOnly = default_value(params, "postOnly", False),
             )
 
     def create_signed_order(self, params:OrderSignatureRequest):
@@ -213,7 +214,8 @@ class FireflyClient:
             expiration=order["expiration"],
             orderSignature=order_signature,
             orderType=params["orderType"],
-            maker=order["maker"]
+            maker=order["maker"],
+            postOnly= default_value(params, "postOnly", False)
         )
     
     def create_signed_cancel_order(self,params:OrderSignatureRequest, parentAddress:str=""):
