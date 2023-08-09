@@ -1,4 +1,11 @@
 Networks = {
+  "SUI_STAGING":{
+      "url":"",
+      "chainId":1234,
+      "apiGateway":"https://dapi.api.sui-staging.bluefin.io/",
+      "socketURL":"wss://dapi.api.sui-staging.bluefin.io/"
+  },
+
   "DEV": {
     "url": "https://l2-dev.firefly.exchange/",
     "chainId": 78602,
@@ -80,7 +87,7 @@ SERVICE_URLS = {
     "META": "/meta",
     "STATUS": "/status",
     "SYMBOLS": "/marketData/symbols",
-    "CONTRACT_ADDRESSES": "/marketData/contractAddresses",
+    "CONTRACT_ADDRESSES": "https://testnet.firefly.exchange",
     "TICKER": "/ticker",
     "MASTER_INFO": "/masterInfo",
     "FUNDING_RATE":"/fundingRate"
