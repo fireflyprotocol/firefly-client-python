@@ -16,7 +16,8 @@ async def place_limit_order(client: FireflyClient):
         quantity=0.01, # quantity
         side=ORDER_SIDE.BUY, 
         orderType=ORDER_TYPE.LIMIT,
-        leverage=user_leverage
+        leverage=user_leverage,
+        postOnly=False
     )  
 
     # create signed order
@@ -75,7 +76,7 @@ async def main():
     client.add_market(MARKET_SYMBOLS.ETH)
 
     # await place_limit_order(client)
-    await place_market_order(client)
+    await place_limit_order(client)
     
     await client.close_connections()
 
