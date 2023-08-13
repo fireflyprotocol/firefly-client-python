@@ -2,6 +2,7 @@
 # Places a market order on exchange and listens to emitted events
 ##
 import time
+from config import TEST_ACCT_KEY, TEST_NETWORK
 from firefly_exchange_client import FireflyClient, Networks, MARKET_SYMBOLS, ORDER_SIDE, ORDER_TYPE, OrderSignatureRequest, SOCKET_EVENTS
 import asyncio
 event_received = False
@@ -9,8 +10,7 @@ event_received = False
 
 async def main():
 
-    dummyAccountKey = "a182091b4d5a090b65d604e36f68629a692e3bf2aa864bd3f037854034cdd676"
-    client = FireflyClient(True, Networks["TESTNET_ARBITRUM"], dummyAccountKey)
+    client = FireflyClient(True, Networks[TEST_NETWORK], TEST_ACCT_KEY)
     await client.init(True)
 
     def callback(event):
