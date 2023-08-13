@@ -42,7 +42,6 @@ async def main():
  
   await readOnlyclient.socket.listen("connect",my_callback)
   
- 
 
   # must open socket before subscribing
   print("Making socket connection to firefly exchange")
@@ -76,6 +75,12 @@ async def main():
 
 
 if __name__ == "__main__":
-  loop = asyncio.new_event_loop()
-  loop.run_until_complete(main())
-  loop.close()
+    ### make sure keep the loop initialization same 
+    # as below to ensure closing the script after receiving 
+    # completion of each callback on socket events ###  
+    loop = asyncio.new_event_loop()
+    loop.create_task(main())
+    pending = asyncio.all_tasks(loop=loop)
+    group = asyncio.gather(*pending)
+    loop.run_until_complete(group)
+    loop.close()
