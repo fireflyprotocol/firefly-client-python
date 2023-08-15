@@ -144,10 +144,10 @@ class FireflyClient:
         """
         abi = self.contracts.get_contract_abi(name)
         if market:
-            contract=self.w3.eth.contract(address=Web3.toChecksumAddress(address), abi=abi)
+            contract=self.w3.eth.contract(address=Web3.to_checksum_address(address), abi=abi)
             self.contracts.set_contracts(market=market,name=name,contract=contract)
         else:
-            contract=self.w3.eth.contract(address=Web3.toChecksumAddress(address), abi=abi)
+            contract=self.w3.eth.contract(address=Web3.to_checksum_address(address), abi=abi)
             self.contracts.set_contracts(name=name,contract=contract)
         return 
 
@@ -365,9 +365,9 @@ class FireflyClient:
         
         construct_txn = usdc_contract.functions.approve(
             mb_contract.address, 
-            amount).buildTransaction({
+            amount).build_transaction({
                 'from': self.account.address,
-                'nonce': self.w3.eth.getTransactionCount(self.account.address),
+                'nonce': self.w3.eth.get_transaction_count(self.account.address),
             })
 
         self._execute_tx(construct_txn)
@@ -375,9 +375,9 @@ class FireflyClient:
         # deposit to margin bank
         construct_txn = mb_contract.functions.depositToBank(
             self.account.address, 
-            amount).buildTransaction({
+            amount).build_transaction({
                 'from': self.account.address,
-                'nonce': self.w3.eth.getTransactionCount(self.account.address),
+                'nonce': self.w3.eth.get_transaction_count(self.account.address),
                 })
 
         self._execute_tx(construct_txn)
@@ -401,9 +401,9 @@ class FireflyClient:
         # withdraw from margin bank
         construct_txn = mb_contract.functions.withdrawFromBank(
             self.account.address, 
-            amount).buildTransaction({
+            amount).build_transaction({
                 'from': self.account.address,
-                'nonce': self.w3.eth.getTransactionCount(self.account.address),
+                'nonce': self.w3.eth.get_transaction_count(self.account.address),
                 })
 
         self._execute_tx(construct_txn)
@@ -426,16 +426,16 @@ class FireflyClient:
 
         user_position = await self.get_user_position({"symbol":symbol, "parentAddress": parentAddress})
         
-        account_address = Web3.toChecksumAddress(self.account.address if parentAddress == "" else parentAddress)
+        account_address = Web3.to_checksum_address(self.account.address if parentAddress == "" else parentAddress)
             
         # implies user has an open position on-chain, perform on-chain leverage update
         if(user_position != {}):
             perp_contract = self.contracts.get_contract(name="Perpetual", market=symbol.value) 
             construct_txn = perp_contract.functions.adjustLeverage(
                 account_address, 
-                to_wei(leverage, "ether")).buildTransaction({
+                to_wei(leverage, "ether")).build_transaction({
                     'from': self.account.address,
-                    'nonce': self.w3.eth.getTransactionCount(self.account.address),
+                    'nonce': self.w3.eth.get_transaction_count(self.account.address),
                     })            
             self._execute_tx(construct_txn)
 
@@ -469,7 +469,7 @@ class FireflyClient:
 
         user_position = await self.get_user_position({"symbol":symbol, "parentAddress": parentAddress})
 
-        account_address = Web3.toChecksumAddress(self.account.address if parentAddress == "" else parentAddress)
+        account_address = Web3.to_checksum_address(self.account.address if parentAddress == "" else parentAddress)
 
         if(user_position == {}):
             raise(Exception("User has no open position on market: {}".format(symbol)))
@@ -479,9 +479,9 @@ class FireflyClient:
 
             construct_txn = on_chain_call(
                 account_address, 
-                to_wei(amount, "ether")).buildTransaction({
+                to_wei(amount, "ether")).build_transaction({
                     'from': self.account.address,
-                    'nonce': self.w3.eth.getTransactionCount(self.account.address),
+                    'nonce': self.w3.eth.get_transaction_count(self.account.address),
                     })
 
             self._execute_tx(construct_txn)
@@ -503,9 +503,9 @@ class FireflyClient:
 
         construct_txn = perp_contract.functions.setSubAccount(
                 sub_account_address, 
-                status).buildTransaction({
+                status).build_transaction({
                     'from': self.account.address,
-                    'nonce': self.w3.eth.getTransactionCount(self.account.address),
+                    'nonce': self.w3.eth.get_transaction_count(self.account.address),
                     })
 
         self._execute_tx(construct_txn)
@@ -517,7 +517,7 @@ class FireflyClient:
             Returns user's native chain token (ETH/BOBA) balance
         """
         try:
-            return from_wei(self.w3.eth.get_balance(self.w3.toChecksumAddress(self.account.address)), "ether")
+            return from_wei(self.w3.eth.get_balance(self.w3.to_checksum_address(self.account.address)), "ether")
         except Exception as e:
             raise(Exception("Failed to get balance, Exception: {}".format(e)))
 
@@ -1142,9 +1142,9 @@ class FireflyClient:
         Returns:
             tx_receipt: a receipt of txn mined on-chain
         """
-        tx_create = self.w3.eth.account.signTransaction(transaction, self.account.key)
-        tx_hash = self.w3.eth.sendRawTransaction(tx_create.rawTransaction)
-        return self.w3.eth.waitForTransactionReceipt(tx_hash)
+        tx_create = self.w3.eth.account.sign_transaction(transaction, self.account.key)
+        tx_hash = self.w3.eth.send_raw_transaction(tx_create.rawTransaction)
+        return self.w3.eth.wait_for_transaction_receipt(tx_hash)
 
     def _connect_w3(self,url):
         """

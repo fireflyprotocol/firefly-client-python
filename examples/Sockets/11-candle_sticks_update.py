@@ -7,14 +7,10 @@ from firefly_exchange_client import FireflyClient, Networks, MARKET_SYMBOLS, ORD
 import asyncio
 event_received = False
 
-
 async def main():
 
     client = FireflyClient(True, Networks[TEST_NETWORK], TEST_ACCT_KEY)
     await client.init(True)
-
-    # add market that you wish to trade on
-    client.add_market(MARKET_SYMBOLS.ETH)
 
     def callback(event):
         global event_received
@@ -27,13 +23,9 @@ async def main():
         status = await client.socket.subscribe_global_updates_by_symbol(MARKET_SYMBOLS.ETH)
         print("Subscribed to global ETH events: {}".format(status))
 
-        # subscribe to local user events
-        status = await client.socket.subscribe_user_update_by_token()
-        print("Subscribed to user events: {}".format(status))
-
-        # triggered when user order updates are received
-        print("Listening to user order updates")
-        await client.socket.listen(SOCKET_EVENTS.ORDER_UPDATE.value, callback)
+        # triggered when account data updates are received
+        print("Listening to candle stick updates")
+        await client.socket.listen(SOCKET_EVENTS.GET_LAST_KLINE_WITH_INTERVAL, callback)
 
     async def disconnection_callback():
         print("Sockets disconnected, performing actions...")
@@ -46,6 +38,9 @@ async def main():
     await client.socket.open()
 
     ######## Placing an Order ########
+
+    # add market that you wish to trade on
+    client.add_market(MARKET_SYMBOLS.ETH)
 
     # default leverage of account is set to 3 on firefly
     user_leverage = await client.get_user_leverage(MARKET_SYMBOLS.ETH)
