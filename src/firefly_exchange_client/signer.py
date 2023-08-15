@@ -13,7 +13,7 @@ class Signer:
                 - domain_hash: chain domain hash
                 - struct_hash: struct hash of information to be signed
         """
-        return Web3.solidityKeccak(
+        return Web3.solidity_keccak(
         [
             'bytes2',
             'bytes32',
