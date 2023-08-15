@@ -18,6 +18,7 @@
         "UNDERCOLLATERALIZED"
     ],
     "python.analysis.extraPaths": [
-        "./src"
+        "./src",
+        "./examples"
     ]
 }
