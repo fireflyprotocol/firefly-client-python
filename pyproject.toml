@@ -1,6 +1,6 @@
 [project]
 name = "firefly_exchange_client"
-version = "0.7.0"
+version = "0.8.0"
 description = "Library to interact with firefly exchange protocol including its off-chain api-gateway and on-chain contracts"
 readme = "README.md"
 requires-python = ">=3.8"
