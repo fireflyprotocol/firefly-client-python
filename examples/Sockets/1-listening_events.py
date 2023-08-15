@@ -2,7 +2,7 @@
 # Places a market order on exchange and listens to emitted events
 ##
 import time
-from config import TEST_ACCT_KEY, TEST_NETWORK
+from config import TEST_ACCT_KEY,TEST_NETWORK
 from firefly_exchange_client import FireflyClient, Networks, MARKET_SYMBOLS, ORDER_SIDE, ORDER_TYPE, OrderSignatureRequest, SOCKET_EVENTS
 import asyncio
 
