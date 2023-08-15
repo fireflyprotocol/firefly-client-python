@@ -34,7 +34,7 @@ class OrderSigner(Signer):
         """
             Returns domain hash
         """
-        return Web3.solidityKeccak(
+        return Web3.solidity_keccak(
         [
             'bytes32',
             'bytes32',
@@ -60,7 +60,7 @@ class OrderSigner(Signer):
                 - str: order hash
         """
         flags = self.get_order_flags(order)
-        struct_hash = Web3.solidityKeccak(
+        struct_hash = Web3.solidity_keccak(
             abi_types=[
                 'bytes32',
                 'bytes32',
@@ -112,12 +112,12 @@ class OrderSigner(Signer):
             Returns:
                 str: generated signature
         """
-        struct_hash = Web3.solidityKeccak(
+        struct_hash = Web3.solidity_keccak(
             abi_types=['bytes32','bytes32','bytes32'],
             values=[
                 hash_string(EIP712_CANCEL_ORDER_STRUCT_STRING),
                 hash_string("Cancel Orders"),
-                Web3.solidityKeccak(
+                Web3.solidity_keccak(
                     abi_types=['bytes32' for i in range(len(order_hash))],
                     values=[hash for hash in order_hash]
                 ).hex()

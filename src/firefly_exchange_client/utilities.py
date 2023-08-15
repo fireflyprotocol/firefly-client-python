@@ -14,7 +14,7 @@ def address_to_bytes32(addr):
 
 
 def hash_string(value: str): 
-    return Web3.solidityKeccak(["string"], [value] ).hex()
+    return Web3.solidity_keccak(["string"], [value] ).hex()
 
 def bn_to_bytes8(value:int):
     return str("0x"+"0"*16+hex(value)[2:]).encode('utf-8')
