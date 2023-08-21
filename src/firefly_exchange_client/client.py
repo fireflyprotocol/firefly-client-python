@@ -789,6 +789,38 @@ class FireflyClient:
             params,
             True
         )
+    
+    async def get_open_orders(self,params:GetOpenOrderRequest):
+        """
+            Returns a list of orders.
+            Inputs:
+                params(GetOpenOrderRequest): params required to query orders (e.g. symbol,parentAddress) 
+            Returns:
+                list: a list of open orders 
+        """
+        params = extract_enums(params,["symbol"])
+
+        return await self.apis.get(
+            SERVICE_URLS["USER"]["OPEN_ORDERS"],
+            params,
+            True
+        )
+    
+    async def get_orders_by_type(self,params:GetOrderByTypeRequest):
+        """
+            Returns a list of orders by type.
+            Inputs:
+                params(GetOrderByTypeRequest): params required to query orders (e.g. symbol,statuses) 
+            Returns:
+                list: a list of orders by order type
+        """
+        params = extract_enums(params,["symbol","limitStatuses","marketStatuses"])
+
+        return await self.apis.get(
+            SERVICE_URLS["USER"]["ORDERS_BY_TYPE"],
+            params,
+            True
+        )
         
     async def get_transaction_history(self,params:GetTransactionHistoryRequest):
         """
