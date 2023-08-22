@@ -2,7 +2,7 @@ import socketio
 import time
 from .enumerations import MARKET_SYMBOLS, SOCKET_EVENTS
 import asyncio
-sio = socketio.Client()
+sio = socketio.AsyncClient()
 
 
 class Sockets:
@@ -15,12 +15,12 @@ class Sockets:
         self.api_token = ""
         return
 
-    def _establish_connection(self):
+    async def _establish_connection(self):
         """
             Connects to the desired url
         """
         try:
-            sio.connect(self.url, wait_timeout=self.timeout,
+            await sio.connect(self.url, wait_timeout=self.timeout,
                         transports=["websocket"])
             return True
         except:
@@ -46,7 +46,7 @@ class Sockets:
         """
             opens socket instance connection
         """
-        self.connection_established = self._establish_connection()
+        self.connection_established = await self._establish_connection()
         if not self.connection_established:
             await self.close()
             raise (Exception("Failed to connect to Host: {}".format(self.url)))
@@ -56,7 +56,7 @@ class Sockets:
         """
             closes the socket instance connection
         """
-        sio.disconnect()
+        await sio.disconnect()
         return
 
     @sio.on("*")
@@ -76,21 +76,19 @@ class Sockets:
         return
         
     @sio.event
-    def connect():
+    async def connect():
         print("Connected To Socket Server")
-        # add 10 seconds sleep to allow connection to be established before callbacks for connections are executed
         if 'connect' in Sockets.callbacks:
             # Execute the callback using asyncio.run() if available
-            time.sleep(10)
-            asyncio.run(Sockets.callbacks['connect']())
+            await Sockets.callbacks['connect']()
         
 
     @sio.event
-    def disconnect():
+    async def disconnect():
         print('Disconnected From Socket Server')
         if 'disconnect' in Sockets.callbacks:
             # Execute the callback using asyncio.run() if available
-            asyncio.get_running_loop().create_task(Sockets.callbacks['disconnect']())
+            await Sockets.callbacks['disconnect']()
             
 
 
@@ -108,11 +106,7 @@ class Sockets:
                 - symbol: market symbol of market user wants global updates for. (e.g. DOT-PERP)
         """
         try:
-            if not self.connection_established:
-                raise Exception(
-                    "Socket connection is established, invoke socket.open()")
-
-            resp = sio.call('SUBSCRIBE', [
+            resp = await sio.call('SUBSCRIBE', [
                 {
                     "e": SOCKET_EVENTS.GLOBAL_UPDATES_ROOM.value,
                     "p": symbol.value,
@@ -130,9 +124,6 @@ class Sockets:
                     - symbol: market symbol of market user wants to remove global updates for. (e.g. DOT-PERP)
         """
         try:
-            if not self.connection_established:
-                return False
-
             resp = sio.call('UNSUBSCRIBE', [
                 {
                     "e": SOCKET_EVENTS.GLOBAL_UPDATES_ROOM.value,
@@ -154,10 +145,7 @@ class Sockets:
                 - token(str): auth token generated when onboarding on firefly
         """
         try:
-            if not self.connection_established:
-                return False
-
-            resp = sio.call("SUBSCRIBE", [
+            resp =await sio.call("SUBSCRIBE", [
                 {
                     "e": SOCKET_EVENTS.USER_UPDATES_ROOM.value,
                     'pa': parent_account,
@@ -179,9 +167,6 @@ class Sockets:
                 - token: auth token generated when onboarding on firefly
         """
         try:
-            if not self.connection_established:
-                return False
-
             resp = sio.call("UNSUBSCRIBE", [
                 {
                     "e": SOCKET_EVENTS.USER_UPDATES_ROOM.value,
