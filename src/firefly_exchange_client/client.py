@@ -144,10 +144,10 @@ class FireflyClient:
         """
         abi = self.contracts.get_contract_abi(name)
         if market:
-            contract=self.w3.eth.contract(address=Web3.toChecksumAddress(address), abi=abi)
+            contract=self.w3.eth.contract(address=Web3.to_checksum_address(address), abi=abi)
             self.contracts.set_contracts(market=market,name=name,contract=contract)
         else:
-            contract=self.w3.eth.contract(address=Web3.toChecksumAddress(address), abi=abi)
+            contract=self.w3.eth.contract(address=Web3.to_checksum_address(address), abi=abi)
             self.contracts.set_contracts(name=name,contract=contract)
         return 
 
@@ -365,9 +365,9 @@ class FireflyClient:
         
         construct_txn = usdc_contract.functions.approve(
             mb_contract.address, 
-            amount).buildTransaction({
+            amount).build_transaction({
                 'from': self.account.address,
-                'nonce': self.w3.eth.getTransactionCount(self.account.address),
+                'nonce': self.w3.eth.get_transaction_count(self.account.address),
             })
 
         self._execute_tx(construct_txn)
@@ -375,9 +375,9 @@ class FireflyClient:
         # deposit to margin bank
         construct_txn = mb_contract.functions.depositToBank(
             self.account.address, 
-            amount).buildTransaction({
+            amount).build_transaction({
                 'from': self.account.address,
-                'nonce': self.w3.eth.getTransactionCount(self.account.address),
+                'nonce': self.w3.eth.get_transaction_count(self.account.address),
                 })
 
         self._execute_tx(construct_txn)
@@ -401,9 +401,9 @@ class FireflyClient:
         # withdraw from margin bank
         construct_txn = mb_contract.functions.withdrawFromBank(
             self.account.address, 
-            amount).buildTransaction({
+            amount).build_transaction({
                 'from': self.account.address,
-                'nonce': self.w3.eth.getTransactionCount(self.account.address),
+                'nonce': self.w3.eth.get_transaction_count(self.account.address),
                 })
 
         self._execute_tx(construct_txn)
@@ -426,16 +426,16 @@ class FireflyClient:
 
         user_position = await self.get_user_position({"symbol":symbol, "parentAddress": parentAddress})
         
-        account_address = Web3.toChecksumAddress(self.account.address if parentAddress == "" else parentAddress)
+        account_address = Web3.to_checksum_address(self.account.address if parentAddress == "" else parentAddress)
             
         # implies user has an open position on-chain, perform on-chain leverage update
         if(user_position != {}):
             perp_contract = self.contracts.get_contract(name="Perpetual", market=symbol.value) 
             construct_txn = perp_contract.functions.adjustLeverage(
                 account_address, 
-                to_wei(leverage, "ether")).buildTransaction({
+                to_wei(leverage, "ether")).build_transaction({
                     'from': self.account.address,
-                    'nonce': self.w3.eth.getTransactionCount(self.account.address),
+                    'nonce': self.w3.eth.get_transaction_count(self.account.address),
                     })            
             self._execute_tx(construct_txn)
 
@@ -469,7 +469,7 @@ class FireflyClient:
 
         user_position = await self.get_user_position({"symbol":symbol, "parentAddress": parentAddress})
 
-        account_address = Web3.toChecksumAddress(self.account.address if parentAddress == "" else parentAddress)
+        account_address = Web3.to_checksum_address(self.account.address if parentAddress == "" else parentAddress)
 
         if(user_position == {}):
             raise(Exception("User has no open position on market: {}".format(symbol)))
@@ -479,9 +479,9 @@ class FireflyClient:
 
             construct_txn = on_chain_call(
                 account_address, 
-                to_wei(amount, "ether")).buildTransaction({
+                to_wei(amount, "ether")).build_transaction({
                     'from': self.account.address,
-                    'nonce': self.w3.eth.getTransactionCount(self.account.address),
+                    'nonce': self.w3.eth.get_transaction_count(self.account.address),
                     })
 
             self._execute_tx(construct_txn)
@@ -503,9 +503,9 @@ class FireflyClient:
 
         construct_txn = perp_contract.functions.setSubAccount(
                 sub_account_address, 
-                status).buildTransaction({
+                status).build_transaction({
                     'from': self.account.address,
-                    'nonce': self.w3.eth.getTransactionCount(self.account.address),
+                    'nonce': self.w3.eth.get_transaction_count(self.account.address),
                     })
 
         self._execute_tx(construct_txn)
@@ -517,7 +517,7 @@ class FireflyClient:
             Returns user's native chain token (ETH/BOBA) balance
         """
         try:
-            return from_wei(self.w3.eth.get_balance(self.w3.toChecksumAddress(self.account.address)), "ether")
+            return from_wei(self.w3.eth.get_balance(self.w3.to_checksum_address(self.account.address)), "ether")
         except Exception as e:
             raise(Exception("Failed to get balance, Exception: {}".format(e)))
 
@@ -773,6 +773,7 @@ class FireflyClient:
             {},
             True
         )
+    
     async def get_orders(self,params:GetOrderRequest):
         """
             Returns a list of orders.
@@ -910,6 +911,211 @@ class FireflyClient:
              raise Exception("Cancel on Disconnect (dead-mans-switch) feature is currently unavailable")
         return response
        
+    ## Growth endpoints
+    async def generate_referral_code(self,params:GenerateReferralCodeRequest):
+        """
+            Inputs:
+                params(GenerateReferralCodeRequest): params required to generate referral code
+            Returns:
+                - GenerateReferralCodeResponse
+                    - referralAddress
+                    - referralCode
+                    - message?
+        """
+        return await self.apis.post(
+            SERVICE_URLS["GROWTH"]["GENERATE_CODE"],
+            params,
+            True
+        )
+    
+    async def link_referred_user(self,params:LinkReferredUserRequest):
+        """
+            Inputs:
+                params(LinkReferredUserRequest): params required to link referred user
+            Returns:
+                - LinkReferredUserResponse
+                    - referralCode
+                    - refereeAddress
+                    - campaignId
+                    - message
+        """
+        return await self.apis.post(
+            SERVICE_URLS["GROWTH"]["LINK_REFERRED_USER"],
+            params,
+            True
+        )
+    
+    async def get_referrer_info(self,campaignId:int):
+        """
+            Inputs:
+                campaignId: represents campaign id for which user wants to fetch referrer info for
+            Returns:
+                - GetReferrerInfoResponse
+                    - isReferee
+        """
+        return await self.apis.get(
+            SERVICE_URLS["GROWTH"]["REFERRER_INFO"],
+            {"campaignId": campaignId},
+            True
+        )
+    
+    async def get_campaign_details(self):
+        """
+            Returns:
+                - list of GetCampaignDetailsResponse
+        """
+        return await self.apis.get(
+            SERVICE_URLS["GROWTH"]["CAMPAIGN_DETAILS"]
+        )
+    
+    async def get_campaign_rewards(self,campaignId:int):
+        """
+            Inputs:
+                campaignId: represents campaign id for which user wants to fetch rewards of
+            Returns:
+                - GetCampaignRewardsResponse
+        """
+        return await self.apis.get(
+            SERVICE_URLS["GROWTH"]["CAMPAIGN_REWARDS"],
+            {"campaignId": campaignId},
+            True
+        )
+    
+    async def get_affiliate_payouts(self,campaignId:int):
+        """
+            Inputs:
+                campaignId: represents campaign id for which user wants to fetch payouts of
+            Returns:
+                - List of GetAffiliatePayoutsResponse
+        """
+        return await self.apis.get(
+            SERVICE_URLS["GROWTH"]["AFFILIATE_PAYOUTS"],
+            {"campaignId": campaignId},
+            True
+        )
+    
+    async def get_affiliate_referee_details(self,params:GetAffiliateRefereeDetailsRequest):
+        """
+            Inputs:
+                params: GetAffiliateRefereeDetailsRequest
+            Returns:
+                - GetAffiliateRefereeDetailsRequestGetAffiliatePayoutsResponse
+        """
+        return await self.apis.get(
+            SERVICE_URLS["GROWTH"]["AFFILIATE_REFEREE_DETAILS"],
+            params,
+            True
+        )
+    
+    async def get_affiliate_referee_count(self,campaignId:int):
+        """
+            Inputs:
+                campaignId: represents campaign id for which user wants to fetch referee count of
+            Returns:
+                - GetAffiliateRefereeCountResponse
+        """
+        return await self.apis.get(
+            SERVICE_URLS["GROWTH"]["AFFILIATE_REFEREE_DETAILS"],
+            {"campaignId": campaignId},
+            True
+        )
+    
+    async def get_user_rewards_history(self,params:GetUserRewardsHistoryRequest):
+        """
+            Inputs:
+                params: GetUserRewardsHistoryRequest
+            Returns:
+                - GetUserRewardsHistoryResponse
+        """
+        return await self.apis.get(
+            SERVICE_URLS["GROWTH"]["USER_REWARDS_HISTORY"],
+            params,
+            True
+        )
+    
+    async def get_user_rewards_summary(self):
+        """
+            Returns:
+                - List of GetUserRewardsSummaryResponse
+        """
+        return await self.apis.get(
+            SERVICE_URLS["GROWTH"]["USER_REWARDS_SUMMARY"],
+            {},
+            True
+        )
+    
+    async def get_trade_and_earn_rewards_overview(self,campaignId:int):
+        """
+            Inputs:
+                campaignId: represents campaign id for which user wants to fetch rewards overview of
+            Returns:
+                - GetTradeAndEarnRewardsOverviewResponse
+        """
+        return await self.apis.get(
+            SERVICE_URLS["GROWTH"]["REWARDS_OVERVIEW"],
+            {"campaignId": campaignId},
+            True
+        )
+    
+    async def get_trade_and_earn_rewards_detail(self,params:GetTradeAndEarnRewardsDetailRequest):
+        """
+            Inputs:
+                params: GetTradeAndEarnRewardsDetailRequest
+            Returns:
+                - GetTradeAndEarnRewardsDetailResponse
+        """
+        return await self.apis.get(
+            SERVICE_URLS["GROWTH"]["REWARDS_DETAILS"],
+            params,
+            True
+        )
+    
+    async def get_total_historical_trading_rewards(self):
+        """
+            Returns:
+                - GetTotalHistoricalTradingRewardsResponse
+        """
+        return await self.apis.get(
+            SERVICE_URLS["GROWTH"]["TOTAL_HISTORICAL_TRADING_REWARDS"],
+            {},
+            True
+        )
+    
+    async def get_maker_rewards_summary(self):
+        """
+            Returns:
+                - GetMakerRewardsSummaryResponse
+        """
+        return await self.apis.get(
+            SERVICE_URLS["GROWTH"]["MAKER_REWARDS_SUMMARY"],
+            {},
+            True
+        )
+    
+    async def get_maker_reward_details(self,params:GetMakerRewardDetailsRequest):
+        """
+            Inputs:
+                params: GetMakerRewardDetailsRequest
+            Returns:
+                - GetMakerRewardDetailsResponse
+        """
+        return await self.apis.get(
+            SERVICE_URLS["GROWTH"]["MAKER_REWARDS_DETAILS"],
+            params,
+            True
+        )
+
+    async def get_user_white_list_status_for_market_maker(self):
+        """
+            Returns:
+                - GetUserWhiteListStatusForMarkeMaker
+        """
+        return await self.apis.get(
+            SERVICE_URLS["GROWTH"]["MAKER_WHITELIST_STATUS"],
+            {},
+            True
+        )
+
     ## Internal methods
     def _get_order_signer(self,symbol:MARKET_SYMBOLS=None):
         """
@@ -936,9 +1142,9 @@ class FireflyClient:
         Returns:
             tx_receipt: a receipt of txn mined on-chain
         """
-        tx_create = self.w3.eth.account.signTransaction(transaction, self.account.key)
-        tx_hash = self.w3.eth.sendRawTransaction(tx_create.rawTransaction)
-        return self.w3.eth.waitForTransactionReceipt(tx_hash)
+        tx_create = self.w3.eth.account.sign_transaction(transaction, self.account.key)
+        tx_hash = self.w3.eth.send_raw_transaction(tx_create.rawTransaction)
+        return self.w3.eth.wait_for_transaction_receipt(tx_hash)
 
     def _connect_w3(self,url):
         """

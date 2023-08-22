@@ -15,6 +15,6 @@ class OnboardingSigner(Signer):
             Returns:
                 - str: signed msg hash
         """
-        hash = Web3.sha3(text=msg).hex()
+        hash = Web3.keccak(text=msg).hex()
         return self.sign_hash(hash, private_key)
 

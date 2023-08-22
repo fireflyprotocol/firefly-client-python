@@ -38,8 +38,11 @@ async def main():
 
     async def disconnection_callback():
         print("Sockets disconnected, performing actions...")
+<<<<<<< HEAD
         resp = resp = await client.cancel_all_orders(MARKET_SYMBOLS.ETH, [ORDER_STATUS.OPEN, ORDER_STATUS.PARTIAL_FILLED])
         print(resp)
+=======
+>>>>>>> c3af88fa4250ffcd922f06dd9c86c37343da4243
 
     # must specify connection_callback before opening the sockets below
     await client.socket.listen("connect", connection_callback)
