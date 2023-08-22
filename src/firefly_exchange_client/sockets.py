@@ -60,7 +60,7 @@ class Sockets:
         return
 
     @sio.on("*")
-    def listener(event, data):
+    async def listener(event, data):
         """
             Listens to all events emitted by the server
         """
@@ -124,7 +124,7 @@ class Sockets:
                     - symbol: market symbol of market user wants to remove global updates for. (e.g. DOT-PERP)
         """
         try:
-            resp = sio.call('UNSUBSCRIBE', [
+            resp = await sio.call('UNSUBSCRIBE', [
                 {
                     "e": SOCKET_EVENTS.GLOBAL_UPDATES_ROOM.value,
                     "p": symbol.value,
@@ -145,7 +145,7 @@ class Sockets:
                 - token(str): auth token generated when onboarding on firefly
         """
         try:
-            resp =await sio.call("SUBSCRIBE", [
+            resp = await sio.call("SUBSCRIBE", [
                 {
                     "e": SOCKET_EVENTS.USER_UPDATES_ROOM.value,
                     'pa': parent_account,
@@ -167,7 +167,7 @@ class Sockets:
                 - token: auth token generated when onboarding on firefly
         """
         try:
-            resp = sio.call("UNSUBSCRIBE", [
+            resp = await sio.call("UNSUBSCRIBE", [
                 {
                     "e": SOCKET_EVENTS.USER_UPDATES_ROOM.value,
                     'pa': parent_account,
