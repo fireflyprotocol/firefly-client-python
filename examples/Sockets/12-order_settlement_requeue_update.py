@@ -87,5 +87,6 @@ if __name__ == "__main__":
     pending = asyncio.all_tasks(loop=loop)
     group = asyncio.gather(*pending)
     loop.run_until_complete(group)
+    loop.close()
 
 

@@ -55,10 +55,10 @@ async def main():
     signature_request = OrderSignatureRequest(
         symbol=MARKET_SYMBOLS.ETH,
         leverage=user_leverage,
-        price=0,
-        quantity=0.5,
+        price=1600,
+        quantity=0.01,
         side=ORDER_SIDE.BUY,
-        orderType=ORDER_TYPE.MARKET
+        orderType=ORDER_TYPE.LIMIT
     )
 
     # create signed order
@@ -67,6 +67,7 @@ async def main():
     print("Placing a market order")
     # place signed order on orderbook
     resp = await client.post_signed_order(signed_order)
+    print(resp)
 
     ###### Closing socket connections after 30 seconds #####
     timeout = 30
@@ -88,4 +89,5 @@ if __name__ == "__main__":
     pending = asyncio.all_tasks(loop=loop)
     group = asyncio.gather(*pending)
     loop.run_until_complete(group)
+    loop.close()
 
