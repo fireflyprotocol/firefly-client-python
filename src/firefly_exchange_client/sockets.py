@@ -66,9 +66,9 @@ class Sockets:
         """
         try:
             if event in Sockets.callbacks.keys():
-                Sockets.callbacks[event](data)
+                await Sockets.callbacks[event](data)
             elif "default" in Sockets.callbacks.keys():
-                Sockets.callbacks["default"]({"event": event, "data": data})
+                await Sockets.callbacks["default"]({"event": event, "data": data})
             else:
                 pass
         except:
