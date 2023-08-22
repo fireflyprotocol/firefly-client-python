@@ -75,13 +75,7 @@ async def main():
 
 
 if __name__ == "__main__":
-    ### make sure keep the loop initialization same 
-    # as below to ensure closing the script after receiving 
-    # completion of each callback on socket events ###  
     loop = asyncio.new_event_loop()
-    loop.create_task(main())
-    pending = asyncio.all_tasks(loop=loop)
-    group = asyncio.gather(*pending)
-    loop.run_until_complete(group)
+    loop.run_until_complete(main())
     loop.close()
 
