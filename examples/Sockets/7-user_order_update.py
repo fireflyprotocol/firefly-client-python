@@ -55,10 +55,10 @@ async def main():
     signature_request = OrderSignatureRequest(
         symbol=MARKET_SYMBOLS.ETH,
         leverage=user_leverage,
-        price=1600,
-        quantity=0.01,
+        price=0,
+        quantity=0.5,
         side=ORDER_SIDE.BUY,
-        orderType=ORDER_TYPE.LIMIT
+        orderType=ORDER_TYPE.MARKET
     )
 
     # create signed order
