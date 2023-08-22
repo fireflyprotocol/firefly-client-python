@@ -40,9 +40,6 @@ async def main():
     print("Making socket connection to firefly exchange")
     await client.socket.open()
 
-    status = await client.socket.subscribe_user_update_by_token()
-    print("Subscribed to user events: {}".format(status))
-
     ######## Placing an Order ########
 
     # add market that you wish to trade on
