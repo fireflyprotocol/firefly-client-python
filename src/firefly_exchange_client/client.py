@@ -28,6 +28,9 @@ class FireflyClient:
         self.order_signers = {}
         self.onboarding_signer = OnboardingSigner()
         
+    def set_uuid(self, uuid):
+        self.apis.set_uuid(uuid)
+        self.dmsApi.set_uuid(uuid)
             
     async def init(self, user_onboarding=True, api_token=""):
         """

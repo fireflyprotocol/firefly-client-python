@@ -115,3 +115,7 @@ class APIService():
             Appends namespace to server url
         """
         return "{}{}".format(self.server_url, path)
+
+    def set_uuid(self,uuid):
+        if uuid is not "":
+                self.uuid = uuid
