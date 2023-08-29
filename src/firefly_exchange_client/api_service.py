@@ -66,9 +66,10 @@ class APIService():
         response = None
         if auth_required:
             headers = {
-                'Authorization': 'Bearer {}'.format(self.auth_token),
-                'x-mm-id': self.uuid or ''
+                'Authorization': 'Bearer {}'.format(self.auth_token)
             }
+            if self.uuid and self.uuid is not "":
+                headers['x-mm-id'] = self.uuid
 
             if contentType is not "":
                 headers['Content-type'] = contentType

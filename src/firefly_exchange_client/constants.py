@@ -33,7 +33,7 @@ Networks = {
     "socketURL": "wss://dapi.api.arbitrum-prod.firefly.exchange",
     "webSocketURL": "wss://notifications.api.arbitrum-prod.firefly.exchange",
     "onboardingUrl": "https://trade-arb.firefly.exchange",
-    "UUID": "uuid-default"
+    "UUID": ""
   },
   "MAINNET_ARBITRUM_INTERNAL": {
     "url": "https://arb1.arbitrum.io/rpc/",
@@ -43,7 +43,7 @@ Networks = {
     "socketURL": "wss://dapi.api.arbitrum-prod.int.firefly.exchange",
     "webSocketURL": "wss://notifications.api.arbitrum-prod.int.firefly.exchange",
     "onboardingUrl": "https://trade-arb.firefly.exchange",
-    "UUID": "uuid-default"
+    "UUID": ""
   }
 }
 
