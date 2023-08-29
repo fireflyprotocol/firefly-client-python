@@ -35,6 +35,16 @@ Networks = {
     "onboardingUrl": "https://trade-arb.firefly.exchange",
     "UUID": "uuid-default"
   },
+  "MAINNET_ARBITRUM_INTERNAL": {
+    "url": "https://arb1.arbitrum.io/rpc/",
+    "chainId": 42161,
+    "apiGateway": "https://dapi.api.arbitrum-prod.int.firefly.exchange",
+    "dmsURL": "https://api.arbitrum-prod.int.firefly.exchange/dead-man-switch",
+    "socketURL": "wss://dapi.api.arbitrum-prod.int.firefly.exchange",
+    "webSocketURL": "wss://notifications.api.arbitrum-prod.int.firefly.exchange",
+    "onboardingUrl": "https://trade-arb.firefly.exchange",
+    "UUID": "uuid-default"
+  }
 }
 
 

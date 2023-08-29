@@ -11,6 +11,12 @@ class APIService():
         self.uuid = UUID
         self.client = aiohttp.ClientSession()
 
+        
+    def set_uuid(self,uuid):
+        if uuid is not "":
+                self.uuid = uuid
+
+
     async def close_session(self):
         if self.client is not None:
             return await self.client.close()

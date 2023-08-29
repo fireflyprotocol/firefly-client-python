@@ -88,6 +88,10 @@ class FireflyClient:
 
         return user_auth_token
 
+    def set_uuid(self, uuid):
+        self.apis.set_uuid(uuid)
+        self.dmsApi.set_uuid(uuid)
+
     async def authorize_signed_hash(self, signed_hash:str):
         """
             Registers user as an authorized user on server and returns authorization token.
