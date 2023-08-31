@@ -21,7 +21,7 @@ class FireflyClient:
         if private_key != "":
             self.account = Account.from_key(private_key)
         self.apis = APIService(self.network["apiGateway"], default_value(self.network, "UUID", "") )
-        self.dmsApi = APIService(self.network["dmsURL"])
+        self.dmsApi = APIService(self.network["dmsURL"], default_value(self.network, "UUID", ""))
         self.socket = Sockets(self.network["socketURL"])
         self.webSocketClient = WebsocketClient(self.network["webSocketURL"])
         self.contracts = Contracts()

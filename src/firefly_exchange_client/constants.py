@@ -1,12 +1,4 @@
 Networks = {
-  "DEV": {
-    "url": "https://l2-dev.firefly.exchange/",
-    "chainId": 78602,
-    "apiGateway": "https://dapi-dev.firefly.exchange",
-    "socketURL": "wss://dapi-dev.firefly.exchange",
-    "onboardingUrl": "https://dev.firefly.exchange",
-  },
-
   "TESTNET_ARBITRUM": {
     "url": "https://goerli-rollup.arbitrum.io/rpc",
     "chainId": 421613,
@@ -16,14 +8,6 @@ Networks = {
     "webSocketURL": "wss://notifications.api.arbitrum-staging.firefly.exchange",
     "onboardingUrl": "https://testnet.firefly.exchange",
     "UUID": "uuid-default"
-  },
-
-  "MAINNET_BOBA": {
-    "url": "https://bobabeam.boba.network/",
-    "chainId": 1294,
-    "apiGateway": "https://dapi.firefly.exchange",
-    "socketURL": "wss://dapi.firefly.exchange",
-    "onboardingUrl": "https://trade.firefly.exchange",
   },
   "MAINNET_ARBITRUM": {
     "url": "https://arb1.arbitrum.io/rpc/",

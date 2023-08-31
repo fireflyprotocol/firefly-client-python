@@ -11,11 +11,9 @@ class APIService():
         self.uuid = UUID
         self.client = aiohttp.ClientSession()
 
-        
-    def set_uuid(self,uuid):
+    def set_uuid(self, uuid):
         if uuid is not "":
-                self.uuid = uuid
-
+            self.uuid = uuid
 
     async def close_session(self):
         if self.client is not None:
@@ -33,15 +31,16 @@ class APIService():
 
         response = None
         if auth_required:
+            headers = {
+                'Authorization': 'Bearer {}'.format(self.auth_token),
+                'x-api-token': self.api_token or ''
+            }
+            if self.uuid and self.uuid is not "":
+                headers['x-mm-id'] = self.uuid
             response = await self.client.get(
                 url,
                 params=query,
-                headers={
-                    'Authorization': 'Bearer {}'.format(self.auth_token) if self.auth_token else '',
-                    'x-api-token': self.api_token or '',
-                    'x-mm-id': self.uuid or ''
-
-                }
+                headers=headers 
             )
         else:
             response = await self.client.get(url, params=query)
@@ -99,11 +98,16 @@ class APIService():
 
         response = None
         if auth_required:
+            headers = {
+                'Authorization': 'Bearer {}'.format(self.auth_token)
+            }
+            if self.uuid and self.uuid is not "":
+                headers['x-mm-id'] = self.uuid
+
             response = await self.client.delete(
                 url=url,
                 data=data,
-                headers={'Authorization': 'Bearer {}'.format(self.auth_token),
-                 'x-mm-id': self.uuid or ''})
+                headers=headers)
         else:
             response = await self.client.delete(url=url, data=data)
 
