@@ -8,10 +8,10 @@ async def main():
   client = FireflyClient(True, Networks[TEST_NETWORK], TEST_ACCT_KEY)
   await client.init(True)
 
-  print("Parent: ", client.get_public_address())
+  print("client: ", client.get_public_address())
 
 
-  # # whitelist sub account
+  # # closes position when market is delisted
   status = await client.close_position(MARKET_SYMBOLS.ETH)
   print("Close position : {}".format(status))
 
