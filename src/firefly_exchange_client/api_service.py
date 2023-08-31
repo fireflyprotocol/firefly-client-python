@@ -12,8 +12,7 @@ class APIService():
         self.client = aiohttp.ClientSession()
 
     def set_uuid(self, uuid):
-        if uuid is not "":
-            self.uuid = uuid
+        self.uuid = uuid
 
     async def close_session(self):
         if self.client is not None:
@@ -27,7 +26,7 @@ class APIService():
                 - query(dict): the get query.
                 - auth_required(bool): indicates whether authorization is required for the call or not.
         """
-       
+
         url = self._create_url(service_url)
 
         response = None
