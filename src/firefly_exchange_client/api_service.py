@@ -27,6 +27,7 @@ class APIService():
                 - query(dict): the get query.
                 - auth_required(bool): indicates whether authorization is required for the call or not.
         """
+       
         url = self._create_url(service_url)
 
         response = None
@@ -37,6 +38,7 @@ class APIService():
             }
             if self.uuid and self.uuid is not "":
                 headers['x-mm-id'] = self.uuid
+                
             response = await self.client.get(
                 url,
                 params=query,
