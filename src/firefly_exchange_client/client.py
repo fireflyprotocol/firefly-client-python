@@ -383,6 +383,30 @@ class FireflyClient:
         self._execute_tx(construct_txn)
 
         return True
+    
+    async def close_position(self, symbol):
+        """
+            closes user position when market in delisted
+
+            Inputs:
+                symbol (MARKET_SYMBOLS): market on which position is to be closed
+
+            Returns:
+                Boolean: true if position is closed, false otherwise
+        """
+
+        perp_contract = self.contracts.get_contract(name="Perpetual", market=symbol.value) 
+
+        # deposit to margin bank
+        construct_txn = perp_contract.functions.closePosition(
+            self.account.address).build_transaction({
+                'from': self.account.address,
+                'nonce': self.w3.eth.get_transaction_count(self.account.address),
+                })
+
+        self._execute_tx(construct_txn)
+
+        return True
 
     async def withdraw_margin_from_bank(self, amount):
         """
