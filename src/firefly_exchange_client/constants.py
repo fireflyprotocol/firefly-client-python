@@ -7,7 +7,7 @@ Networks = {
     "socketURL": "wss://dapi.api.arbitrum-staging.firefly.exchange",
     "webSocketURL": "wss://notifications.api.arbitrum-staging.firefly.exchange",
     "onboardingUrl": "https://testnet.firefly.exchange",
-    "UUID": "uuid-default"
+    "UUID": ""
   },
   "MAINNET_ARBITRUM": {
     "url": "https://arb1.arbitrum.io/rpc/",
