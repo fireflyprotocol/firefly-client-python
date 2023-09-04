@@ -3,7 +3,7 @@
 ##
 import time
 from config import TEST_ACCT_KEY,TEST_NETWORK
-from firefly_exchange_client import FireflyClient, Networks, MARKET_SYMBOLS, ORDER_SIDE, ORDER_TYPE, OrderSignatureRequest, SOCKET_EVENTS
+from firefly_exchange_client import FireflyClient, Networks,ORDER_STATUS, MARKET_SYMBOLS, ORDER_SIDE, ORDER_TYPE, OrderSignatureRequest, SOCKET_EVENTS
 import asyncio
 
 event_received = False
@@ -38,6 +38,8 @@ async def main():
 
     async def disconnection_callback():
         print("Sockets disconnected, performing actions...")
+        resp = await client.cancel_all_orders(MARKET_SYMBOLS.ETH, [ORDER_STATUS.OPEN, ORDER_STATUS.PARTIAL_FILLED])
+        print(resp)
 
     # must specify connection_callback before opening the sockets below
     await client.socket.listen("connect", connection_callback)

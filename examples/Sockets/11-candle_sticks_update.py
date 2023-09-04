@@ -37,31 +37,7 @@ async def main():
     print("Making socket connection to firefly exchange")
     await client.socket.open()
 
-    ######## Placing an Order ########
-
-    # add market that you wish to trade on
-    client.add_market(MARKET_SYMBOLS.ETH)
-
-    # default leverage of account is set to 3 on firefly
-    user_leverage = await client.get_user_leverage(MARKET_SYMBOLS.ETH)
-
-    # creates a MARKET order to be signed
-    signature_request = OrderSignatureRequest(
-        symbol=MARKET_SYMBOLS.ETH,
-        leverage=user_leverage,
-        price=0,
-        quantity=0.5,
-        side=ORDER_SIDE.BUY,
-        orderType=ORDER_TYPE.MARKET
-    )
-
-    # create signed order
-    signed_order = client.create_signed_order(signature_request)
-
-    print("Placing a market order")
-    # place signed order on orderbook
-    resp = await client.post_signed_order(signed_order)
-
+    
     ###### Closing socket connections after 30 seconds #####
     timeout = 30
     end_time = time.time() + timeout
@@ -74,7 +50,7 @@ async def main():
 
 
 if __name__ == "__main__":
-    ### make sure keep the loop initialization same 
+   ### make sure keep the loop initialization same 
     # as below to ensure closing the script after receiving 
     # completion of each callback on socket events ###  
     loop = asyncio.new_event_loop()
