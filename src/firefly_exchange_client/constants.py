@@ -89,7 +89,6 @@ SERVICE_URLS = {
     "USER_POSITIONS": "/userPosition",
     "USER_TRADES": "/userTrades",
     "ORDERS": "/orders",
-    "OPEN_ORDERS": "/orders/open-orders",
     "ORDERS_BY_TYPE": "/orders/by-order-type",
     "GENERATE_READONLY_TOKEN": "/generateReadOnlyToken",
     "ACCOUNT": "/account",

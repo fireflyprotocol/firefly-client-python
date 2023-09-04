@@ -790,22 +790,6 @@ class FireflyClient:
             True
         )
     
-    async def get_open_orders(self,params:GetOpenOrderRequest):
-        """
-            Returns a list of orders.
-            Inputs:
-                params(GetOpenOrderRequest): params required to query orders (e.g. symbol,parentAddress) 
-            Returns:
-                list: a list of open orders 
-        """
-        params = extract_enums(params,["symbol"])
-
-        return await self.apis.get(
-            SERVICE_URLS["USER"]["OPEN_ORDERS"],
-            params,
-            True
-        )
-    
     async def get_orders_by_type(self,params:GetOrderByTypeRequest):
         """
             Returns a list of orders by type.
