@@ -386,3 +386,10 @@ class GetMakerRewardDetailsResponse(TypedDict):
 
 class GetUserWhiteListStatusForMarkeMakerResponse(TypedDict):
   isWhitelist: bool
+
+class GetOrderByTypeRequest(GetTransactionHistoryRequest):
+  limitStatuses:List[ORDER_STATUS] # (optional) status of limit orders to be fetched
+  marketStatuses:List[ORDER_STATUS] # (optional) status of market orders to be fetched
+  orderId: int #(optional) the id of order to be fetched
+  orderType: List[ORDER_TYPE]  # (optional) type of order Limit/Market
+  orderHashes: List[str] # (optional) hashes of order to be fetched
