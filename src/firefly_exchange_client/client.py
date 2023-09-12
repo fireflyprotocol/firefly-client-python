@@ -21,7 +21,7 @@ class FireflyClient:
         if private_key != "":
             self.account = Account.from_key(private_key)
         self.apis = APIService(self.network["apiGateway"], default_value(self.network, "UUID", "") )
-        self.dmsApi = APIService(self.network["dmsURL"])
+        self.dmsApi = APIService(self.network["dmsURL"], default_value(self.network, "UUID", ""))
         self.socket = Sockets(self.network["socketURL"])
         self.webSocketClient = WebsocketClient(self.network["webSocketURL"])
         self.contracts = Contracts()
@@ -87,6 +87,10 @@ class FireflyClient:
             user_auth_token = response['token']
 
         return user_auth_token
+
+    def set_uuid(self, uuid):
+        self.apis.set_uuid(uuid)
+        self.dmsApi.set_uuid(uuid)
 
     async def authorize_signed_hash(self, signed_hash:str):
         """
