@@ -134,6 +134,17 @@ class GetUserTradesRequest(TypedDict):
   type: ORDER_TYPE
   parentAddress: str # (optional) should be provided by sub account
 
+class GetUserTradesHistoryRequest(TypedDict):
+  symbol: MARKET_SYMBOLS
+  maker: bool
+  fromId: int
+  startTime: int
+  endTime: int
+  limit: int
+  cursor: int
+  type: ORDER_TYPE
+  parentAddress: str # (optional) should be provided by sub account
+
 class GetOrderRequest(GetTransactionHistoryRequest):
   statuses:List[ORDER_STATUS] # (optional) status of orders to be fetched
   orderId: int #(optional) the id of order to be fetched
