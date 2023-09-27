@@ -17,9 +17,11 @@ async def place_limit_order(client: FireflyClient):
         side=ORDER_SIDE.BUY, 
         orderType=ORDER_TYPE.LIMIT,
         leverage=user_leverage,
-        postOnly=False
+        postOnly=True,
+        cancelOnRevert=True
     )  
 
+   
     # create signed order
     signed_order = client.create_signed_order(signature_request) 
 
@@ -45,9 +47,11 @@ async def place_market_order(client: FireflyClient):
         quantity=0.01, # quantity
         side=ORDER_SIDE.BUY, 
         orderType=ORDER_TYPE.MARKET,
-        leverage=user_leverage
+        leverage=user_leverage,
+        cancelOnRevert=True
     )  
-
+ 
+    print(signature_request)
     # create signed order
     signed_order = client.create_signed_order(signature_request) 
 
