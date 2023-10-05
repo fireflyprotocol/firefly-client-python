@@ -9,6 +9,7 @@ async def main():
 
     client = FireflyClient(True, Networks[TEST_NETWORK], TEST_ACCT_KEY)
     await client.init(True)
+    client.set_uuid("uuid-tyuy")
 
     # must add market before cancelling its orders
     client.add_market(MARKET_SYMBOLS.ETH)
@@ -23,7 +24,8 @@ async def main():
         "expiration":int(time.time()+(30*24*60*60)), # a random time in future
         "reduceOnly":False,
         "salt":10,
-        "postOnly":True
+        "postOnly":True,
+        "cancelOnRevert":True
     }
 
 
