@@ -35,7 +35,7 @@ class APIService():
                 'Authorization': 'Bearer {}'.format(self.auth_token),
                 'x-api-token': self.api_token or ''
             }
-            if self.uuid and self.uuid is not "":
+            if self.uuid and self.uuid != "":
                 headers['x-mm-id'] = self.uuid
                 
             response = await self.client.get(
