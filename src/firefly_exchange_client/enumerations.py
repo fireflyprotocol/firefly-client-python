@@ -87,6 +87,7 @@ class SOCKET_EVENTS(Enum):
     ORDER_REQUEUE_UPDATE = "OrderRequeueUpdate"
     ORDER_CANCELLED_ON_REVERSION_UPDATE = "OrderCancelledOnReversionUpdate"
     ORDER_CANCELLATION_FAILED = "OrderCancellationFailed"
+    ORDER_CANCELLATION = "OrderCancelled"
     POSITION_UPDATE = "PositionUpdate"
     USER_TRADE = "UserTrade"
     USER_TRANSACTION = "UserTransaction"
