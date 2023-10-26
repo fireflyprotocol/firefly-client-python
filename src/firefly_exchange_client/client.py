@@ -181,7 +181,7 @@ class FireflyClient:
             reduceOnly =  default_value(params, "reduceOnly", False),
             postOnly =  default_value(params, "postOnly", False),
             cancelOnRevert =  default_value(params, "cancelOnRevert", False),
-            triggerPrice =  0,
+            triggerPrice =  to_wei(default_value(params,"triggerPrice",0),"ether"),
             expiration =  default_value(params, "expiration", expiration),
             salt =  default_value(params, "salt", random_number(1000000)),
             )
@@ -216,6 +216,7 @@ class FireflyClient:
             leverage=default_value(params, "leverage", 1),
             reduceOnly=default_value(params, "reduceOnly", False),
             postOnly=default_value(params, "postOnly", False),
+            triggerPrice=default_value(params, "triggerPrice", 0),
             cancelOnRevert =  default_value(params, "cancelOnRevert", False),
             salt=order["salt"],
             expiration=order["expiration"],
@@ -338,6 +339,7 @@ class FireflyClient:
             "leverage": to_wei(params["leverage"], "ether"),
             "userAddress": params["maker"],
             "orderType": params["orderType"].value,
+            "triggerPrice": to_wei(params["triggerPrice"],"ether"),
             "side": params["side"].value,            
             "reduceOnly": params["reduceOnly"],
             "salt": params["salt"],
@@ -346,7 +348,7 @@ class FireflyClient:
             "timeInForce": default_enum_value(params, "timeInForce", TIME_IN_FORCE.GOOD_TILL_TIME),
             "postOnly": default_value(params, "postOnly", False),
             "cancelOnRevert": default_value(params, "cancelOnRevert", False),
-            "clientId": "firefly-client: {}".format(default_value(params, "clientId", "firefly-client"))
+            "clientId": "firefly-client: {}".format(default_value(params, "clientId", "firefly-client")),
             },
             auth_required=True
             )
