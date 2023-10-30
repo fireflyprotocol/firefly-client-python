@@ -221,7 +221,8 @@ class FireflyClient:
             expiration=order["expiration"],
             orderSignature=order_signature,
             orderType=params["orderType"],
-            maker=order["maker"]
+            maker=order["maker"],
+            timeInForce=default_value(params, "timeInForce", TIME_IN_FORCE.GOOD_TILL_TIME),
         )
     
     def create_signed_cancel_order(self,params:OrderSignatureRequest, parentAddress:str=""):
