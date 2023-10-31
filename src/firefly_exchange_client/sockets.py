@@ -104,7 +104,7 @@ class Sockets:
         """
             Allows user to subscribe to global updates for the desired symbol.
             Inputs:
-                - symbol: market symbol of market user wants global updates for. (e.g. DOT-PERP)
+                - symbol: market symbol of market user wants global updates for. (e.g. ETH-PERP)
         """
         try:
             resp = await sio.call('SUBSCRIBE', [
@@ -122,7 +122,7 @@ class Sockets:
         """
             Allows user to unsubscribe to global updates for the desired symbol.
                 Inputs:
-                    - symbol: market symbol of market user wants to remove global updates for. (e.g. DOT-PERP)
+                    - symbol: market symbol of market user wants to remove global updates for. (e.g. ETH-PERP)
         """
         try:
             resp = await sio.call('UNSUBSCRIBE', [
@@ -141,7 +141,7 @@ class Sockets:
         """
             Allows user to subscribe to orderbook depth stream for the desired symbol.
             Inputs:
-                - symbol: market symbol of market user wants orderbook depth stream for. (e.g. DOT-PERP)
+                - symbol: market symbol of market user wants orderbook depth stream for. (e.g. ETH-PERP)
                 - depth: depth of orderbook depth stream (optional)
         """
         try:
@@ -162,7 +162,7 @@ class Sockets:
         """
             Allows user to unsubscribe to orderbook depth stream for the desired symbol.
             Inputs:
-                - symbol: market symbol of market user wants orderbook depth stream for. (e.g. DOT-PERP)
+                - symbol: market symbol of market user wants orderbook depth stream for. (e.g. ETH-PERP)
                 - depth: depth of orderbook depth stream (optional)
         """
         try:
