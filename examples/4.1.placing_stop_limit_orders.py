@@ -1,8 +1,7 @@
 import sys,os
-sys.path.append(os.getcwd() + "/src/")
 
 from config import TEST_ACCT_KEY, TEST_NETWORK
-from firefly_exchange_client import TIME_IN_FORCE,FireflyClient, Networks, MARKET_SYMBOLS, ORDER_SIDE, ORDER_TYPE, OrderSignatureRequest
+from firefly_exchange_client import TIME_IN_FORCE,FireflyClient, Networks, MARKET_SYMBOLS, ORDER_SIDE, ORDER_TYPE, OrderSignatureRequest, ORDER_STATUS
 import asyncio
 
 
@@ -15,13 +14,13 @@ async def place_limit_order(client: FireflyClient):
     # creates a LIMIT order to be signed
     signature_request = OrderSignatureRequest(
         symbol=MARKET_SYMBOLS.ETH,  # market symbol
-        price=1632.8,  # price at which you want to place order
+        price=0,  # price at which you want to place order
         quantity=0.01, # quantity
         side=ORDER_SIDE.BUY, 
-        orderType=ORDER_TYPE.STOP_LIMIT,
+        orderType=ORDER_TYPE.STOP_MARKET,
         triggerPrice=1090.23,
         leverage=user_leverage,
-        postOnly=True,
+        postOnly=False,
         cancelOnRevert=True,
         timeInForce=TIME_IN_FORCE.GOOD_TILL_TIME
     )  
@@ -37,9 +36,23 @@ async def place_limit_order(client: FireflyClient):
     # place signed order on orderbook
     resp = await client.post_signed_order(signed_order)
 
-    # returned order with PENDING state
+    # returned order
     print(resp)
 
+
+    ## cancelling the stop orders
+    cancellation_request = client.create_signed_cancel_orders(MARKET_SYMBOLS.ETH, order_hash=[resp['hash']])
+    print(cancellation_request)
+
+    
+    # post order to exchange for cancellation
+    resp = await client.post_cancel_order(cancellation_request)
+    
+    print(resp)
+
+    # cancels all open orders, returns false if there is no open order to cancel
+    resp = await client.cancel_all_orders(MARKET_SYMBOLS.ETH, [ORDER_STATUS.STAND_BY, ORDER_STATUS.STAND_BY_PENDING])
+    print (resp)
     return
 
 
