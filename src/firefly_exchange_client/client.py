@@ -467,8 +467,23 @@ class FireflyClient:
                 to_wei(leverage, "ether")).build_transaction({
                     'from': self.account.address,
                     'nonce': self.w3.eth.get_transaction_count(self.account.address),
-                    })            
-            self._execute_tx(construct_txn)
+                    })  
+            signedTx = self._signed_tx_hex(construct_txn)
+            response = await self.apis.post(
+                SERVICE_URLS["USER"]["ADJUST_LEVERAGE"],
+                {
+                    "symbol": symbol.value,
+                    "address": account_address,
+                    "leverage": to_wei(leverage, "ether"),
+                    "marginType": MARGIN_TYPE.ISOLATED.value,
+                    "signedTransaction": signedTx
+                },
+                auth_required=True
+                )
+
+            # If API is unsuccessful make direct contract call to update the leverage
+            if 'error' in response:
+                self._execute_tx(construct_txn)
 
         else:
             await self.apis.post(
@@ -1284,6 +1299,18 @@ class FireflyClient:
                 raise(Exception("Signer does not exist. Make sure to add market"))
         else:
             return self.order_signers
+
+    def _signed_tx_hex(self, transaction):
+        """
+            An internal function to create signed tx
+        Args:
+            transaction: A constructed txn using self.account address
+
+        Returns:
+            signedTransaction: a string representation of signed transaction
+        """
+        tx_create = self.w3.eth.account.sign_transaction(transaction, self.account.key)
+        return tx_create.rawTransaction.hex()
 
     def _execute_tx(self, transaction):
         """
