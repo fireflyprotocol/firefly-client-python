@@ -73,10 +73,12 @@ class SOCKET_EVENTS(Enum):
     # rooms that can be joined
     GLOBAL_UPDATES_ROOM = "globalUpdates"
     USER_UPDATES_ROOM = "userUpdates"
+    ORDERBOOK_DEPTH_STREAM_ROOM = "orderbookDepthStream"
     # events that can be listened
     MARKET_DATA_UPDATE = "MarketDataUpdate"
     RECENT_TRADES = "RecentTrades"
     ORDERBOOK_UPDATE = "OrderbookUpdate"
+    ORDERBOOK_DEPTH_UPDATES = "OrderbookDepthUpdate"
     ADJUST_MARGIN = "AdjustMargin"
     MARKET_HEALTH = "MarketHealth"
     EXCHANGE_HEALTH = "ExchangeHealth"
@@ -84,6 +86,7 @@ class SOCKET_EVENTS(Enum):
     ORDER_SENT_FOR_SETTLEMENT = "OrderSettlementUpdate"
     ORDER_REQUEUE_UPDATE = "OrderRequeueUpdate"
     ORDER_CANCELLED_ON_REVERSION_UPDATE = "OrderCancelledOnReversionUpdate"
+    ORDER_CANCELLATION_FAILED = "OrderCancellationFailed"
     ORDER_CANCELLATION = "OrderCancelled"
     POSITION_UPDATE = "PositionUpdate"
     USER_TRADE = "UserTrade"
