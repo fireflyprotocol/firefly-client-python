@@ -221,7 +221,8 @@ class FireflyClient:
             expiration=order["expiration"],
             orderSignature=order_signature,
             orderType=params["orderType"],
-            maker=order["maker"]
+            maker=order["maker"],
+            timeInForce=default_value(params, "timeInForce", TIME_IN_FORCE.GOOD_TILL_TIME),
         )
     
     def create_signed_cancel_order(self,params:OrderSignatureRequest, parentAddress:str=""):
@@ -466,8 +467,23 @@ class FireflyClient:
                 to_wei(leverage, "ether")).build_transaction({
                     'from': self.account.address,
                     'nonce': self.w3.eth.get_transaction_count(self.account.address),
-                    })            
-            self._execute_tx(construct_txn)
+                    })  
+            signedTx = self._signed_tx_hex(construct_txn)
+            response = await self.apis.post(
+                SERVICE_URLS["USER"]["ADJUST_LEVERAGE"],
+                {
+                    "symbol": symbol.value,
+                    "address": account_address,
+                    "leverage": to_wei(leverage, "ether"),
+                    "marginType": MARGIN_TYPE.ISOLATED.value,
+                    "signedTransaction": signedTx
+                },
+                auth_required=True
+                )
+
+            # If API is unsuccessful make direct contract call to update the leverage
+            if 'error' in response:
+                self._execute_tx(construct_txn)
 
         else:
             await self.apis.post(
@@ -1182,6 +1198,96 @@ class FireflyClient:
             {},
             True
         )
+    
+    #open referral program
+
+    async def get_open_referral_referee_details(self, params: CursorPaginationPayload):
+        """
+        Get open referral referee details.
+
+        Args:
+            params (CursorPaginationPayload): Parameters for pagination.
+
+        Returns:
+            dict: Response containing referee details.
+        """
+        url = SERVICE_URLS["GROWTH"]["OPEN_REFERRAL_REFEREE_DETAILS"]
+        response = self.apis.get(url, params, True)
+        return response  # Returns a dictionary containing referee details.
+
+    async def get_open_referral_details(self, campaignId):
+        """
+        Get open referral details.
+
+        Args:
+            campaignId: The campaign ID.
+
+        Returns:
+            dict: Response containing open referral details.
+        """
+        params = {"campaignId": campaignId}
+        url = SERVICE_URLS["GROWTH"]["OPEN_REFERRAL_REFEREES_COUNT"]
+        response = self.apis.get(url, params, True)
+        return response  # Returns a dictionary containing open referral details.
+
+    async def get_open_referral_payouts(self, params: CursorPaginationPayload):
+        """
+        Get open referral payouts.
+
+        Args:
+            params (CursorPaginationPayload): Parameters for pagination.
+
+        Returns:
+            dict: Response containing open referral payouts.
+        """
+        url = SERVICE_URLS["GROWTH"]["OPEN_REFERRAL_PAYOUTS"]
+        response = self.apis.get(url, params, True)
+        return response  # Returns a dictionary containing open referral payouts.
+
+    async def generate_open_referral_referral_code(self, campaignId):
+        """
+        Generate open referral referral code.
+
+        Args:
+            campaignId: The campaign ID.
+
+        Returns:
+            dict: Response containing the generated referral code.
+        """
+        data = {"campaignId": campaignId}
+        url = SERVICE_URLS["GROWTH"]["OPEN_REFERRAL_GENERATE_CODE"]
+        response = self.apis.post(url, data, True)
+        return response  # Returns a dictionary containing the generated referral code.
+
+    async def get_open_referral_overview(self):
+        """
+        Get open referral overview.
+
+        Returns:
+        dict: Response containing an overview of open referrals.
+        """
+        url = SERVICE_URLS["GROWTH"]["OPEN_REFERRAL_OVERVIEW"]
+        response = self.apis.get(url, None, True)
+        return response  # Returns a dictionary containing an overview of open referrals.
+
+    async def open_referral_link_referred_user(self, referralCode):
+        """
+        Link an open referral to a referred user.
+
+        Args:
+            referralCode: The referral code.
+
+        Returns:
+            bool: True if the linking was successful, False otherwise.
+        """
+        data = {"referralCode": referralCode}
+        url = SERVICE_URLS["GROWTH"]["OPEN_REFERRAL_LINK_REFERRED_USER"]
+        response = self.apis.post(url, data, True)
+        return response  # Returns a boolean indicating success or failure.
+
+
+
+    #open referral program
 
     ## Internal methods
     def _get_order_signer(self,symbol:MARKET_SYMBOLS=None):
@@ -1199,6 +1305,18 @@ class FireflyClient:
                 raise(Exception("Signer does not exist. Make sure to add market"))
         else:
             return self.order_signers
+
+    def _signed_tx_hex(self, transaction):
+        """
+            An internal function to create signed tx
+        Args:
+            transaction: A constructed txn using self.account address
+
+        Returns:
+            signedTransaction: a string representation of signed transaction
+        """
+        tx_create = self.w3.eth.account.sign_transaction(transaction, self.account.key)
+        return tx_create.rawTransaction.hex()
 
     def _execute_tx(self, transaction):
         """

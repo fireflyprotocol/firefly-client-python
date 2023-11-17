@@ -405,3 +405,6 @@ class GetOrderByTypeRequest(GetTransactionHistoryRequest):
   orderId: int #(optional) the id of order to be fetched
   orderType: List[ORDER_TYPE]  # (optional) type of order Limit/Market
   orderHashes: List[str] # (optional) hashes of order to be fetched
+class CursorPaginationPayload(TypedDict):
+  pageSize: int  # will get only provided number of orders must be <= 50
+  cursor: int  # will fetch particular page records. A single page contains 50 records.
