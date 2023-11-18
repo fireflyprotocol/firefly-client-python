@@ -558,39 +558,33 @@ class FireflyClient:
 
         return True
 
-    async def get_native_chain_token_balance(self, userAddress: str = ""):
+    async def get_native_chain_token_balance(self, userAddress: str = None):
         """
             Returns user's native chain token (ETH/BOBA) balance
         """
         try:
-            if userAddress == "":
-                userAddress = self.account.address
-            return from_wei(self.w3.eth.get_balance(self.w3.to_checksum_address(userAddress)), "ether")
+            return from_wei(self.w3.eth.get_balance(self.w3.to_checksum_address(userAddress or self.account.address)), "ether")
         except Exception as e:
             raise(Exception("Failed to get balance, Exception: {}".format(e)))
 
-    async def get_usdc_balance(self, userAddress: str = ""):
+    async def get_usdc_balance(self, userAddress: str = None):
         """
             Returns user's USDC token balance on Firefly.
         """
         try:
-            if userAddress == "":
-                userAddress = self.account.address
             contract = self.contracts.get_contract(name="USDC")
-            raw_bal = contract.functions.balanceOf(userAddress).call() 
+            raw_bal = contract.functions.balanceOf(userAddress or self.account.address).call() 
             return from_wei(int(raw_bal), "mwei")
         except Exception as e:
             raise(Exception("Failed to get balance, Exception: {}".format(e)))
 
-    async def get_margin_bank_balance(self,userAddress: str = "" ):
+    async def get_margin_bank_balance(self,userAddress: str = None ):
         """
             Returns user's Margin Bank balance.
         """
         try:
-            if userAddress == "":
-                userAddress = self.account.address
             contract = self.contracts.get_contract(name="MarginBank")
-            return from_wei(contract.functions.getAccountBankBalance(userAddress).call(),"ether")
+            return from_wei(contract.functions.getAccountBankBalance(userAddress or self.account.address).call(),"ether")
         except Exception as e:
             raise(Exception("Failed to get balance, Exception: {}".format(e)))
 
