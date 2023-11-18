@@ -47,3 +47,5 @@ websockets==9.1
 yarl==1.8.2
 zipp==3.11.0
 websocket-client==1.5.1
+pytest==7.3.1
+tox==4.5.1
