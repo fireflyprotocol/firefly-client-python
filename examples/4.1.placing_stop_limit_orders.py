@@ -11,7 +11,7 @@ async def place_limit_order(client: FireflyClient):
     # default leverage of account is set to 3 on firefly
     user_leverage = await client.get_user_leverage(MARKET_SYMBOLS.ETH)
 
-    # creates a LIMIT order to be signed
+    # creates a stop market order to be signed
     signature_request = OrderSignatureRequest(
         symbol=MARKET_SYMBOLS.ETH,  # market symbol
         price=0,  # price at which you want to place order
