@@ -560,33 +560,33 @@ class FireflyClient:
 
         return True
 
-    async def get_native_chain_token_balance(self):
+    async def get_native_chain_token_balance(self, userAddress: str = None):
         """
             Returns user's native chain token (ETH/BOBA) balance
         """
         try:
-            return from_wei(self.w3.eth.get_balance(self.w3.to_checksum_address(self.account.address)), "ether")
+            return from_wei(self.w3.eth.get_balance(self.w3.to_checksum_address(userAddress or self.account.address)), "ether")
         except Exception as e:
             raise(Exception("Failed to get balance, Exception: {}".format(e)))
 
-    async def get_usdc_balance(self):
+    async def get_usdc_balance(self, userAddress: str = None):
         """
             Returns user's USDC token balance on Firefly.
         """
         try:
             contract = self.contracts.get_contract(name="USDC")
-            raw_bal = contract.functions.balanceOf(self.account.address).call() 
+            raw_bal = contract.functions.balanceOf(userAddress or self.account.address).call() 
             return from_wei(int(raw_bal), "mwei")
         except Exception as e:
             raise(Exception("Failed to get balance, Exception: {}".format(e)))
 
-    async def get_margin_bank_balance(self):
+    async def get_margin_bank_balance(self,userAddress: str = None ):
         """
             Returns user's Margin Bank balance.
         """
         try:
             contract = self.contracts.get_contract(name="MarginBank")
-            return from_wei(contract.functions.getAccountBankBalance(self.account.address).call(),"ether")
+            return from_wei(contract.functions.getAccountBankBalance(userAddress or self.account.address).call(),"ether")
         except Exception as e:
             raise(Exception("Failed to get balance, Exception: {}".format(e)))
 
