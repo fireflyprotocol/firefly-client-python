@@ -6,7 +6,7 @@ import asyncio
 
 
 
-async def place_limit_order(client: FireflyClient):
+async def place_stop_market_and_limit_order(client: FireflyClient):
    
     # default leverage of account is set to 3 on firefly
     user_leverage = await client.get_user_leverage(MARKET_SYMBOLS.ETH)
@@ -29,16 +29,37 @@ async def place_limit_order(client: FireflyClient):
     # create signed order
     signed_order = client.create_signed_order(signature_request)
     
-    print (signed_order)
+    
 
-
-    print("Placing a stop market order")
     # place signed order on orderbook
     resp = await client.post_signed_order(signed_order)
 
     # returned order
-    print(resp)
+    print("Placing stop market order",resp)
+    
+    signature_request = OrderSignatureRequest(
+        symbol=MARKET_SYMBOLS.ETH,  # market symbol
+        price=50,  # price at which you want to place order
+        quantity=0.01, # quantity
+        side=ORDER_SIDE.BUY, 
+        orderType=ORDER_TYPE.STOP_LIMIT,
+        triggerPrice=1090.23,
+        leverage=user_leverage,
+        postOnly=False,
+        cancelOnRevert=True,
+        timeInForce=TIME_IN_FORCE.GOOD_TILL_TIME
+    )  
 
+   
+    # create signed order
+    signed_order = client.create_signed_order(signature_request)
+    
+    
+
+    resp = await client.post_signed_order(signed_order)
+
+    # returned order
+    print("Placing Stop Limit Order",resp)
 
     ## cancelling the stop orders
     cancellation_request = client.create_signed_cancel_orders(MARKET_SYMBOLS.ETH, order_hash=[resp['hash']])
@@ -48,11 +69,11 @@ async def place_limit_order(client: FireflyClient):
     # post order to exchange for cancellation
     resp = await client.post_cancel_order(cancellation_request)
     
-    print(resp)
+    print("Cancelling one order",resp)
 
     # cancels all open orders, returns false if there is no open order to cancel
     resp = await client.cancel_all_orders(MARKET_SYMBOLS.ETH, [ORDER_STATUS.STAND_BY, ORDER_STATUS.STAND_BY_PENDING])
-    print (resp)
+    print ("Cancelling All Orders",resp)
     return
 
 
@@ -71,8 +92,7 @@ async def main():
     # add market that you wish to trade on ETH/BTC are supported currently
     client.add_market(MARKET_SYMBOLS.ETH)
 
-    # await place_limit_order(client)
-    await place_limit_order(client)
+    await place_stop_market_and_limit_order(client)
     
     await client.close_connections()
 
