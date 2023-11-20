@@ -26,7 +26,7 @@ def default_value(dict, key, default_value):
         return default_value 
 
 def default_enum_value(dict, key, default_value):
-    if key in dict:
+    if key in dict:  
         return dict[key].value
     else:
         return default_value.value
