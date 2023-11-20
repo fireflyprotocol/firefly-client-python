@@ -32,7 +32,7 @@ async def place_limit_order(client: FireflyClient):
     print (signed_order)
 
 
-    print("Placing a limit order")
+    print("Placing a stop market order")
     # place signed order on orderbook
     resp = await client.post_signed_order(signed_order)
 
