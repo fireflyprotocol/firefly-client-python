@@ -1028,6 +1028,7 @@ class FireflyClient:
         """
             Inputs:
                 campaignId: represents campaign id for which user wants to fetch referrer info for
+                parentAddress (Optional)
             Returns:
                 - GetReferrerInfoResponse
                     - isReferee
@@ -1051,6 +1052,7 @@ class FireflyClient:
         """
             Inputs:
                 campaignId: represents campaign id for which user wants to fetch rewards of
+                parentAddress (Optional)
             Returns:
                 - GetCampaignRewardsResponse
         """
@@ -1064,6 +1066,7 @@ class FireflyClient:
         """
             Inputs:
                 campaignId: represents campaign id for which user wants to fetch payouts of
+                parentAddress (Optional)
             Returns:
                 - List of GetAffiliatePayoutsResponse
         """
@@ -1090,6 +1093,7 @@ class FireflyClient:
         """
             Inputs:
                 campaignId: represents campaign id for which user wants to fetch referee count of
+                parentAddress (Optional)
             Returns:
                 - GetAffiliateRefereeCountResponse
         """
@@ -1127,6 +1131,7 @@ class FireflyClient:
         """
             Inputs:
                 campaignId: represents campaign id for which user wants to fetch rewards overview of
+                parentAddress (Optional)
             Returns:
                 - GetTradeAndEarnRewardsOverviewResponse
         """
@@ -1211,12 +1216,13 @@ class FireflyClient:
         response = self.apis.get(url, params, True)
         return response  # Returns a dictionary containing referee details.
 
-    async def get_open_referral_details(self, campaignId, parentAddress: str):
+    async def get_open_referral_details(self, campaignId, parentAddress: str=""):
         """
         Get open referral details.
 
         Args:
             campaignId: The campaign ID.
+            parentAddress (Optional)
 
         Returns:
             dict: Response containing open referral details.
@@ -1246,6 +1252,7 @@ class FireflyClient:
 
         Args:
             campaignId: The campaign ID.
+            parentAddress (Optional)
 
         Returns:
             dict: Response containing the generated referral code.
