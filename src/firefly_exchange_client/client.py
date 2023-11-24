@@ -1246,18 +1246,17 @@ class FireflyClient:
         response = self.apis.get(url, params, True)
         return response  # Returns a dictionary containing open referral payouts.
 
-    async def generate_open_referral_referral_code(self, campaignId, parentAddress:str=""):
+    async def generate_open_referral_referral_code(self, campaignId):
         """
         Generate open referral referral code.
 
         Args:
             campaignId: The campaign ID.
-            parentAddress (Optional)
 
         Returns:
             dict: Response containing the generated referral code.
         """
-        data = {"campaignId": campaignId, "parentAddress":parentAddress}
+        data = {"campaignId": campaignId}
         url = SERVICE_URLS["GROWTH"]["OPEN_REFERRAL_GENERATE_CODE"]
         response = self.apis.post(url, data, True)
         return response  # Returns a dictionary containing the generated referral code.
