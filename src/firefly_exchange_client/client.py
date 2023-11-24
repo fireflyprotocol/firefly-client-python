@@ -1024,7 +1024,7 @@ class FireflyClient:
             True
         )
     
-    async def get_referrer_info(self,campaignId:int, parentAddress:str):
+    async def get_referrer_info(self,campaignId:int, parentAddress:str=""):
         """
             Inputs:
                 campaignId: represents campaign id for which user wants to fetch referrer info for
@@ -1060,7 +1060,7 @@ class FireflyClient:
             True
         )
     
-    async def get_affiliate_payouts(self,campaignId:int,parentAddress:str ):
+    async def get_affiliate_payouts(self,campaignId:int,parentAddress:str="" ):
         """
             Inputs:
                 campaignId: represents campaign id for which user wants to fetch payouts of
@@ -1086,7 +1086,7 @@ class FireflyClient:
             True
         )
     
-    async def get_affiliate_referee_count(self,campaignId:int, parentAddress:str):
+    async def get_affiliate_referee_count(self,campaignId:int, parentAddress:str=""):
         """
             Inputs:
                 campaignId: represents campaign id for which user wants to fetch referee count of
@@ -1112,7 +1112,7 @@ class FireflyClient:
             True
         )
     
-    async def get_user_rewards_summary(self,parentAddress:str):
+    async def get_user_rewards_summary(self,parentAddress:str=""):
         """
             Returns:
                 - List of GetUserRewardsSummaryResponse
@@ -1123,7 +1123,7 @@ class FireflyClient:
             True
         )
     
-    async def get_trade_and_earn_rewards_overview(self,campaignId:int, parentAddress:str):
+    async def get_trade_and_earn_rewards_overview(self,campaignId:int, parentAddress:str=""):
         """
             Inputs:
                 campaignId: represents campaign id for which user wants to fetch rewards overview of
@@ -1149,7 +1149,7 @@ class FireflyClient:
             True
         )
     
-    async def get_total_historical_trading_rewards(self, parentAddress:str):
+    async def get_total_historical_trading_rewards(self, parentAddress:str=""):
         """
             Returns:
                 - GetTotalHistoricalTradingRewardsResponse
@@ -1211,7 +1211,7 @@ class FireflyClient:
         response = self.apis.get(url, params, True)
         return response  # Returns a dictionary containing referee details.
 
-    async def get_open_referral_details(self, campaignId, parentAddress: str)):
+    async def get_open_referral_details(self, campaignId, parentAddress: str):
         """
         Get open referral details.
 
@@ -1240,7 +1240,7 @@ class FireflyClient:
         response = self.apis.get(url, params, True)
         return response  # Returns a dictionary containing open referral payouts.
 
-    async def generate_open_referral_referral_code(self, campaignId, parentAddress:str):
+    async def generate_open_referral_referral_code(self, campaignId, parentAddress:str=""):
         """
         Generate open referral referral code.
 
@@ -1255,7 +1255,7 @@ class FireflyClient:
         response = self.apis.post(url, data, True)
         return response  # Returns a dictionary containing the generated referral code.
 
-    async def get_open_referral_overview(self,parentAddress:str ):
+    async def get_open_referral_overview(self, parentAddress:str="" ):
         """
         Get open referral overview.
 
