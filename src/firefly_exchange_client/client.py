@@ -1007,7 +1007,7 @@ class FireflyClient:
             True
         )
     
-    async def link_referred_user(self,params:LinkReferredUserRequest):
+    async def affiliate_link_referred_user(self,params:LinkReferredUserRequest):
         """
             Inputs:
                 params(LinkReferredUserRequest): params required to link referred user
@@ -1019,22 +1019,20 @@ class FireflyClient:
                     - message
         """
         return await self.apis.post(
-            SERVICE_URLS["GROWTH"]["LINK_REFERRED_USER"],
+            SERVICE_URLS["GROWTH"]["AFFILIATE_LINK_REFERRED_USER"],
             params,
             True
         )
     
-    async def get_referrer_info(self,campaignId:int):
+    async def get_referrer_info(self):
         """
-            Inputs:
-                campaignId: represents campaign id for which user wants to fetch referrer info for
             Returns:
                 - GetReferrerInfoResponse
                     - isReferee
         """
         return await self.apis.get(
             SERVICE_URLS["GROWTH"]["REFERRER_INFO"],
-            {"campaignId": campaignId},
+            {},
             True
         )
     
@@ -1094,7 +1092,7 @@ class FireflyClient:
                 - GetAffiliateRefereeCountResponse
         """
         return await self.apis.get(
-            SERVICE_URLS["GROWTH"]["AFFILIATE_REFEREE_DETAILS"],
+            SERVICE_URLS["GROWTH"]["AFFILIATE_REFEREES_COUNT"],
             {"campaignId": campaignId},
             True
         )
