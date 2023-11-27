@@ -281,7 +281,7 @@ class GetAffiliateRefereeDetailsRequest(TypedDict):
   campaignId: int
   pageNumber: int
   pageSize: int
-
+  parentAddress: str 
 class AffiliateRefereeDetailsData(TypedDict):
   userAddress: str
   lastTraded: str
@@ -302,6 +302,7 @@ class GetAffiliateRefereeCountResponse(TypedDict):
 class GetUserRewardsHistoryRequest(TypedDict):
   pageSize: int
   cursor: int
+  parentAddress: str 
 
 class UserRewardsHistoryData(TypedDict):
   programName: str
@@ -344,6 +345,7 @@ class GetTradeAndEarnRewardsDetailRequest(TypedDict):
   campaignId: int
   pageSize: int
   cursor: int
+  parentAddress: str 
 
 class TradeAndEarnRewardsDetailData(TypedDict):
   tradingRewards: str
@@ -375,6 +377,7 @@ class GetMakerRewardDetailsRequest(TypedDict):
   symbol: str
   pageSize: int
   cursor: int
+  parentAddress: str 
 
 
 class MakerRewardDetailsData(TypedDict):
@@ -407,3 +410,4 @@ class GetOrderByTypeRequest(GetTransactionHistoryRequest):
 class CursorPaginationPayload(TypedDict):
   pageSize: int  # will get only provided number of orders must be <= 50
   cursor: int  # will fetch particular page records. A single page contains 50 records.
+  parentAddress: str
