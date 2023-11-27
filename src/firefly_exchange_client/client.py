@@ -1024,17 +1024,18 @@ class FireflyClient:
             True
         )
     
-    async def get_referrer_info(self,campaignId:int):
+    async def get_referrer_info(self,campaignId:int, parentAddress:str=""):
         """
             Inputs:
                 campaignId: represents campaign id for which user wants to fetch referrer info for
+                parentAddress (Optional)
             Returns:
                 - GetReferrerInfoResponse
                     - isReferee
         """
         return await self.apis.get(
             SERVICE_URLS["GROWTH"]["REFERRER_INFO"],
-            {"campaignId": campaignId},
+            {"campaignId": campaignId, "parentAddress":parentAddress},
             True
         )
     
@@ -1047,29 +1048,31 @@ class FireflyClient:
             SERVICE_URLS["GROWTH"]["CAMPAIGN_DETAILS"]
         )
     
-    async def get_campaign_rewards(self,campaignId:int):
+    async def get_campaign_rewards(self,campaignId:int, parentAddress: str):
         """
             Inputs:
                 campaignId: represents campaign id for which user wants to fetch rewards of
+                parentAddress (Optional)
             Returns:
                 - GetCampaignRewardsResponse
         """
         return await self.apis.get(
             SERVICE_URLS["GROWTH"]["CAMPAIGN_REWARDS"],
-            {"campaignId": campaignId},
+            {"campaignId": campaignId, "parentAddress":parentAddress },
             True
         )
     
-    async def get_affiliate_payouts(self,campaignId:int):
+    async def get_affiliate_payouts(self,campaignId:int,parentAddress:str="" ):
         """
             Inputs:
                 campaignId: represents campaign id for which user wants to fetch payouts of
+                parentAddress (Optional)
             Returns:
                 - List of GetAffiliatePayoutsResponse
         """
         return await self.apis.get(
             SERVICE_URLS["GROWTH"]["AFFILIATE_PAYOUTS"],
-            {"campaignId": campaignId},
+            {"campaignId": campaignId,"parentAddress":parentAddress},
             True
         )
     
@@ -1086,16 +1089,17 @@ class FireflyClient:
             True
         )
     
-    async def get_affiliate_referee_count(self,campaignId:int):
+    async def get_affiliate_referee_count(self,campaignId:int, parentAddress:str=""):
         """
             Inputs:
                 campaignId: represents campaign id for which user wants to fetch referee count of
+                parentAddress (Optional)
             Returns:
                 - GetAffiliateRefereeCountResponse
         """
         return await self.apis.get(
             SERVICE_URLS["GROWTH"]["AFFILIATE_REFEREE_DETAILS"],
-            {"campaignId": campaignId},
+            {"campaignId": campaignId, "parentAddress":parentAddress},
             True
         )
     
@@ -1112,27 +1116,28 @@ class FireflyClient:
             True
         )
     
-    async def get_user_rewards_summary(self):
+    async def get_user_rewards_summary(self,parentAddress:str=""):
         """
             Returns:
                 - List of GetUserRewardsSummaryResponse
         """
         return await self.apis.get(
             SERVICE_URLS["GROWTH"]["USER_REWARDS_SUMMARY"],
-            {},
+            { "parentAddress":parentAddress},
             True
         )
     
-    async def get_trade_and_earn_rewards_overview(self,campaignId:int):
+    async def get_trade_and_earn_rewards_overview(self,campaignId:int, parentAddress:str=""):
         """
             Inputs:
                 campaignId: represents campaign id for which user wants to fetch rewards overview of
+                parentAddress (Optional)
             Returns:
                 - GetTradeAndEarnRewardsOverviewResponse
         """
         return await self.apis.get(
             SERVICE_URLS["GROWTH"]["REWARDS_OVERVIEW"],
-            {"campaignId": campaignId},
+            {"campaignId": campaignId, "parentAddress": parentAddress},
             True
         )
     
@@ -1149,25 +1154,25 @@ class FireflyClient:
             True
         )
     
-    async def get_total_historical_trading_rewards(self):
+    async def get_total_historical_trading_rewards(self, parentAddress:str=""):
         """
             Returns:
                 - GetTotalHistoricalTradingRewardsResponse
         """
         return await self.apis.get(
             SERVICE_URLS["GROWTH"]["TOTAL_HISTORICAL_TRADING_REWARDS"],
-            {},
+            {"parentAddress":parentAddress},
             True
         )
     
-    async def get_maker_rewards_summary(self):
+    async def get_maker_rewards_summary(self, parentAddress: str):
         """
             Returns:
                 - GetMakerRewardsSummaryResponse
         """
         return await self.apis.get(
             SERVICE_URLS["GROWTH"]["MAKER_REWARDS_SUMMARY"],
-            {},
+            {"parentAddress":parentAddress},
             True
         )
     
@@ -1211,17 +1216,18 @@ class FireflyClient:
         response = self.apis.get(url, params, True)
         return response  # Returns a dictionary containing referee details.
 
-    async def get_open_referral_details(self, campaignId):
+    async def get_open_referral_details(self, campaignId, parentAddress: str=""):
         """
         Get open referral details.
 
         Args:
             campaignId: The campaign ID.
+            parentAddress (Optional)
 
         Returns:
             dict: Response containing open referral details.
         """
-        params = {"campaignId": campaignId}
+        params = {"campaignId": campaignId, "parentAddress": parentAddress}
         url = SERVICE_URLS["GROWTH"]["OPEN_REFERRAL_REFEREES_COUNT"]
         response = self.apis.get(url, params, True)
         return response  # Returns a dictionary containing open referral details.
@@ -1255,7 +1261,7 @@ class FireflyClient:
         response = self.apis.post(url, data, True)
         return response  # Returns a dictionary containing the generated referral code.
 
-    async def get_open_referral_overview(self):
+    async def get_open_referral_overview(self, parentAddress:str="" ):
         """
         Get open referral overview.
 
@@ -1263,7 +1269,7 @@ class FireflyClient:
         dict: Response containing an overview of open referrals.
         """
         url = SERVICE_URLS["GROWTH"]["OPEN_REFERRAL_OVERVIEW"]
-        response = self.apis.get(url, None, True)
+        response = self.apis.get(url, {"parentAddress":parentAddress}, True)
         return response  # Returns a dictionary containing an overview of open referrals.
 
     async def open_referral_link_referred_user(self, referralCode):
