@@ -408,8 +408,8 @@ class FireflyClient:
 
         # deposit to margin bank
         construct_txn = perp_contract.functions.closePosition(
-            self.account.address).build_transaction({
-                'from': self.account.address if parent == "" else parent,
+            self.account.address if parent == "" else parent).build_transaction({
+                'from': self.account.address,
                 'nonce': self.w3.eth.get_transaction_count(self.account.address),
                 })
 
