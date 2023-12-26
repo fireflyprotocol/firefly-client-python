@@ -393,9 +393,9 @@ class FireflyClient:
 
         return True
     
-    async def close_position(self, symbol):
+    async def close_position(self, symbol, parent=""):
         """
-            closes user position when market in delisted
+            closes user position when market in de-listed
 
             Inputs:
                 symbol (MARKET_SYMBOLS): market on which position is to be closed
@@ -409,7 +409,7 @@ class FireflyClient:
         # deposit to margin bank
         construct_txn = perp_contract.functions.closePosition(
             self.account.address).build_transaction({
-                'from': self.account.address,
+                'from': self.account.address if parent == "" else parent,
                 'nonce': self.w3.eth.get_transaction_count(self.account.address),
                 })
 
